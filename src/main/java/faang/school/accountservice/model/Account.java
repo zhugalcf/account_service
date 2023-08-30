@@ -26,8 +26,11 @@ public class Account {
     @Column(name = "number", length = 20, nullable = false)
     private String number;
 
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
 
     @Column(name = "type", nullable = false, length = 128)
     @Enumerated(EnumType.STRING)
