@@ -12,3 +12,5 @@ CREATE TABLE account
     closed_at    TIMESTAMP,
     version      INT         NOT NULL
 );
+
+CREATE INDEX idx_owner_id ON account(owner_id);
