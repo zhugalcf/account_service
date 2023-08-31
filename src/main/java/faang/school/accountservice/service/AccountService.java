@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -65,6 +67,7 @@ public class AccountService {
         log.info("Closing account: {}", foundAccount);
 
         foundAccount.setStatus(AccountStatus.CLOSED);
+        foundAccount.setClosedAt(LocalDateTime.now());
 
         Account saved = accountRepository.save(foundAccount);
 
