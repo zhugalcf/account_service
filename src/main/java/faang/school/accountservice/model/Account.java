@@ -1,9 +1,12 @@
+package faang.school.accountservice.model;
+
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.model.AccountStatus;
-import faang.school.accountservice.model.AccountType;
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "account")
 public class Account {
 
+    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

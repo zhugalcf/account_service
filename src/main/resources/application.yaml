@@ -32,4 +32,8 @@ feign:
         readTimeout: 5000
 
 user-service:
-  url: http://localhost:8080
+  host: localhost
+  port: 8080
+project-service:
+  host: localhost
+  port: 8082
