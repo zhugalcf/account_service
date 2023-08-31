@@ -28,8 +28,9 @@ public class AccountDto {
     @NotBlank(message = "Number is required")
     private String number;
 
-    @NotNull(message = "Owner id is required")
-    private Long ownerId;
+    private Long userId;
+
+    private Long projectId;
 
     @NotNull(message = "Select account type")
     private AccountType type;
