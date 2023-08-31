@@ -23,3 +23,13 @@ server:
 logging:
   level:
     root: info
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+
+user-service:
+  url: http://localhost:8080
