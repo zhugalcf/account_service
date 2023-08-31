@@ -33,11 +33,6 @@ class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
-    @BeforeEach
-    void setUp() {
-
-    }
-
     @Test
     void get_AccountNotFound_ShouldThrowException() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.empty());
