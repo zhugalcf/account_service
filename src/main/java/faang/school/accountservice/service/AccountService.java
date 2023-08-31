@@ -34,6 +34,8 @@ public class AccountService {
 
         Account account = accountMapper.toEntity(dto);
 
+        log.info("Creating new account: {}", account);
+
         Account saved = accountRepository.save(account); // тут еще нужно будет сетить сгенерированный номер счета из другой таски
 
         return accountMapper.toDto(saved);
@@ -44,6 +46,8 @@ public class AccountService {
         Account foundAccount = getAccountById(id);
 
         accountServiceValidator.validateToFreeze(foundAccount);
+
+        log.info("Freezing account: {}", foundAccount);
 
         foundAccount.setStatus(AccountStatus.FROZEN);
 
@@ -57,6 +61,8 @@ public class AccountService {
         Account foundAccount = getAccountById(id);
 
         accountServiceValidator.validateToClose(foundAccount);
+
+        log.info("Closing account: {}", foundAccount);
 
         foundAccount.setStatus(AccountStatus.CLOSED);
 
