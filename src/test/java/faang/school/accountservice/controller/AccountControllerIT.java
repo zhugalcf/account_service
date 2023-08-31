@@ -12,9 +12,11 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,14 +30,19 @@ class AccountControllerIT {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.1")
             .withInitScript("db/changelog/changeset/testcontainers/V001__account-service_get.sql");
 
+    @Container
+    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.5.3"));
+
     @BeforeAll
     static void beforeAll() {
         postgres.start();
+        kafka.start();
     }
 
     @AfterAll
     static void afterAll() {
         postgres.stop();
+        kafka.stop();
     }
 
     @Autowired
@@ -55,6 +62,7 @@ class AccountControllerIT {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
     @Test

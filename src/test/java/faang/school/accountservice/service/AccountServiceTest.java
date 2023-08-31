@@ -6,6 +6,7 @@ import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.dto.project.ProjectDto;
 import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.mapper.AccountMapperImpl;
+import faang.school.accountservice.messaging.EventService;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.model.AccountType;
@@ -41,6 +42,9 @@ class AccountServiceTest {
 
     @Mock
     private ProjectServiceClient projectServiceClient;
+
+    @Mock
+    private EventService eventService;
 
     @Spy
     private AccountServiceValidator accountServiceValidator = new AccountServiceValidator(userServiceClient, projectServiceClient);
@@ -92,6 +96,7 @@ class AccountServiceTest {
     @Test
     void create_RequestHasOnlyOneOwner_ShouldMapCorrectlyAndSave() {
         Mockito.doNothing().when(accountServiceValidator).validateToCreate(mockAccountDto());
+        Mockito.doNothing().when(eventService).publish(Mockito.any(), Mockito.any());
 
         accountService.create(mockAccountDto());
 

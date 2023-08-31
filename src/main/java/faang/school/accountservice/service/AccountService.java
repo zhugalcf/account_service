@@ -1,7 +1,11 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.account.AccountClosingEvent;
+import faang.school.accountservice.dto.account.AccountCreationEvent;
 import faang.school.accountservice.dto.account.AccountDto;
+import faang.school.accountservice.dto.account.AccountFreezingEvent;
 import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.messaging.EventService;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
@@ -23,6 +27,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final AccountServiceValidator accountServiceValidator;
+    private final EventService eventService;
 
     public AccountDto get(Long id) {
         Account foundAccount = getAccountById(id);
@@ -40,6 +45,8 @@ public class AccountService {
 
         Account saved = accountRepository.save(account); // тут еще нужно будет сетить сгенерированный номер счета из другой таски
 
+        eventService.publish(saved, AccountCreationEvent.class);
+
         return accountMapper.toDto(saved);
     }
 
@@ -54,6 +61,8 @@ public class AccountService {
         foundAccount.setStatus(AccountStatus.FROZEN);
 
         Account saved = accountRepository.save(foundAccount);
+
+        eventService.publish(saved, AccountFreezingEvent.class);
 
         return accountMapper.toDto(saved);
     }
@@ -70,6 +79,8 @@ public class AccountService {
         foundAccount.setClosedAt(LocalDateTime.now());
 
         Account saved = accountRepository.save(foundAccount);
+
+        eventService.publish(saved, AccountClosingEvent.class);
 
         return accountMapper.toDto(saved);
     }

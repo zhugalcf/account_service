@@ -14,8 +14,15 @@ spring:
       hibernate:
         format_sql: true
 
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  kafka:
+    bootstrap-servers: localhost:9092
+    topics:
+      account-create: account-create
+      account-freeze: account-freeze
+      account-close: account-close
 
 user-service:
   host: localhost
