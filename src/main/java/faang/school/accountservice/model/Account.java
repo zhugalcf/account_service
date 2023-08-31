@@ -21,12 +21,12 @@ public class Account {
     private Long id;
 
     @Column(name = "number", nullable = false, length = 20)
-    private String number; //платежный счет - номер
+    private String number;
 
     @ManyToOne
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
-    private OwnerType ownerType; //тип владельца user or project
+    private OwnerType ownerType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)

@@ -13,16 +13,3 @@ CREATE TABLE account
 );
 
 CREATE INDEX idx_owner_id ON account(owner_id);
-
-CREATE TABLE users
-(
-    id       SERIAL PRIMARY KEY,
-    username VARCHAR(64) NOT NULL UNIQUE,
-
-);
-
-CREATE TABLE projects
-(
-    id   SERIAL PRIMARY KEY,
-    name VARCHAR(64) NOT NULL,
-);
