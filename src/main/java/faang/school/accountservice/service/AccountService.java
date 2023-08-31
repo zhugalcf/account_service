@@ -33,7 +33,7 @@ public class AccountService {
 
         Account account = accountMapper.toEntity(dto);
 
-        Account saved = accountRepository.save(account);
+        Account saved = accountRepository.save(account); // тут еще нужно будет сетить сгенерированный номер счета из другой таски
 
         return accountMapper.toDto(saved);
     }
