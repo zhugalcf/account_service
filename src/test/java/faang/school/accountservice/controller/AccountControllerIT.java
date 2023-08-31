@@ -26,7 +26,7 @@ class AccountControllerIT {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.1")
-            .withInitScript("db/changelog/changeset/testcontainers/init.sql");
+            .withInitScript("db/changelog/changeset/testcontainers/V001__account-service_get.sql");
 
     @BeforeAll
     static void beforeAll() {
