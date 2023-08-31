@@ -3,6 +3,8 @@ package faang.school.accountservice.util.validator;
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.AccountDto;
+import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.util.exception.DataValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,21 @@ public class AccountServiceValidator {
         }
         if (dto.getProjectId() != null) {
             projectServiceClient.getProject(dto.getProjectId()); // проверяю есть ли такой проект в проект сервисе
+        }
+    }
+
+    public void validateToFreeze(Account account) {
+        if (account.getStatus().equals(AccountStatus.FROZEN)) {
+            throw new DataValidationException(String.format("Account with id %s is already frozen", account.getId()));
+        }
+        if (account.getStatus().equals(AccountStatus.CLOSED)) {
+            throw new DataValidationException(String.format("Account with id %s is closed", account.getId()));
+        }
+    }
+
+    public void validateToClose(Account account) {
+        if (account.getStatus().equals(AccountStatus.CLOSED)) {
+            throw new DataValidationException(String.format("Account with id %s is already closed", account.getId()));
         }
     }
 }

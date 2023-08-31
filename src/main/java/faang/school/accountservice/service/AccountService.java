@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.exception.EntityNotFoundException;
 import faang.school.accountservice.util.validator.AccountServiceValidator;
@@ -34,6 +35,32 @@ public class AccountService {
         Account account = accountMapper.toEntity(dto);
 
         Account saved = accountRepository.save(account); // тут еще нужно будет сетить сгенерированный номер счета из другой таски
+
+        return accountMapper.toDto(saved);
+    }
+
+    @Transactional
+    public AccountDto freeze(Long id) {
+        Account foundAccount = getAccountById(id);
+
+        accountServiceValidator.validateToFreeze(foundAccount);
+
+        foundAccount.setStatus(AccountStatus.FROZEN);
+
+        Account saved = accountRepository.save(foundAccount);
+
+        return accountMapper.toDto(saved);
+    }
+
+    @Transactional
+    public AccountDto close(Long id) {
+        Account foundAccount = getAccountById(id);
+
+        accountServiceValidator.validateToClose(foundAccount);
+
+        foundAccount.setStatus(AccountStatus.CLOSED);
+
+        Account saved = accountRepository.save(foundAccount);
 
         return accountMapper.toDto(saved);
     }

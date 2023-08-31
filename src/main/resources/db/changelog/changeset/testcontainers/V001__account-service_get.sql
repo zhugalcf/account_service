@@ -21,3 +21,9 @@ CREATE TABLE IF NOT EXISTS account
 
 INSERT INTO account(number, user_id, project_id, type, currency, status)
 VALUES ('123456789013123', 1, null, 'CURRENT_ACCOUNT', 'USD', 'ACTIVE');
+
+INSERT INTO account(number, user_id, project_id, type, currency, status)
+VALUES ('1234567890131232', 1, null, 'CURRENT_ACCOUNT', 'USD', 'ACTIVE');
+
+INSERT INTO account(number, user_id, project_id, type, currency, status)
+VALUES ('12345678901312', 1, null, 'CURRENT_ACCOUNT', 'USD', 'ACTIVE');

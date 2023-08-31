@@ -28,4 +28,18 @@ public class AccountController {
 
         return result;
     }
+
+    @PutMapping("/freeze/{id}")
+    public AccountDto freeze(@PathVariable(value = "id") Long id) {
+        AccountDto result = accountService.freeze(id);
+
+        return result;
+    }
+
+    @PutMapping("/close/{id}")
+    public AccountDto close(@PathVariable(value = "id") Long id) {
+        AccountDto result = accountService.close(id);
+
+        return result;
+    }
 }

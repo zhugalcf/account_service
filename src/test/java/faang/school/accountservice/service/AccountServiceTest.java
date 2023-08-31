@@ -47,28 +47,30 @@ class AccountServiceTest {
 
     @InjectMocks
     private AccountService accountService;
+    
+    private static final Long ID = 1L;
 
     @Test
     void get_AccountNotFound_ShouldThrowException() {
-        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.empty());
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.empty());
 
         EntityNotFoundException e = Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            accountService.get(1L);
+            accountService.get(ID);
         });
-        Assertions.assertEquals("Account with id 1 not found", e.getMessage());
+        Assertions.assertEquals(String.format("Account with id %s not found", ID), e.getMessage());
     }
 
     @Test
     void get_AccountFound_ShouldReturnCorrectDto() {
-        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(mockAccount()));
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(mockAccount()));
 
-        Assertions.assertEquals(mockAccountDto(), accountService.get(1L));
+        Assertions.assertEquals(mockAccountDto(), accountService.get(ID));
     }
 
     @Test
     void create_RequestHasUserAndProject_ShouldThrowException() {
         AccountDto accountDto = mockAccountDto();
-        accountDto.setProjectId(1L);
+        accountDto.setProjectId(ID);
 
         DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
             accountService.create(accountDto);
@@ -96,27 +98,105 @@ class AccountServiceTest {
         Mockito.verify(accountRepository).save(mockAccount());
     }
 
+    @Test
+    void freeze_AccountNotFound_ShouldThrowException() {
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+
+        EntityNotFoundException e = Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            accountService.freeze(ID);
+        });
+        Assertions.assertEquals(String.format("Account with id %s not found", ID), e.getMessage());
+    }
+
+    @Test
+    void freeze_AccountIsFrozen_ShouldThrowException() {
+        Account account = mockAccount();
+        account.setStatus(AccountStatus.FROZEN);
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
+            accountService.freeze(ID);
+        });
+        Assertions.assertEquals(String.format("Account with id %s is already frozen", ID), e.getMessage());
+    }
+
+    @Test
+    void freeze_AccountIsClosed_ShouldThrowException() {
+        Account account = mockAccount();
+        account.setStatus(AccountStatus.CLOSED);
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
+            accountService.freeze(ID);
+        });
+        Assertions.assertEquals(String.format("Account with id %s is closed", ID), e.getMessage());
+    }
+
+    @Test
+    void freeze_InputsAreCorrect_StatusShouldBeFrozenAndAccountShouldBeSaved() {
+        Account account = mockAccount();
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        accountService.freeze(ID);
+
+        Assertions.assertEquals(AccountStatus.FROZEN, account.getStatus());
+        Mockito.verify(accountRepository).save(account);
+    }
+
+    @Test
+    void close_AccountNotFound_ShouldThrowException() {
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.empty());
+
+        EntityNotFoundException e = Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            accountService.close(ID);
+        });
+        Assertions.assertEquals(String.format("Account with id %s not found", ID), e.getMessage());
+    }
+
+    @Test
+    void close_AccountIsClosed_ShouldThrowException() {
+        Account account = mockAccount();
+        account.setStatus(AccountStatus.CLOSED);
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
+            accountService.close(ID);
+        });
+        Assertions.assertEquals(String.format("Account with id %s is already closed", ID), e.getMessage());
+    }
+
+    @Test
+    void close_InputsAreCorrect_StatusShouldBeClosedAndAccountShouldBeSaved() {
+        Account account = mockAccount();
+        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
+
+        accountService.close(ID);
+
+        Assertions.assertEquals(AccountStatus.CLOSED, account.getStatus());
+        Mockito.verify(accountRepository).save(account);
+    }
+
     private Account mockAccount() {
         return Account.builder()
-                .id(1L)
-                .userId(1L)
+                .id(ID)
+                .userId(ID)
                 .number("123456789012345")
                 .status(AccountStatus.ACTIVE)
                 .type(AccountType.CURRENT_ACCOUNT)
                 .currency(Currency.USD)
-                .version(1L)
+                .version(ID)
                 .build();
     }
 
     private AccountDto mockAccountDto() {
         return AccountDto.builder()
-                .id(1L)
-                .userId(1L)
+                .id(ID)
+                .userId(ID)
                 .number("123456789012345")
                 .status(AccountStatus.ACTIVE)
                 .type(AccountType.CURRENT_ACCOUNT)
                 .currency(Currency.USD)
-                .version(1L)
+                .version(ID)
                 .build();
     }
 }
