@@ -1,7 +1,6 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountDto;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
@@ -10,7 +9,6 @@ import faang.school.accountservice.model.Currency;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
