@@ -35,6 +35,9 @@ public class Owner {
     @Column(name = "owner_type", nullable = false)
     private OwnerType type;
 
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
+
     @OneToMany(mappedBy = "owner")
     private List<Account> accounts;
 }

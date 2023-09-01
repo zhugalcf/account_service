@@ -30,7 +30,7 @@ public class AccountController {
         return accountService.get(id);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/block")
     public AccountDto block(@PathVariable long id, @RequestParam Status status) {
         return accountService.block(id, status);
     }
