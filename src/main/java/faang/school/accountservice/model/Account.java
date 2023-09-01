@@ -26,10 +26,10 @@ public class Account {
     @Column(name = "number", length = 20, nullable = false)
     private String number;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "project_id", nullable = false)
+    @Column(name = "project_id")
     private Long projectId;
 
     @Column(name = "type", nullable = false, length = 128)
