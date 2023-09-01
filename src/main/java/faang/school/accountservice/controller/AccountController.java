@@ -4,38 +4,43 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/account")
 @RequiredArgsConstructor
 public class AccountController {
 
-    private AccountService accountService;
+    private final AccountService accountService;
 
-    @GetMapping("/{accountId}")
-    public ResponseEntity<AccountDto> getAccount(@PathVariable Long accountId) {
-        AccountDto accountDto = accountService.getAccount(accountId);
-        return ResponseEntity.ok(accountDto);
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountDto getAccount(@PathVariable Long id) {
+        return accountService.getAccount(id);
     }
 
-    @PostMapping("/open")
-    public ResponseEntity<AccountDto> openAccount(@RequestBody AccountRequestDto accountRequest) {
-        AccountDto newAccount = accountService.openAccount(accountRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newAccount);
+    @PostMapping("/")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountDto openAccount(@RequestBody AccountDto accountDto) {
+        return accountService.openAccount(accountDto);
     }
 
-    @PutMapping("/block/{accountId}")
-    public ResponseEntity<Void> blockAccount(@PathVariable Long accountId) {
-        accountService.blockAccount(accountId);
-        return ResponseEntity.ok().build();
+    @PutMapping("/freeze/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountDto freezeAccount(@PathVariable Long id) {
+        return accountService.freezeAccount(id);
     }
 
-    @DeleteMapping("/close/{accountId}")
-    public ResponseEntity<Void> closeAccount(@PathVariable Long accountId) {
-        accountService.closeAccount(accountId);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/block/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountDto blockAccount(@PathVariable Long id) {
+        return accountService.blockAccount(id);
+    }
+
+    @DeleteMapping("/close/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountDto closeAccount(@PathVariable Long id) {
+        return accountService.closeAccount(id);
     }
 }
 

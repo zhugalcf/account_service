@@ -28,6 +28,9 @@ public class Account {
     @Column(name = "owner_type", nullable = false)
     private OwnerType ownerType;
 
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;

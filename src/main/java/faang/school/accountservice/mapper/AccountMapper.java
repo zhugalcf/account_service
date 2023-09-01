@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface AccountMapper {
 
-    @Mapping(target = "typeOfOwner" , source = "ownerType")
+    //@Mapping(target = "typeOfOwner" , source = "ownerType")
     AccountDto accountToAccountDto(Account account);
 
     Account accountDtoToAccount(AccountDto accountDto);
