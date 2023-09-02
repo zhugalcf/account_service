@@ -13,12 +13,12 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "accounts")
+@Table(name = "account")
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "number", nullable = false, length = 20)
     private String number;

@@ -15,7 +15,7 @@ public class AccountController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto getAccount(@PathVariable Long id) {
+    public AccountDto getAccount(@PathVariable long id) {
         return accountService.getAccount(id);
     }
 
@@ -25,21 +25,15 @@ public class AccountController {
         return accountService.openAccount(accountDto);
     }
 
-    @PutMapping("/freeze/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public AccountDto freezeAccount(@PathVariable Long id) {
-        return accountService.freezeAccount(id);
-    }
-
     @PutMapping("/block/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto blockAccount(@PathVariable Long id) {
+    public AccountDto blockAccount(@PathVariable long id) {
         return accountService.blockAccount(id);
     }
 
     @DeleteMapping("/close/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto closeAccount(@PathVariable Long id) {
+    public AccountDto closeAccount(@PathVariable long id) {
         return accountService.closeAccount(id);
     }
 }

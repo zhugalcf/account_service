@@ -49,7 +49,6 @@ public class AccountServiceTest {
         Mockito.when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
         AccountDto result = accountService.getAccount(1L);
         Assertions.assertEquals(accountDto, result);
-        Assertions.assertEquals(account.getVersion() + 1, result.getVersion());
     }
 
     @Test
@@ -61,19 +60,6 @@ public class AccountServiceTest {
         Mockito.when(accountRepository.save(account)).thenReturn(account);
         AccountDto result = accountService.openAccount(accountDto);
         Assertions.assertEquals(accountDto, result);
-        Assertions.assertEquals(account.getVersion() + 1, result.getVersion());
-    }
-
-    @Test
-    public void freezeAccountTest() {
-        Account account = new Account();
-        account.setId(1L);
-        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
-        Mockito.when(accountRepository.save(account)).thenReturn(account);
-        Mockito.when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
-        AccountDto result = accountService.freezeAccount(1L);
-        Assertions.assertEquals(AccountStatus.FROZEN, account.getStatus());
-        Assertions.assertEquals(account.getVersion() + 1, result.getVersion());
     }
 
     @Test
@@ -85,7 +71,6 @@ public class AccountServiceTest {
         Mockito.when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
         AccountDto result = accountService.blockAccount(1L);
         Assertions.assertEquals(AccountStatus.BLOCKED, account.getStatus());
-        Assertions.assertEquals(account.getVersion() + 1, result.getVersion());
     }
 
     @Test
@@ -97,6 +82,5 @@ public class AccountServiceTest {
         Mockito.when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
         AccountDto result = accountService.closeAccount(1L);
         Assertions.assertEquals(AccountStatus.CLOSED, account.getStatus());
-        Assertions.assertEquals(account.getVersion() + 1, result.getVersion());
     }
 }

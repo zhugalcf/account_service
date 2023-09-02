@@ -14,16 +14,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class AccountDto {
-    private Long id;
+    private long id;
     private String accountNumber;
     @NotBlank(message = "Owner type is empty")
     private String typeOfOwner;
-    private Long ownerId;
+    private long ownerId;
     @NotBlank(message = "Should be a valid account type")
     private AccountType accountType;
     @NotBlank(message = "Should be a valid currency")
     private Currency currency;
     private AccountStatus status;
-    private Long version;
+    private long version;
     private LocalDateTime createdAt;
 }

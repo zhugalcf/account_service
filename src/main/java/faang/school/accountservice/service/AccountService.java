@@ -17,10 +17,10 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
-    public AccountDto getAccount(Long accountId) {
+    @Transactional(readOnly = true)
+    public AccountDto getAccount(long accountId) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        account.setVersion(account.getVersion() + 1);
+                .orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
         return accountMapper.accountToAccountDto(account);
     }
 
@@ -30,38 +30,24 @@ public class AccountService {
         accountRepository.save(account);
         log.info("Account with number: {}, created by id: {}, at: {}",
                 accountDto.getAccountNumber(), accountDto.getId(), accountDto.getCreatedAt());
-        account.setVersion(account.getVersion() + 1);
         return accountMapper.accountToAccountDto(account);
     }
 
     @Transactional
-    public AccountDto freezeAccount(Long accountId) {
+    public AccountDto blockAccount(long accountId) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-        log.info("Account number: {}, is frozen!", account.getNumber());
-        account.setStatus(AccountStatus.FROZEN);
-        account.setVersion(account.getVersion() + 1);
-        accountRepository.save(account);
-        return accountMapper.accountToAccountDto(account);
-    }
-
-    @Transactional
-    public AccountDto blockAccount(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Account not found + " + accountId));
         log.info("Account number: {}, is blocked!", account.getNumber());
-        account.setVersion(account.getVersion() + 1);
         account.setStatus(AccountStatus.BLOCKED);
         accountRepository.save(account);
         return accountMapper.accountToAccountDto(account);
     }
 
     @Transactional
-    public AccountDto closeAccount(Long accountId) {
+    public AccountDto closeAccount(long accountId) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
         log.info("Account number: {}, is closed!", account.getNumber());
-        account.setVersion(account.getVersion() + 1);
         account.setStatus(AccountStatus.CLOSED);
         accountRepository.save(account);
         return accountMapper.accountToAccountDto(account);
