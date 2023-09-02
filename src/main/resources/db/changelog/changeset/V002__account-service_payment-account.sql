@@ -1,7 +1,7 @@
 CREATE TABLE account
 (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    number VARCHAR(20) NOT NULL,
+    number CHARACTER(16) NOT NULL,
     owner_type VARCHAR(20) NOT NULL,
     owner_id BIGINT NOT NULL,
     account_type VARCHAR(20) NOT NULL,
