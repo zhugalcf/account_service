@@ -3,13 +3,13 @@ package faang.school.accountservice.model;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Data
@@ -23,10 +23,9 @@ public class Account {
     @Column(name = "number", nullable = false, length = 20)
     private String number;
 
-    @OneToMany
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
-    private List<OwnerType> ownerType;
+    private OwnerType ownerType;
 
     @Column(name = "owner_id", nullable = false)
     private long ownerId;
