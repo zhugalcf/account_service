@@ -21,6 +21,7 @@ public class AccountDto {
     private Long ownerId;
     @NotBlank(message = "Should be a valid account type")
     private AccountType accountType;
+    @NotBlank(message = "Should be a valid currency")
     private Currency currency;
     private AccountStatus status;
     private Long version;
