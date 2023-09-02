@@ -5,12 +5,14 @@ import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@Builder
 public class AccountDto {
     private Long id;
     private String accountNumber;

@@ -39,8 +39,8 @@ public class AccountService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
         log.info("Account number: {}, is frozen!", account.getNumber());
-        account.setVersion(account.getVersion() + 1);
         account.setStatus(AccountStatus.FROZEN);
+        account.setVersion(account.getVersion() + 1);
         accountRepository.save(account);
         return accountMapper.accountToAccountDto(account);
     }
