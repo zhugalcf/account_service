@@ -34,11 +34,12 @@ public class Account {
     @Column(name = "number", unique = true, nullable = false, length = 20)
     private String number;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "owner_id")
+    private Long ownerId;
 
-    @Column(name = "project_id")
-    private Long projectId;
+    @Column(name = "owner_type")
+    @Enumerated(EnumType.STRING)
+    private OwnerType ownerType;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.ORDINAL)
