@@ -20,7 +20,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "number", nullable = false, length = 20)
+    @Column(name = "number", nullable = false, length = 16)
     private String number;
 
     @Enumerated(EnumType.STRING)
