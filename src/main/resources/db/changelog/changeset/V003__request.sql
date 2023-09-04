@@ -10,5 +10,5 @@ CREATE TABLE request (
     details varchar(128),
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp,
-    version int NOT NULL
+    version bigint NOT NULL
 );
