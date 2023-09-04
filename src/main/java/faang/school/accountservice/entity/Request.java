@@ -8,12 +8,12 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,14 +24,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
-@Table(
-        name = "requests",
-        indexes = @Index(name = "idx_user_id", columnList = "user_id"),
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"lock", "user_id"}, name = "uniq_lock_user_id")
-        })
+@Table(name = "requests")
 @Entity
 @Data
 @AllArgsConstructor
@@ -39,7 +33,11 @@ import java.util.UUID;
 @Builder
 public class Request {
     @Id
-    private UUID idempotentToken;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "idempotent_token")
+    private String idempotentToken;
 
     @Column(name = "user_id")
     private Long userId;

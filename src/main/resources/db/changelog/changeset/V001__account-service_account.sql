@@ -1,5 +1,6 @@
 CREATE TABLE requests (
-  idempotent_token UUID PRIMARY KEY,
+  id BIGINT PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY,
+  idempotent_token VARCHAR(255),
   user_id BIGINT,
   type VARCHAR(255),
   lock VARCHAR(255),
@@ -13,4 +14,4 @@ CREATE TABLE requests (
 );
 
 CREATE INDEX idx_user_id ON requests (user_id);
-CREATE UNIQUE INDEX uniq_lock_user_id ON requests (lock, user_id) WHERE is_open = true;
+CREATE UNIQUE INDEX uniq_opened_lock ON requests (lock) WHERE is_open = true;
