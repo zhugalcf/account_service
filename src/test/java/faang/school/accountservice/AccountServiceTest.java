@@ -1,47 +1,51 @@
 package faang.school.accountservice;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.AccountRequestDto;
+import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.exception.NotFoundException;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.AccountRequestMapper;
+import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 public class AccountServiceTest {
 
-    private AccountDto accountDto;
-    private AccountMapper accountMapper;
+    private AccountRequestDto accountRequestDto;
+    private AccountResponseDto accountResponseDto;
+    private AccountRequestMapper accountRequestMapper;
+    private AccountResponseMapper accountResponseMapper;
     private AccountService accountService;
     private AccountRepository accountRepository;
 
     @BeforeEach
     public void setUp() {
         accountRepository = Mockito.mock(AccountRepository.class);
-        accountMapper = Mockito.mock(AccountMapper.class);
-        accountService = new AccountService(accountRepository, accountMapper);
-        accountDto = AccountDto.builder()
-                .id(1L)
-                .accountNumber("1234567890")
+        accountRequestMapper = Mockito.mock(AccountRequestMapper.class);
+        accountResponseMapper = Mockito.mock(AccountResponseMapper.class);
+        accountService = new AccountService(accountRepository, accountRequestMapper, accountResponseMapper);
+        accountRequestDto = AccountRequestDto.builder()
                 .typeOfOwner("owner")
-                .ownerId(1L)
                 .accountType(AccountType.CREDIT)
                 .currency(Currency.USD)
                 .status(AccountStatus.OPEN)
-                .version(2L)
+                .createdAt(LocalDateTime.now())
+                .build();
+        accountResponseDto = AccountResponseDto.builder()
+                .ownerId(1L)
+                .accountNumber("123")
+                .version(1)
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -51,21 +55,21 @@ public class AccountServiceTest {
         Account account = new Account();
         account.setId(1L);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
-        when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
-        AccountDto result = accountService.getAccount(1L);
-        assertEquals(accountDto, result);
+        when(accountResponseMapper.accountToResponseDto(account)).thenReturn(accountResponseDto);
+        AccountResponseDto result = accountService.getAccount(1L);
+        assertEquals(accountResponseDto, result);
     }
 
     @Test
     public void openAccountTest() {
         Account account = new Account();
         account.setId(1L);
-        when(accountMapper.accountDtoToAccount(accountDto)).thenReturn(account);
-        when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
+        when(accountResponseMapper.accountToResponseDto(account)).thenReturn(accountResponseDto);
+        when(accountRequestMapper.accountDtoToAccount(accountRequestDto)).thenReturn(account);
         when(accountRepository.save(account)).thenReturn(account);
-        AccountDto result = accountService.openAccount(accountDto);
-        assertEquals(accountDto, result);
-        assertEquals(account.getVersion() + 2, result.getVersion());
+        AccountResponseDto result = accountService.openAccount(accountRequestDto);
+        assertEquals(accountResponseDto, result);
+        assertEquals(account.getVersion() + 1, result.getVersion());
     }
 
     @Test
@@ -74,10 +78,10 @@ public class AccountServiceTest {
         account.setId(1L);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenReturn(account);
-        when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
-        AccountDto result = accountService.blockAccount(1L);
+        when(accountResponseMapper.accountToResponseDto(account)).thenReturn(accountResponseDto);
+        AccountResponseDto result = accountService.blockAccount(1L);
         assertEquals(AccountStatus.BLOCKED, account.getStatus());
-        assertEquals(account.getVersion() + 1, result.getVersion());
+        assertEquals(account.getVersion(), result.getVersion());
     }
 
     @Test
@@ -86,33 +90,9 @@ public class AccountServiceTest {
         account.setId(1L);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenReturn(account);
-        when(accountMapper.accountToAccountDto(account)).thenReturn(accountDto);
-        AccountDto result = accountService.closeAccount(1L);
+        when(accountResponseMapper.accountToResponseDto(account)).thenReturn(accountResponseDto);
+        AccountResponseDto result = accountService.closeAccount(1L);
         assertEquals(AccountStatus.CLOSED, account.getStatus());
-        assertEquals(account.getVersion() + 1, result.getVersion());
-    }
-
-    @Test
-    public void getAccountByIdThrowExceptionTest() {
-        when(accountRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> accountService.getAccount(1L));
-    }
-
-    @Test
-    public void saveAccountAfterBlockThrowExceptionTest() {
-        Account account = new Account();
-        account.setId(1L);
-        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
-        when(accountRepository.save(account)).thenThrow(OptimisticLockingFailureException.class);
-        assertThrows(IllegalArgumentException.class, () -> accountService.blockAccount(account.getId()));
-    }
-
-    @Test
-    public void saveAccountAfterCloseThrowExceptionTest() {
-        Account account = new Account();
-        account.setId(1L);
-        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
-        when(accountRepository.save(account)).thenThrow(OptimisticLockingFailureException.class);
-        assertThrows(IllegalArgumentException.class, () -> accountService.closeAccount(account.getId()));
+        assertEquals(account.getVersion(), result.getVersion());
     }
 }

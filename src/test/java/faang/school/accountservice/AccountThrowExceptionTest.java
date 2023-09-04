@@ -1,8 +1,8 @@
 package faang.school.accountservice;
 
-import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.exception.NotFoundException;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.AccountRequestMapper;
+import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
@@ -27,8 +27,9 @@ public class AccountThrowExceptionTest {
     @BeforeEach
     public void setUp() {
         accountRepository = Mockito.mock(AccountRepository.class);
-        AccountMapper accountMapper = Mockito.mock(AccountMapper.class);
-        accountService = new AccountService(accountRepository, accountMapper);
+        AccountRequestMapper accountRequestMapper = Mockito.mock(AccountRequestMapper.class);
+        AccountResponseMapper accountResponseMapper = Mockito.mock(AccountResponseMapper.class);
+        accountService = new AccountService(accountRepository, accountRequestMapper, accountResponseMapper);
     }
 
     @Test

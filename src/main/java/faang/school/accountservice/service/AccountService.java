@@ -1,9 +1,11 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.AccountRequestDto;
+import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.exception.NotFoundException;
-import faang.school.accountservice.mapper.AccountMapper;
+import faang.school.accountservice.mapper.AccountRequestMapper;
+import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,43 +20,44 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AccountService {
     private final AccountRepository accountRepository;
-    private final AccountMapper accountMapper;
+    private final AccountRequestMapper accountRequestMapper;
+    private final AccountResponseMapper accountResponseMapper;
 
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public AccountDto getAccount(long accountId) {
+    public AccountResponseDto getAccount(long accountId) {
         Account account = getAccountById(accountId);
-        return accountMapper.accountToAccountDto(account);
+        return accountResponseMapper.accountToResponseDto(account);
     }
 
     @Transactional
-    public AccountDto openAccount(AccountDto accountDto) {
-        Account account = accountMapper.accountDtoToAccount(accountDto);
+    public AccountResponseDto openAccount(AccountRequestDto accountDto) {
+        Account account = accountRequestMapper.accountDtoToAccount(accountDto);
         accountRepository.save(account);
-        log.info("Account with number: {}, created by id: {}, at: {}",
-                accountDto.getAccountNumber(), accountDto.getId(), accountDto.getCreatedAt());
-        return accountMapper.accountToAccountDto(account);
+        log.info("Account created by id: {}, at: {}",
+                account.getId(), account.getCreatedAt());
+        return accountResponseMapper.accountToResponseDto(account);
     }
 
     @Transactional
-    public AccountDto blockAccount(long accountId) {
+    public AccountResponseDto blockAccount(long accountId) {
         Account account = getAccountById(accountId);
         int version = account.getVersion();
         log.info("Account number: {}, is blocked!", account.getNumber());
         account.setStatus(AccountStatus.BLOCKED);
         account.setVersion(version + 1);
         saveAccountAfterBlock(account);
-        return accountMapper.accountToAccountDto(account);
+        return accountResponseMapper.accountToResponseDto(account);
     }
 
     @Transactional
-    public AccountDto closeAccount(long accountId) {
+    public AccountResponseDto closeAccount(long accountId) {
         Account account = getAccountById(accountId);
         int version = account.getVersion();
         log.info("Account number: {}, is closed!", account.getNumber());
         account.setStatus(AccountStatus.CLOSED);
         account.setVersion(version + 1);
         saveAccountAfterClose(account);
-        return accountMapper.accountToAccountDto(account);
+        return accountResponseMapper.accountToResponseDto(account);
     }
 
     private Account getAccountById(long accountId) {

@@ -1,7 +1,9 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.AccountDto;
+import faang.school.accountservice.dto.AccountRequestDto;
+import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,28 +18,26 @@ public class AccountController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto getAccount(@PathVariable long id) {
+    public AccountResponseDto getAccount(@PathVariable long id) {
         log.info("Received request to get account by id = {}", id);
         return accountService.getAccount(id);
     }
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDto openAccount(@RequestBody AccountDto accountDto) {
-        log.info("Received request to open account by id = {}", accountDto.getId());
+    public AccountResponseDto openAccount(@RequestBody @Valid AccountRequestDto accountDto) {
+        log.info("Your account was created at: {}", accountDto.getCreatedAt());
         return accountService.openAccount(accountDto);
     }
 
     @PutMapping("/block/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public AccountDto blockAccount(@PathVariable long id) {
+    public AccountResponseDto blockAccount(@PathVariable long id) {
         log.info("Received request to block account by id = {}", id);
         return accountService.blockAccount(id);
     }
 
     @DeleteMapping("/close/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public AccountDto closeAccount(@PathVariable long id) {
+    public AccountResponseDto closeAccount(@PathVariable long id) {
         log.info("Received request to close account by id = {}", id);
         return accountService.closeAccount(id);
     }
