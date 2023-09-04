@@ -41,7 +41,7 @@ public class FreeAccountNumbersServiceTest {
     }
 
     @Test
-    void t() {
+    void GenerateAccountNumberTest() {
         freeAccountNumbersService.generateAccountNumber(AccountType.CURRENT_ACCOUNT);
         var number = freeAccountNumberRepository.findByAccountType(AccountType.CURRENT_ACCOUNT);
         Assertions.assertTrue(number.isPresent());
