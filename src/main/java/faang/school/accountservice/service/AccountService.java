@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
@@ -21,15 +22,13 @@ public class AccountService {
 
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public AccountDto getAccount(long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
+        Account account = getAccountById(accountId);
         return accountMapper.accountToAccountDto(account);
     }
 
     @Transactional
     public AccountDto openAccount(AccountDto accountDto) {
         Account account = accountMapper.accountDtoToAccount(accountDto);
-        account.setVersion(0);
         accountRepository.save(account);
         log.info("Account with number: {}, created by id: {}, at: {}",
                 accountDto.getAccountNumber(), accountDto.getId(), accountDto.getCreatedAt());
@@ -38,31 +37,42 @@ public class AccountService {
 
     @Transactional
     public AccountDto blockAccount(long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found + " + accountId));
+        Account account = getAccountById(accountId);
         int version = account.getVersion();
         log.info("Account number: {}, is blocked!", account.getNumber());
         account.setStatus(AccountStatus.BLOCKED);
         account.setVersion(version + 1);
+        saveAccountAfterBlock(account);
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    @Transactional
+    public AccountDto closeAccount(long accountId) {
+        Account account = getAccountById(accountId);
+        int version = account.getVersion();
+        log.info("Account number: {}, is closed!", account.getNumber());
+        account.setStatus(AccountStatus.CLOSED);
+        account.setVersion(version + 1);
+        saveAccountAfterClose(account);
+        return accountMapper.accountToAccountDto(account);
+    }
+
+    private Account getAccountById(long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
+    }
+
+    private void saveAccountAfterBlock(Account account) {
         try {
             accountRepository.save(account);
-            return accountMapper.accountToAccountDto(account);
         } catch (OptimisticLockingFailureException e) {
             throw new IllegalArgumentException("Account is blocked by another transaction");
         }
     }
 
-    @Transactional
-    public AccountDto closeAccount(long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found " + accountId));
-        int version = account.getVersion();
-        log.info("Account number: {}, is closed!", account.getNumber());
-        account.setStatus(AccountStatus.CLOSED);
-        account.setVersion(version + 1);
+    private void saveAccountAfterClose(Account account) {
         try {
             accountRepository.save(account);
-            return accountMapper.accountToAccountDto(account);
         } catch (OptimisticLockingFailureException e) {
             throw new IllegalArgumentException("Account is closed by another transaction");
         }

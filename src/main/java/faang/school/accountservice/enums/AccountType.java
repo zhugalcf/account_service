@@ -1,10 +1,11 @@
 package faang.school.accountservice.enums;
 
 public enum AccountType {
-    SETTLEMENT("settlement"),
+    DEBIT("debit"),
     CURRENCY("currency"),
     CREDIT("credit"),
     DEPOSIT("deposit"),
+    SAVINGS("savings"),
     ;
     private final String type;
 

@@ -1,7 +1,7 @@
 package faang.school.accountservice.enums;
 
 public enum AccountStatus {
-    CURRENT("current"),
+    OPEN("open"),
     FROZEN("frozen"),
     BLOCKED("blocked"),
     CLOSED("closed"),

@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
@@ -11,11 +12,13 @@ import faang.school.accountservice.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 public class AccountServiceTest {
@@ -37,7 +40,7 @@ public class AccountServiceTest {
                 .ownerId(1L)
                 .accountType(AccountType.CREDIT)
                 .currency(Currency.USD)
-                .status(AccountStatus.CURRENT)
+                .status(AccountStatus.OPEN)
                 .version(2L)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -87,5 +90,29 @@ public class AccountServiceTest {
         AccountDto result = accountService.closeAccount(1L);
         assertEquals(AccountStatus.CLOSED, account.getStatus());
         assertEquals(account.getVersion() + 1, result.getVersion());
+    }
+
+    @Test
+    public void getAccountByIdThrowExceptionTest() {
+        when(accountRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> accountService.getAccount(1L));
+    }
+
+    @Test
+    public void saveAccountAfterBlockThrowExceptionTest() {
+        Account account = new Account();
+        account.setId(1L);
+        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(accountRepository.save(account)).thenThrow(OptimisticLockingFailureException.class);
+        assertThrows(IllegalArgumentException.class, () -> accountService.blockAccount(account.getId()));
+    }
+
+    @Test
+    public void saveAccountAfterCloseThrowExceptionTest() {
+        Account account = new Account();
+        account.setId(1L);
+        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(accountRepository.save(account)).thenThrow(OptimisticLockingFailureException.class);
+        assertThrows(IllegalArgumentException.class, () -> accountService.closeAccount(account.getId()));
     }
 }
