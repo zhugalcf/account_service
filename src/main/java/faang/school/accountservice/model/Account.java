@@ -2,8 +2,7 @@ package faang.school.accountservice.model;
 
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
-import faang.school.accountservice.enums.OwnerType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +10,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -23,6 +24,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.Version;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Data
 @NoArgsConstructor
@@ -38,19 +40,15 @@ public class Account {
     @Column(name = "number", unique = true, nullable = false, length = 20)
     private String number;
 
-    @Column(name = "owner_id")
-    private Long ownerId;
-
-    @Column(name = "owner_type")
-    @Enumerated(EnumType.STRING)
-    private OwnerType ownerType;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    private Owner owner;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private AccountType type;
 
     @Column(name = "currency", nullable = false, length = 3)
-    @Enumerated(EnumType.STRING)
     private Currency currency;
 
     @Column(name = "status", columnDefinition = "smallint default 0")
