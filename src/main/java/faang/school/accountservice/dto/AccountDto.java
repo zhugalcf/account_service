@@ -36,5 +36,7 @@ public class AccountDto {
 
     private AccountStatus accountStatus;
 
+    private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 }
