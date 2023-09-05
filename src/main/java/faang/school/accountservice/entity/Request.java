@@ -26,8 +26,8 @@ public class Request {
     @Id
     private UUID idempotentToken;
 
-    @Column(name = "username", nullable = false)
-    private String userName;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;

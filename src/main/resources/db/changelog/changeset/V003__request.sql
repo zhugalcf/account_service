@@ -1,6 +1,6 @@
 CREATE TABLE request (
     idempotent_token UUID PRIMARY KEY,
-    username varchar(64) UNIQUE NOT NULL,
+    user_id bigint NOT NULL,
     request_type smallint NOT NULL,
     lock_value bigint NOT NULL,
     active boolean NOT NULL,
