@@ -1,7 +1,9 @@
 package faang.school.accountservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.util.MapToJsonConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +13,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -20,10 +24,7 @@ import java.time.LocalDateTime;
 @Table(name = "request")
 public class Request {
     @Id
-    private long id;
-
-    @Column(name = "idempotency_key", nullable = false)
-    private String idempotencyKey;
+    private UUID idempotentToken;
 
     @Column(name = "username", nullable = false)
     private String userName;
@@ -37,8 +38,9 @@ public class Request {
     @Column(name = "active", nullable = false)
     private boolean active;
 
-    @Column(name = "text", nullable = false)
-    private String data;
+    @Column(name = "input_data")
+    @Convert(converter = MapToJsonConverter.class)
+    private Map<String, Object> input_data;
 
     @Enumerated(EnumType.STRING)
     private RequestType requestType;

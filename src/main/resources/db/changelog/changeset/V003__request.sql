@@ -1,11 +1,10 @@
 CREATE TABLE request (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    idempotency_key varchar(256) NOT NULL,
+    idempotent_token UUID PRIMARY KEY,
     username varchar(64) UNIQUE NOT NULL,
     request_type smallint NOT NULL,
     lock_value bigint NOT NULL,
     active boolean NOT NULL,
-    text varchar(128),
+    input_data JSONB,
     request_status varchar(128) NOT NULL,
     details varchar(128),
     created_at timestamptz DEFAULT current_timestamp,
