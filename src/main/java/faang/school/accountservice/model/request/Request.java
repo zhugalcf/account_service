@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.request;
 
+import faang.school.accountservice.util.MapToJsonConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -22,11 +25,11 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "uuid", nullable = false)
-    private String uuid;
+    @Column(name = "idempotency_key", nullable = false)
+    private UUID idempotencyKey;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "request_type", nullable = false)
@@ -39,7 +42,8 @@ public class Request {
     private boolean isOpen;
 
     @Column(name = "input_data")
-    private String inputData;
+    @Convert(converter = MapToJsonConverter.class)
+    private Map<String, Object> inputData;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
@@ -51,12 +55,12 @@ public class Request {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Version
     private Long version;

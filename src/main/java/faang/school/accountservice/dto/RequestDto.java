@@ -7,7 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -16,15 +19,15 @@ import java.time.LocalDateTime;
 public class RequestDto {
 
     private Long id;
-    private String uuid;
-    private Long userId;
+    private UUID idempotencyKey;
+    private Long ownerId;
     private RequestType requestType;
     private String lockValue;
     private boolean isOpen;
-    private String inputData;
+    private Map<String, Object> inputData;
     private RequestStatus requestStatus;
     private String statusDetails;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private Long version;
 }

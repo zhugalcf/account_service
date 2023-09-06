@@ -8,6 +8,8 @@ import faang.school.accountservice.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +22,13 @@ public class RequestService {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RequestNotFoundException(String.format("Request with id: %d not found", requestId)));
         return requestMapper.toDto(request);
+    }
+
+    public List<RequestDto> getRequestByUser(long ownerId) {
+        List<Request> request = requestRepository.findByOwnerId(ownerId);
+        return requestMapper.toListDto(request);
+    }
+    public void postRequest(RequestDto requestDto) {
+        requestRepository.save(requestMapper.toEntity(requestDto));
     }
 }
