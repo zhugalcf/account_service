@@ -16,10 +16,11 @@ public class ValidOwnerValidator implements ConstraintValidator<ValidOwner, Crea
 
     @Override
     public boolean isValid(CreateAccountDto createAccountDto, ConstraintValidatorContext context) {
-        if (createAccountDto.getOwnerType() == OwnerType.USER) {
-            return userServiceClient.checkUserExist(createAccountDto.getOwnerId());
-        } else if (createAccountDto.getOwnerType() == OwnerType.PROJECT) {
-            return projectServiceClient.checkProjectExist(createAccountDto.getOwnerId());
+        if (createAccountDto.getOwner().getType() == OwnerType.USER) {
+            Boolean a = userServiceClient.checkUserExist(createAccountDto.getOwner().getOwnerId());
+            return a;
+        } else if (createAccountDto.getOwner().getType() == OwnerType.PROJECT) {
+            return projectServiceClient.checkProjectExist(createAccountDto.getOwner().getOwnerId());
         }
         return false;
     }
