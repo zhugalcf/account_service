@@ -1,14 +1,7 @@
 package faang.school.accountservice.model;
 
 public enum AccountType {
-    CURRENT_ACCOUNT,
-    SAVINGS_ACCOUNT,
-    CORPORATE_ACCOUNT,
-    PERSONAL_ACCOUNT,
-    JOINT_ACCOUNT,
-    FOREIGN_CURRENCY_ACCOUNT,
-    INVESTMENT_ACCOUNT,
-    MERCHANT_ACCOUNT,
-    TRUST_ACCOUNT,
-    ESCROW_ACCOUNT
+    DEBIT,
+    SAVINGS,
+    CORPORATE
 }
