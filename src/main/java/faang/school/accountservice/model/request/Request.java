@@ -31,7 +31,7 @@ public class Request {
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "request_type", nullable = false)
     private RequestType requestType;
 
@@ -45,7 +45,7 @@ public class Request {
     @Convert(converter = MapToJsonConverter.class)
     private Map<String, Object> inputData;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private RequestStatus requestStatus;
 
