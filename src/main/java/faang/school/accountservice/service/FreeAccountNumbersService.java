@@ -36,7 +36,10 @@ public class FreeAccountNumbersService {
                         }
                 );
         String accountNumber = String.format("%s%08d", accountType.getAssociatedString(), currentCount);
-        FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder().accountType(accountType).accountNumber(accountNumber).build();
+        FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
+                .accountType(accountType)
+                .accountNumber(accountNumber)
+                .build();
         freeAccountNumberRepository.save(freeAccountNumber);
     }
 
