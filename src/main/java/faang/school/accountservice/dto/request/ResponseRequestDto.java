@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.request;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
@@ -15,16 +15,15 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseRequestDto {
-
     private Long id;
-    private String uuid;
+    private String idempotentToken;
     private Long userId;
-    private RequestType requestType;
-    private String lockValue;
+    private RequestType type;
+    private String lock;
     private boolean isOpen;
-    private Map<String, Object> inputData;
-    private RequestStatus requestStatus;
-    private String statusDetails;
+    private Map<String, Object> input;
+    private RequestStatus status;
+    private String details;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long version;

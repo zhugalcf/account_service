@@ -5,7 +5,7 @@ CREATE TABLE requests (
   type VARCHAR(255),
   lock VARCHAR(255),
   is_open BOOLEAN,
-  input JSONB,
+  input VARCHAR(255),
   status VARCHAR(255),
   details VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

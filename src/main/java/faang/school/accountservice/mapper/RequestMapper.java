@@ -1,6 +1,7 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.dto.ResponseRequestDto;
+import faang.school.accountservice.dto.request.CreateRequestDto;
+import faang.school.accountservice.dto.request.ResponseRequestDto;
 import faang.school.accountservice.entity.Request;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -12,6 +13,9 @@ import java.util.List;
 public interface RequestMapper {
     RequestMapper INSTANCE = Mappers.getMapper(RequestMapper.class);
 
+    Request fromCreateToEntity(CreateRequestDto requestDto);
+
     ResponseRequestDto toDto(Request request);
+
     List<ResponseRequestDto> toListDto(List<Request> requestList);
 }
