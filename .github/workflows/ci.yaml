@@ -1,0 +1,28 @@
+name: CI Pipeline for Griffon
+
+on:
+  push:
+    branches:
+      - griffon-master
+  pull_request:
+    branches:
+      - griffon-master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Run Tests
+        run: ./gradlew test
