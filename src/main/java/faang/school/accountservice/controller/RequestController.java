@@ -26,11 +26,6 @@ public class RequestController {
         return requestService.getRequest(requestId);
     }
 
-    @PostMapping("/new")
-    public void postRequest(@RequestBody RequestDto requestDto) {
-        requestService.postRequest(requestDto);
-    }
-
     @GetMapping("/by_user/{ownerId}")
     public List<RequestDto> getRequestByUser(@PathVariable Long ownerId) {
         return requestService.getRequestByUser(ownerId);

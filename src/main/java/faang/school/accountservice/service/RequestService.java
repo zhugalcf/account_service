@@ -28,7 +28,4 @@ public class RequestService {
         List<Request> request = requestRepository.findByOwnerId(ownerId);
         return requestMapper.toListDto(request);
     }
-    public void postRequest(RequestDto requestDto) {
-        requestRepository.save(requestMapper.toEntity(requestDto));
-    }
 }
