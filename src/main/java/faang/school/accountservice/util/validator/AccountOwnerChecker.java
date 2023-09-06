@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AccountServiceValidator {
+public class AccountOwnerChecker {
 
     private final UserServiceClient userServiceClient;
     private final ProjectServiceClient projectServiceClient; // решил это тут заинжектить, потому что использую для проверки того, существуют ли такие сущности в сервисах

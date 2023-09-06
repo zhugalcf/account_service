@@ -20,4 +20,4 @@ CREATE TABLE IF NOT EXISTS account
 );
 
 INSERT INTO account(number, user_id, project_id, type, currency, status)
-VALUES ('123456789013123', 1, null, 'CURRENT_ACCOUNT', 'USD', 'ACTIVE');
+VALUES ('123456789013123', 1, null, 'DEBIT', 'USD', 'ACTIVE');

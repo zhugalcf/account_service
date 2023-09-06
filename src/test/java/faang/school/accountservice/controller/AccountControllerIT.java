@@ -66,7 +66,7 @@ class AccountControllerIT {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.number").value("123456789013123"))
                 .andExpect(jsonPath("$.userId").value("1"))
-                .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
+                .andExpect(jsonPath("$.type").value("DEBIT"))
                 .andExpect(jsonPath("$.currency").value("USD"))
                 .andExpect(jsonPath("$.version").value("0"))
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
