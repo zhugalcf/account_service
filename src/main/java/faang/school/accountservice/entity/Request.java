@@ -43,6 +43,7 @@ public class Request {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private RequestType type;
 
     @Column(name = "lock")
@@ -56,6 +57,7 @@ public class Request {
     private Map<String, Object> input;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private RequestStatus status;
 
     @Column(name = "details")

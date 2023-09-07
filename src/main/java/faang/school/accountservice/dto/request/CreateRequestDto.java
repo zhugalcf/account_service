@@ -1,6 +1,5 @@
 package faang.school.accountservice.dto.request;
 
-import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

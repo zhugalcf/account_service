@@ -14,6 +14,25 @@ spring:
       hibernate:
         format_sql: true
 
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      channels:
+        request_status_channel:
+          name: request_status_channel
+        execute-request-channel:
+          name: execute-request-channel
+
+  async:
+    min_pool_size: 10
+    max_pool_size: 20
+    queue_capacity: 30
+
+scheduler:
+  execute-request:
+    cron: 0 0/30 * * * ?
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 

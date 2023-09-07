@@ -7,6 +7,8 @@ import faang.school.accountservice.dto.request.UpdateRequestDto;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.mapper.RequestMapper;
+import faang.school.accountservice.publisher.ExecuteRequestPublisher;
+import faang.school.accountservice.publisher.RequestStatusPublisher;
 import faang.school.accountservice.repository.RequestRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ import java.util.Map;
 public class RequestService {
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
+    private final RequestStatusPublisher requestStatusPublisher;
+    private final ExecuteRequestPublisher executeRequestPublisher;
 
     @Transactional
     public List<ResponseRequestDto> getByUserId(Long userId) {
@@ -39,46 +43,73 @@ public class RequestService {
             return requestMapper.toDto(requestFromDb);
         }
 
-        request.setStatus(RequestStatus.TODO);
+        request.setStatus(RequestStatus.WAITING);
+
+        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request));
         return requestMapper.toDto(requestRepository.save(request));
     }
 
     @Transactional
     public ResponseRequestDto openRequest(OpenRequestDto openRequestDto) {
-        Request request = requestRepository.findByIdempotentToken(openRequestDto.getIdempotentToken())
+        Request request = requestRepository.findByIdempotentTokenForUpdate(openRequestDto.getIdempotentToken())
                 .orElseThrow(() -> new EntityNotFoundException("Request is not found"));
-
-        if (!request.getStatus().equals(RequestStatus.TODO)){
-            return requestMapper.toDto(request);
-        }
-
         Request withSameLock = requestRepository.findByLockAndUserIdAndIsOpenTrue(openRequestDto.getLock(), openRequestDto.getUserId())
                 .orElse(null);
+
+        if (!request.getStatus().equals(RequestStatus.WAITING)) {
+            return requestMapper.toDto(request);
+        }
 
         if (withSameLock != null && !withSameLock.getIdempotentToken().equals(request.getIdempotentToken())) {
             throw new IllegalArgumentException("You are already processing the request with same lock");
         }
 
         request.setOpen(true);
-        request.setStatus(RequestStatus.WAITING);
+        request.setStatus(RequestStatus.TOEXECUTE);
         request.setVersion(request.getVersion() + 1);
 
+        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request));
         return requestMapper.toDto(request);
     }
 
     @Transactional
     public ResponseRequestDto updateRequest(UpdateRequestDto updateRequestDto) {
-        Request request = requestRepository.findByIdempotentToken(updateRequestDto.getIdempotentToken())
+        Request request = requestRepository.findByIdempotentTokenForUpdate(updateRequestDto.getIdempotentToken())
                 .orElseThrow(() -> new EntityNotFoundException("Request is not found"));
-        if(request.getStatus().equals(RequestStatus.TODO) || request.getStatus().equals(RequestStatus.WAITING)){
-            request.setDetails(updateRequestDto.getDetails());
-            request.setInput(updateRequestDto.getInput());
-            if (updateRequestDto.getCancel() != null && updateRequestDto.getCancel()){
-                request.setStatus(RequestStatus.CANCELLED);
-            }
+        RequestStatus requestStatus = request.getStatus();
+
+        if (requestStatus.equals(RequestStatus.EXECUTED) || requestStatus.equals(RequestStatus.CANCELLED)) {
+            return requestMapper.toDto(request);
         }
 
+        if (requestStatus.equals(RequestStatus.WAITING)
+                && updateRequestDto.getCancel() != null
+                && updateRequestDto.getCancel()) {
+            request.setStatus(RequestStatus.CANCELLED);
+            request.setOpen(false);
+        }
+
+        if (requestStatus.equals(RequestStatus.TOEXECUTE)) {
+            request.setStatus(RequestStatus.WAITING);
+        }
+
+        request.setDetails(updateRequestDto.getDetails());
+        request.setInput(updateRequestDto.getInput());
+        request.setVersion(request.getVersion() + 1);
+
+        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request));
         return requestMapper.toDto(request);
+    }
+
+    @Transactional
+    public void executeRequests() {
+        List<Request> requests = requestRepository.findAllByStatusForUpdate(RequestStatus.TOEXECUTE);
+        requests.forEach(request -> {
+            executeRequestPublisher.publishMessage(requestMapper.toExecuteEvent(request));
+            request.setStatus(RequestStatus.EXECUTED);
+            request.setOpen(false);
+            request.setVersion(request.getVersion() + 1);
+        });
     }
 
     private void validateSameTokenDifferentInput(Map<String, Object> newInput, Map<String, Object> oldInput) {
