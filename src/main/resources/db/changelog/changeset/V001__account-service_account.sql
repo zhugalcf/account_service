@@ -13,5 +13,6 @@ CREATE TABLE requests (
   opt_lock INT
 );
 
+CREATE INDEX idx_idempotent_token on requests(idempotent_token);
 CREATE INDEX idx_user_id ON requests (user_id);
-CREATE UNIQUE INDEX uniq_opened_lock ON requests (lock) WHERE is_open = true;
+CREATE UNIQUE INDEX uniq_opened_lock ON requests (lock) WHERE is_open = true and lock IS NOT NULL;
