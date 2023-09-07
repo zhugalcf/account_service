@@ -7,6 +7,7 @@ import faang.school.accountservice.entity.request.RequestStatus;
 import faang.school.accountservice.entity.request.RequestType;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.RequestRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,11 +39,22 @@ public class RequestServiceTest {
     @InjectMocks
     private RequestService requestService;
 
+    private RequestDto requestDto;
+    private Request request;
+    private List<Request> requests;
+
+    @BeforeEach
+    public void setUp() {
+        requestDto = RequestDto.builder().build();
+        request = Request.builder().build();
+        requests = List.of(
+                Request.builder().build(),
+                Request.builder().build()
+        );
+    }
+
     @Test
     public void testCreateRequest() {
-        RequestDto requestDto = new RequestDto();
-        Request request = new Request();
-
         when(requestMapper.toEntity(requestDto)).thenReturn(request);
         when(requestRepository.save(any())).thenReturn(request);
         when(requestMapper.toDto(any())).thenReturn(requestDto);
@@ -57,10 +69,10 @@ public class RequestServiceTest {
     @Test
     public void testFindByUserId() {
         Long userId = 1L;
-        List<Request> requests = Collections.singletonList(new Request());
+        List<Request> requests = Collections.singletonList(request);
 
         when(requestRepository.findByUserId(userId)).thenReturn(requests);
-        when(requestMapper.toDto(any())).thenReturn(new RequestDto());
+        when(requestMapper.toDto(any())).thenReturn(requestDto);
 
         List<RequestDto> result = requestService.findByUserId(userId);
         assertEquals(1, result.size());
@@ -73,12 +85,7 @@ public class RequestServiceTest {
     public void testFindMyRequests() {
         when(userContext.getUserId()).thenReturn(1L);
 
-        List<Request> fakeRequests = Arrays.asList(
-                Request.builder().build(),
-                Request.builder().build()
-        );
-
-        when(requestRepository.findByUserId(1L)).thenReturn(fakeRequests);
+        when(requestRepository.findByUserId(1L)).thenReturn(requests);
 
         List<RequestDto> result = requestService.findMyRequests();
         assertEquals(2, result.size());
@@ -88,12 +95,7 @@ public class RequestServiceTest {
     public void testFindByRequestStatus() {
         RequestStatus status = RequestStatus.COMPLETED;
 
-        List<Request> fakeRequests = Arrays.asList(
-                Request.builder().requestStatus(status).build(),
-                Request.builder().requestStatus(status).build()
-        );
-
-        when(requestRepository.findByRequestStatus(status)).thenReturn(fakeRequests);
+        when(requestRepository.findByRequestStatus(status)).thenReturn(requests);
 
         List<RequestDto> result = requestService.findByRequestStatus(status);
         assertEquals(2, result.size());
@@ -103,12 +105,7 @@ public class RequestServiceTest {
     public void testFindByRequestType() {
         RequestType type = RequestType.PAYMENT;
 
-        List<Request> fakeRequests = Arrays.asList(
-                Request.builder().requestType(type).build(),
-                Request.builder().requestType(type).build()
-        );
-
-        when(requestRepository.findByRequestType(type)).thenReturn(fakeRequests);
+        when(requestRepository.findByRequestType(type)).thenReturn(requests);
 
         List<RequestDto> result = requestService.findByRequestType(type);
         assertEquals(2, result.size());
@@ -116,13 +113,13 @@ public class RequestServiceTest {
 
     @Test
     public void testUpdateRequest() {
-        requestService.updateRequest(new RequestDto());
+        requestService.updateRequest(requestDto);
         verify(requestRepository, times(1)).save(any());
     }
 
     @Test
     public void testDeleteRequest() {
-        requestService.deleteRequest(new RequestDto());
+        requestService.deleteRequest(requestDto);
         verify(requestRepository, times(1)).delete(any());
     }
 }
