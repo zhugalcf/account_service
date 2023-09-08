@@ -13,12 +13,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestStatusPublisher {
-    @Value("${spring.data.redis.channels.request_status_channel.name}")
-    private String channel;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public void publishMessage(RequestStatusChangedEvent event) {
+    public void publishMessage(RequestStatusChangedEvent event, String channel) {
         String jsonEvent;
         try {
             jsonEvent = objectMapper.writeValueAsString(event);

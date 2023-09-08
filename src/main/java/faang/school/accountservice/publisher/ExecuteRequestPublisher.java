@@ -14,12 +14,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class ExecuteRequestPublisher {
-    @Value("${spring.data.redis.channels.execute-request-channel.name}")
-    private String channel;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public void publishMessage(ExecuteRequestEvent event) {
+    public void publishMessage(ExecuteRequestEvent event, String channel) {
         String jsonEvent;
         try {
             jsonEvent = objectMapper.writeValueAsString(event);

@@ -13,6 +13,7 @@ import faang.school.accountservice.repository.RequestRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestService {
+    @Value("${spring.data.redis.channels.execute-request-channel.name}")
+    private String executeRequestChannel;
+    @Value("${spring.data.redis.channels.request_status_channel.name}")
+    private String requestStatusChannel;
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
     private final RequestStatusPublisher requestStatusPublisher;
@@ -45,7 +50,7 @@ public class RequestService {
 
         request.setStatus(RequestStatus.WAITING);
 
-        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request));
+        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request), requestStatusChannel);
         return requestMapper.toDto(requestRepository.save(request));
     }
 
@@ -60,15 +65,12 @@ public class RequestService {
             return requestMapper.toDto(request);
         }
 
-        if (withSameLock != null && !withSameLock.getIdempotentToken().equals(request.getIdempotentToken())) {
-            throw new IllegalArgumentException("You are already processing the request with same lock");
-        }
+        validateRequestWithSameLock(request, withSameLock);
 
         request.setOpen(true);
         request.setStatus(RequestStatus.TOEXECUTE);
-        request.setVersion(request.getVersion() + 1);
 
-        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request));
+        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request), requestStatusChannel);
         return requestMapper.toDto(request);
     }
 
@@ -95,9 +97,8 @@ public class RequestService {
 
         request.setDetails(updateRequestDto.getDetails());
         request.setInput(updateRequestDto.getInput());
-        request.setVersion(request.getVersion() + 1);
 
-        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request));
+        requestStatusPublisher.publishMessage(requestMapper.toStatusChangeEvent(request), requestStatusChannel);
         return requestMapper.toDto(request);
     }
 
@@ -105,10 +106,9 @@ public class RequestService {
     public void executeRequests() {
         List<Request> requests = requestRepository.findAllByStatusForUpdate(RequestStatus.TOEXECUTE);
         requests.forEach(request -> {
-            executeRequestPublisher.publishMessage(requestMapper.toExecuteEvent(request));
+            executeRequestPublisher.publishMessage(requestMapper.toExecuteEvent(request), executeRequestChannel);
             request.setStatus(RequestStatus.EXECUTED);
             request.setOpen(false);
-            request.setVersion(request.getVersion() + 1);
         });
     }
 
@@ -120,6 +120,13 @@ public class RequestService {
 
         if (inputNotSame) {
             throw new IllegalArgumentException("You already have the request with same idempotent token");
+        }
+    }
+
+
+    private static void validateRequestWithSameLock(Request request, Request withSameLock) {
+        if (withSameLock != null && !withSameLock.getIdempotentToken().equals(request.getIdempotentToken())) {
+            throw new IllegalArgumentException("You are already processing the request with same lock");
         }
     }
 }
