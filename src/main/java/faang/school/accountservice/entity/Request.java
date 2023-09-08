@@ -26,12 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-@Table(
-        name = "requests",
-        indexes = @Index(name = "idx_user_id", columnList = "user_id"),
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"lock", "user_id"}, name = "uniq_lock_user_id")
-        })
+@Table(name = "requests")
 @Entity
 @Data
 @AllArgsConstructor
