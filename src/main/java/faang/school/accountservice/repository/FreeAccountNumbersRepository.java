@@ -14,5 +14,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<AccountNumbe
     }
 
     @Query(value = "DELETE FROM AccountNumber an LIMIT 1 RETERNING an")
+    @Transactional
     AccountNumber getFreeNumber();
 }
