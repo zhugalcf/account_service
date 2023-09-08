@@ -1,5 +1,7 @@
 package faang.school.accountservice;
 
+import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountRequestMapper;
 import faang.school.accountservice.mapper.AccountResponseMapper;
@@ -54,5 +56,28 @@ public class AccountThrowExceptionTest {
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenThrow(OptimisticLockingFailureException.class);
         assertThrows(IllegalArgumentException.class, () -> accountService.closeAccount(account.getId()));
+    }
+
+    @Test
+    public void saveAccountAfterUnlockThrowExceptionTest() {
+        Account account = new Account();
+        account.setId(1L);
+        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(accountRepository.save(account)).thenThrow(OptimisticLockingFailureException.class);
+        assertThrows(IllegalArgumentException.class, () -> accountService.unlockAccount(account.getId()));
+    }
+
+    @Test
+    public void checkAccountBlockedStatusTest() {
+        Account account = new Account();
+        account.setStatus(AccountStatus.BLOCKED);
+        assertThrows(DataValidationException.class, () -> accountService.checkAccountBlockedStatus(account));
+    }
+
+    @Test
+    public void checkAccountClosedStatusTest() {
+        Account account = new Account();
+        account.setStatus(AccountStatus.CLOSED);
+        assertThrows(DataValidationException.class, () -> accountService.checkAccountClosedStatus(account));
     }
 }
