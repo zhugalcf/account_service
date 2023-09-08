@@ -13,5 +13,5 @@ CREATE TABLE account
     version INT NOT NULL
 );
 
-CREATE INDEX idx_owner_type ON account(owner_type);
+CREATE INDEX owner_type_and_ididx ON account(owner_type, owner_id);
 CREATE INDEX idx_number ON account(number);
