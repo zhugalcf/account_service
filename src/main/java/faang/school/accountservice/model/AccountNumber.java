@@ -1,7 +1,7 @@
 package faang.school.accountservice.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -10,8 +10,8 @@ import jakarta.persistence.Table;
 public class AccountNumber {
 
     @Id
-    @GeneratedValue()
-    private Long id;
-    private String type;
-    private Long account_number;
+    private String account_number;
+    @Column(name = "type", length = 20, nullable = false)
+    private AccountNumberType type;
+
 }
