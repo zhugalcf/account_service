@@ -37,7 +37,7 @@ public class SavingsAccount {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "savingAccount")
+    @OneToMany(mappedBy = "savingsAccount")
     private List<Tariff> tariffHistory;
 
     @Temporal(TemporalType.TIMESTAMP)

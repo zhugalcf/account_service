@@ -1,7 +1,7 @@
 
 
 CREATE TABLE savings_account (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY unique,
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     account_id bigint NOT NULL,
     last_interest_date timestamptz DEFAULT current_timestamp,
     version INT NOT NULL,
@@ -16,11 +16,11 @@ CREATE TABLE tariff (
     "type" VARCHAR(20) NOT NULL,
     saving_account_id bigint NOT NULL,
 
-    CONSTRAINT fk_account_tariff FOREIGN KEY (saving_account_id) REFERENCES saving_account (id)
+    CONSTRAINT fk_account_tariff FOREIGN KEY (saving_account_id) REFERENCES savings_account (id)
 );
 
 CREATE TABLE rate (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS INDENTITY UNIQUE,
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     "percent" DECIMAL(5, 2) NOT NULL,
     tariff_id bigint NOT NULL,
 
