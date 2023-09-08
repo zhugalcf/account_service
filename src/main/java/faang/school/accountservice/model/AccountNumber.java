@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 public class AccountNumber {
 
     @Id
+    @Column(name = "account_number", length = 20, nullable = false, unique = true)
     private String account_number;
     @Column(name = "type", length = 20, nullable = false)
     private AccountNumberType type;
