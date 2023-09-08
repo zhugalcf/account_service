@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.model.request.RequestStatus;
 import faang.school.accountservice.model.request.RequestType;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,6 +21,7 @@ public class RequestDto {
     private Long id;
     private UUID idempotencyKey;
     private Long ownerId;
+    private OwnerType ownerType;
     private RequestType requestType;
     private String lockValue;
     private boolean isOpen;

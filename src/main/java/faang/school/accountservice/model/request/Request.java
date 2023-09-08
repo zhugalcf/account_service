@@ -1,5 +1,6 @@
 package faang.school.accountservice.model.request;
 
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.util.MapToJsonConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,11 +26,15 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "idempotency_key", nullable = false)
+    @Column(name = "idempotency_key", nullable = false, unique = true)
     private UUID idempotencyKey;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "owner_type", nullable = false)
+    private OwnerType ownerType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_type", nullable = false)
