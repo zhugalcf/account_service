@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.mapper.AccountRequestMapper;
 import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
@@ -36,7 +37,7 @@ public class AccountServiceTest {
         accountResponseMapper = Mockito.mock(AccountResponseMapper.class);
         accountService = new AccountService(accountRepository, accountRequestMapper, accountResponseMapper);
         accountRequestDto = AccountRequestDto.builder()
-                .typeOfOwner("owner")
+                .ownerType(OwnerType.USER)
                 .accountType(AccountType.CREDIT)
                 .currency(Currency.USD)
                 .status(AccountStatus.OPEN)
@@ -93,6 +94,18 @@ public class AccountServiceTest {
         when(accountResponseMapper.accountToResponseDto(account)).thenReturn(accountResponseDto);
         AccountResponseDto result = accountService.closeAccount(1L);
         assertEquals(AccountStatus.CLOSED, account.getStatus());
+        assertEquals(account.getVersion(), result.getVersion());
+    }
+
+    @Test
+    public void unlockAccountTest() {
+        Account account = new Account();
+        account.setId(1L);
+        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(accountRepository.save(account)).thenReturn(account);
+        when(accountResponseMapper.accountToResponseDto(account)).thenReturn(accountResponseDto);
+        AccountResponseDto result = accountService.unlockAccount(1L);
+        assertEquals(AccountStatus.OPEN, account.getStatus());
         assertEquals(account.getVersion(), result.getVersion());
     }
 }
