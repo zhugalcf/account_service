@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         info = @Info(
                 title = "Account Service",
                 version = "1.0.0",
-                description = "OpenApi documentation for User Service",
+                description = "OpenApi documentation for Account Service",
                 contact = @Contact(
                         name = "Faang School",
                         url = "https://faang.school"
