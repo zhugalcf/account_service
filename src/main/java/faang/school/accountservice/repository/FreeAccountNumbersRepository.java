@@ -9,12 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<AccountNumber, String> {
 
-    default void createNewNumber(AccountNumber accountNumber){
+    default void createNewNumber(AccountNumber accountNumber) {
         save(accountNumber);
     }
 
-    @Query(value = "BEGIN TRANSACTION;" +
-            "DELETE FROM AccountNumber an LIMIT 1 RETERNING an;" +
-            "COMMIT;")
+    @Query(value = "DELETE FROM AccountNumber an LIMIT 1 RETERNING an")
     AccountNumber getFreeNumber();
 }
