@@ -21,7 +21,8 @@ import org.mockito.quality.Strictness;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.when;
 class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
+    @Mock
+    private CurrencyService currencyService;
     @Mock
     private OwnerService ownerService;
     @Mock
@@ -52,7 +55,7 @@ class AccountServiceTest {
                 .accountNumber("123")
                 .owner(owner)
                 .accountType(AccountType.CHECKING_ACCOUNT)
-                .currency(Currency.USD)
+                .currency(Currency.builder().code("USD").build())
                 .accountStatus(AccountStatus.OPENED)
                 .createdAt(dateTime)
                 .updatedAt(dateTime)
@@ -63,7 +66,7 @@ class AccountServiceTest {
                 .accountNumber("123")
                 .ownerId(1L)
                 .accountType(AccountType.CHECKING_ACCOUNT)
-                .currency(Currency.USD)
+                .currencyCode("USD")
                 .accountStatus(AccountStatus.OPENED)
                 .createdAt(dateTime)
                 .updatedAt(dateTime)
@@ -86,6 +89,12 @@ class AccountServiceTest {
     void open_shouldInvokeMapperToEntity() {
         accountService.open(accountDto);
         verify(accountMapper).toEntity(accountDto);
+    }
+
+    @Test
+    void open_shouldInvokeCurrencyServiceGetCurrency() {
+        accountService.open(accountDto);
+        verify(currencyService).getCurrency(accountDto.getCurrencyCode());
     }
 
     @Test

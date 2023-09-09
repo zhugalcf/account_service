@@ -12,8 +12,8 @@ import org.mapstruct.ReportingPolicy;
 public interface AccountMapper {
 
     @Mapping(target = "ownerId", source = "owner.id")
+    @Mapping(target = "currencyCode", source = "currency.code")
     AccountDto toDto(Account entity);
 
-    @Mapping(target = "owner", ignore = true)
     Account toEntity(AccountDto dto);
 }

@@ -31,7 +31,7 @@ class AccountMapperTest {
                 .accountNumber("123")
                 .owner(Owner.builder().id(1L).build())
                 .accountType(AccountType.CHECKING_ACCOUNT)
-                .currency(Currency.USD)
+                .currency(Currency.builder().code("USD").build())
                 .accountStatus(AccountStatus.OPENED)
                 .createdAt(dateTime)
                 .updatedAt(dateTime)
@@ -42,7 +42,7 @@ class AccountMapperTest {
                 .accountNumber("123")
                 .ownerId(1L)
                 .accountType(AccountType.CHECKING_ACCOUNT)
-                .currency(Currency.USD)
+                .currencyCode("USD")
                 .accountStatus(AccountStatus.OPENED)
                 .createdAt(dateTime)
                 .updatedAt(dateTime)
@@ -59,6 +59,7 @@ class AccountMapperTest {
     void toEntity() {
         Account actual = accountMapper.toEntity(accountDtoExpected);
         actual.setOwner(Owner.builder().id(1L).build());
+        actual.setCurrency(Currency.builder().code("USD").build());
         assertEquals(accountExpected, actual);
     }
 }

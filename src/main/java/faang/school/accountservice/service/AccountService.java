@@ -4,11 +4,14 @@ import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.entity.Owner;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.AccountStatus;
+import faang.school.accountservice.entity.account.Currency;
 import faang.school.accountservice.excpetion.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class AccountService {
     private final OwnerService ownerService;
+    private final CurrencyService currencyService;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
@@ -29,10 +33,13 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public AccountDto open(AccountDto accountDto) {
-        Account account = accountMapper.toEntity(accountDto);
-
         Owner owner = ownerService.getOwner(accountDto.getOwnerId());
+        Currency currency = currencyService.getCurrency(accountDto.getCurrencyCode());
+
+        Account account = accountMapper.toEntity(accountDto);
+        account.setCurrency(currency);
         account.setOwner(owner);
         account.setAccountStatus(AccountStatus.OPENED);
 
@@ -40,6 +47,7 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public AccountDto block(Long id) {
         Account account = getAccount(id);
         account.setAccountStatus(AccountStatus.BLOCKED);
@@ -47,6 +55,7 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public AccountDto close(Long id) {
         Account account = getAccount(id);
         account.setAccountStatus(AccountStatus.CLOSED);

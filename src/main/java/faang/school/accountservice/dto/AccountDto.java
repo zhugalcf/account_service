@@ -1,8 +1,8 @@
 package faang.school.accountservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.account.AccountType;
-import faang.school.accountservice.entity.account.Currency;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AccountDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @NotBlank(message = "Account number is required")
@@ -32,7 +33,8 @@ public class AccountDto {
     private AccountType accountType;
 
     @NotNull(message = "Account currency is required")
-    private Currency currency;
+    @Pattern(message = "Currency code must be 3 three characters in upper case", regexp = "^[A-Z]{3}$")
+    private String currencyCode;
 
     private AccountStatus accountStatus;
 

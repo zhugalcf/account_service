@@ -46,8 +46,8 @@ public class Account {
     @Enumerated(EnumType.ORDINAL)
     private AccountType accountType;
 
-    @Column(name = "currency", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @ManyToOne
+    @JoinColumn(name = "currency_code", nullable = false)
     private Currency currency;
 
     @Column(name = "account_status", nullable = false)
