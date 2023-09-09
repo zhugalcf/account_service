@@ -48,7 +48,7 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    AccountType type;
+    private AccountType type;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)

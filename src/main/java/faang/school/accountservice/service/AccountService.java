@@ -6,7 +6,9 @@ import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class AccountService {
     private final AccountMapper accountMapper;
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class)
     public AccountDto open(AccountDto accountDto) {
         accountDto.setStatus(Status.ACTIVE);
         Account account = accountRepository.save(accountMapper.toEntity(accountDto));
@@ -32,6 +35,7 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class)
     public AccountDto block(long id, Status status) {
         Account account = getAccount(id);
         account.setStatus(status);
@@ -39,6 +43,7 @@ public class AccountService {
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class)
     public AccountDto close(long id) {
         Account account = getAccount(id);
         account.setStatus(Status.CLOSED);

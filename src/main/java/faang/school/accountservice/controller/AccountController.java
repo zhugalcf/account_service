@@ -3,6 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.enums.Status;
 import faang.school.accountservice.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,7 +22,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/open")
-    public AccountDto open(@RequestBody AccountDto accountDto) {
+    public AccountDto open(@RequestBody @Valid AccountDto accountDto) {
         return accountService.open(accountDto);
     }
 
