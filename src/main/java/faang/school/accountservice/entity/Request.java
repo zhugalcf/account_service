@@ -24,6 +24,9 @@ import java.util.UUID;
 @Table(name = "request")
 public class Request {
     @Id
+    private Long id;
+
+    @Column(name = "idempotent_token")
     private UUID idempotentToken;
 
     @Column(name = "user_id", nullable = false)
