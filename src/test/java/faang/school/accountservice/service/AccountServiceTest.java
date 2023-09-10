@@ -98,7 +98,7 @@ class AccountServiceTest {
                 .userId(1L)
                 .number("123456789012345")
                 .status(AccountStatus.ACTIVE)
-                .type(AccountType.DEBIT)
+                .type(AccountType.CURRENT_ACCOUNT)
                 .currency(Currency.USD)
                 .version(1L)
                 .build();
@@ -110,7 +110,7 @@ class AccountServiceTest {
                 .userId(1L)
                 .number("123456789012345")
                 .status(AccountStatus.ACTIVE)
-                .type(AccountType.DEBIT)
+                .type(AccountType.CURRENT_ACCOUNT)
                 .currency(Currency.USD)
                 .version(1L)
                 .build();
