@@ -81,9 +81,14 @@ public class AccountService {
         return accountResponseMapper.accountToResponseDto(account);
     }
 
-    private Account getAccountById(long accountId) {
+    public Account getAccountById(long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
+    }
+
+    public Account getAccountByOwnerId(long ownerId) {
+        return accountRepository.getAccountByOwnerId(ownerId)
+                .orElseThrow(() -> new NotFoundException(String.format("There is no account with owner id: %d", ownerId)));
     }
 
     private void saveAccountAfterBlock(Account account) {
