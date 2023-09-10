@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
@@ -43,13 +44,13 @@ public class AccountDto {
     private AccountStatus status;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDateTime closedAt;
+    private Instant closedAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long version;

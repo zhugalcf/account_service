@@ -3,8 +3,6 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.client.ProjectServiceClient;
 import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.account.AccountDto;
-import faang.school.accountservice.dto.project.ProjectDto;
-import faang.school.accountservice.dto.user.UserDto;
 import faang.school.accountservice.mapper.AccountMapperImpl;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.AccountStatus;
@@ -13,10 +11,8 @@ import faang.school.accountservice.model.Currency;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.exception.DataValidationException;
 import faang.school.accountservice.util.exception.EntityNotFoundException;
-import faang.school.accountservice.util.validator.AccountServiceValidator;
-import feign.FeignException;
+import faang.school.accountservice.util.validator.AccountOwnerChecker;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,7 +39,7 @@ class AccountServiceTest {
     private ProjectServiceClient projectServiceClient;
 
     @Spy
-    private AccountServiceValidator accountServiceValidator = new AccountServiceValidator(userServiceClient, projectServiceClient);
+    private AccountOwnerChecker accountOwnerChecker = new AccountOwnerChecker(userServiceClient, projectServiceClient);
 
     @InjectMocks
     private AccountService accountService;
@@ -91,7 +87,7 @@ class AccountServiceTest {
 
     @Test
     void create_RequestHasOnlyOneOwner_ShouldMapCorrectlyAndSave() {
-        Mockito.doNothing().when(accountServiceValidator).validateToCreate(mockAccountDto());
+        Mockito.doNothing().when(accountOwnerChecker).validateToCreate(mockAccountDto());
 
         accountService.create(mockAccountDto());
 

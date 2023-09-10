@@ -3,7 +3,6 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.exception.EntityNotFoundException;
 import faang.school.accountservice.util.validator.AccountServiceValidator;
@@ -11,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +19,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final AccountServiceValidator accountServiceValidator;
+    private final AccountOwnerChecker accountOwnerChecker;
 
     public AccountDto get(Long id) {
         Account foundAccount = getAccountById(id);
@@ -32,13 +29,11 @@ public class AccountService {
 
     @Transactional
     public AccountDto create(AccountDto dto) {
-        accountServiceValidator.validateToCreate(dto);
+        accountOwnerChecker.validateToCreate(dto);
 
         Account account = accountMapper.toEntity(dto);
 
-        log.info("Creating new account: {}", account);
-
-        Account saved = accountRepository.save(account); // тут еще нужно будет сетить сгенерированный номер счета из другой таски
+        Account saved = accountRepository.save(account); // TODO: 06.09.2023 BC-5752
 
         return accountMapper.toDto(saved);
     }
