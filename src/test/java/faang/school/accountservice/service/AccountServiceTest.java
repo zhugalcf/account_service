@@ -11,7 +11,7 @@ import faang.school.accountservice.model.Currency;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.exception.DataValidationException;
 import faang.school.accountservice.util.exception.EntityNotFoundException;
-import faang.school.accountservice.util.validator.AccountOwnerChecker;
+import faang.school.accountservice.util.validator.AccountServiceValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +39,7 @@ class AccountServiceTest {
     private ProjectServiceClient projectServiceClient;
 
     @Spy
-    private AccountOwnerChecker accountOwnerChecker = new AccountOwnerChecker(userServiceClient, projectServiceClient);
+    private AccountServiceValidator accountServiceValidator = new AccountServiceValidator(userServiceClient, projectServiceClient);
 
     @InjectMocks
     private AccountService accountService;
@@ -87,7 +87,7 @@ class AccountServiceTest {
 
     @Test
     void create_RequestHasOnlyOneOwner_ShouldMapCorrectlyAndSave() {
-        Mockito.doNothing().when(accountOwnerChecker).validateToCreate(mockAccountDto());
+        Mockito.doNothing().when(accountServiceValidator).validateToCreate(mockAccountDto());
 
         accountService.create(mockAccountDto());
 

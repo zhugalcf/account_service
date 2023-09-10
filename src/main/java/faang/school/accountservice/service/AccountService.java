@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.account.AccountDto;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.AccountStatus;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.util.exception.EntityNotFoundException;
 import faang.school.accountservice.util.validator.AccountServiceValidator;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +22,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final AccountOwnerChecker accountOwnerChecker;
+    private final AccountServiceValidator accountServiceValidator;
 
     public AccountDto get(Long id) {
         Account foundAccount = getAccountById(id);
@@ -29,7 +32,7 @@ public class AccountService {
 
     @Transactional
     public AccountDto create(AccountDto dto) {
-        accountOwnerChecker.validateToCreate(dto);
+        accountServiceValidator.validateToCreate(dto);
 
         Account account = accountMapper.toEntity(dto);
 
@@ -62,7 +65,7 @@ public class AccountService {
         log.info("Closing account: {}", foundAccount);
 
         foundAccount.setStatus(AccountStatus.CLOSED);
-        foundAccount.setClosedAt(LocalDateTime.now());
+        foundAccount.setClosedAt(Instant.now());
 
         Account saved = accountRepository.save(foundAccount);
 
