@@ -1,6 +1,5 @@
 package faang.school.accountservice.entity.account;
 
-
 import faang.school.accountservice.entity.owner.Owner;
 import faang.school.accountservice.enums.Currency;
 import jakarta.persistence.Column;
@@ -10,15 +9,24 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
-@Table(name = "account")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "account", indexes = {@Index(name = "index_number", columnList = "number")})
 public class Account {
 
     @Id
