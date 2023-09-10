@@ -24,6 +24,7 @@ public class AccountDto {
 
     @NotBlank(message = "Account number is required")
     @Pattern(message = "Account number must be between 12 and 20 characters", regexp = "^(.{12,20})$")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String accountNumber;
 
     @NotNull(message = "Owner ID is required")
