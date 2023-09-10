@@ -2,6 +2,7 @@ package faang.school.accountservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,16 +30,17 @@ import java.util.List;
 @Entity
 @Table(name = "savings_account")
 public class SavingsAccount {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "savingsAccount")
-    private List<Tariff> tariffHistory;
+    @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY)
+    private List<TariffHistory> tariffHistory;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_interest_date")

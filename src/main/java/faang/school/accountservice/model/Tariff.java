@@ -5,11 +5,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -35,10 +34,10 @@ public class Tariff {
     @Column(name = "type", nullable = false)
     private TariffType type;
 
-    @ManyToOne
-    @JoinColumn(name = "saving_account_id")
-    private SavingsAccount savingsAccount;
+    @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)
+    private List<TariffHistory> tariffHistory;
 
-    @OneToMany(mappedBy = "tariff")
+    @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)
     private List<Rate> rateHistory;
+
 }
