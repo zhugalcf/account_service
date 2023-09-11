@@ -1,5 +1,6 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.enums.TariffType;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ public class SavingsAccountDto {
     @Min(value = 1, message = "Значение должно быть не меньше 1")
     private long accountId;
     private int version;
+    private TariffType tariffType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

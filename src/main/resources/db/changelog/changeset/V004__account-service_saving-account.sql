@@ -19,7 +19,7 @@ CREATE TABLE tariff (
 
 CREATE TABLE tariff_history (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    savings_account_id bigint NOT NULL,
+    savings_account_id bigint,
     tariff_id bigint NOT NULL,
     last_modified_date timestamptz DEFAULT current_timestamp,
 

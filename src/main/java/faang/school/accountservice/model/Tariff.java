@@ -34,7 +34,7 @@ public class Tariff {
     private long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, unique = true)
     private TariffType type;
 
     @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)

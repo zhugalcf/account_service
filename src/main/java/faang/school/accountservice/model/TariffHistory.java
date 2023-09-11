@@ -43,4 +43,5 @@ public class TariffHistory {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+    //createdAt;
 }

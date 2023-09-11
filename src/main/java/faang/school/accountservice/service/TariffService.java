@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.enums.TariffType;
+import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.TariffMapper;
 import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.repository.TariffRepository;
@@ -19,11 +20,17 @@ import java.util.List;
 @Slf4j
 public class TariffService {
 
+    private SavingsAccountService savingsAccountService;
     private final TariffRepository tariffRepository;
     private final TariffMapper tariffMapper;
 
     public void addTariffToSavingsAccount(long savingsAccountId, TariffType tariffType) {
 
+    }
+
+    public Tariff getTariff(TariffType tariffType) {
+        return tariffRepository.getByType(tariffType)
+                .orElseThrow(() -> new NotFoundException("Not Found"));
     }
 
 //    private Tariff getTariffWithCurrentRateBy(TariffType tariffType) {
