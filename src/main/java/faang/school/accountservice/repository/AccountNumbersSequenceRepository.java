@@ -20,7 +20,7 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
             "UPDATE AccountNumbersSequence SET current = current + 1 WHERE type  = :type " +
             "RETURN true " +
             "ELSE " +
-            "RETURN false")
+            "RETURN false;")
     @Transactional
     boolean optimisticIncrement(@Param("type") AccountNumberType type);
 }
