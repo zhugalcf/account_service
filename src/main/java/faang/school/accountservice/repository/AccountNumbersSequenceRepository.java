@@ -14,10 +14,13 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     @Query("INSERT INTO AccountNumbersSequence (type, current) VALUES (:type, 0) " +
             "WHERE NOT EXISTS (SELECT * FROM account_numbers_sequence WHERE type = :type);")
     void createNewCounter(@Param("type") AccountNumberType type);
-    @Query("UPDATE AccountNumbersSequence " +
-                    "SET current = current + 1 " +
-                    "WHERE type  = :type" +
-                    "RETURNING 'TRUE';")
+
+    @Query("IF EXISTS(SELECT * FROM account_numbers_sequence WHERE type = :type) " +
+            "THEN" +
+            "UPDATE AccountNumbersSequence SET current = current + 1 WHERE type  = :type " +
+            "RETURN true " +
+            "ELSE " +
+            "RETURN false")
     @Transactional
     boolean optimisticIncrement(@Param("type") AccountNumberType type);
 }
