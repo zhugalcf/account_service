@@ -101,8 +101,8 @@ class RequestServiceUnitTest {
         RequestDto requestDto2 = RequestDto.builder().id(2L).build();
         List<RequestDto> requestDtos = List.of(requestDto, requestDto2);
 
-        Mockito.when(requestRepository.findByOwnerId(1L)).thenReturn(requests);
-        List<RequestDto> requestResult = requestService.getRequestByOwner(1L);
+        Mockito.when(requestRepository.findByOwnerIdAndOwnerType(1L, OwnerType.USER)).thenReturn(requests);
+        List<RequestDto> requestResult = requestService.getRequestByOwner(1L, OwnerType.USER);
         Assertions.assertEquals(requestDtos, requestResult);
     }
 
@@ -110,7 +110,7 @@ class RequestServiceUnitTest {
     void testIsNewRequestCreating() {
         Mockito.when(requestRepository.findByIdempotencyKey(createRequestDto.getIdempotencyKey()))
                 .thenReturn(Optional.empty());
-        requestService.createRequest(createRequestDto);
+        requestService.getOrSave(createRequestDto);
         Request entity = createRequestMapper.toEntity(createRequestDto);
         entity.setOpen(true);
         entity.setRequestStatus(RequestStatus.TO_DO);
@@ -120,7 +120,7 @@ class RequestServiceUnitTest {
     @Test
     void testIsOldRequestReturned() {
         Mockito.when(requestRepository.findByIdempotencyKey(request.getIdempotencyKey())).thenReturn(Optional.of(request));
-        RequestDto requestDtoResult = requestService.createRequest(createRequestDto);
+        RequestDto requestDtoResult = requestService.getOrSave(createRequestDto);
         Assertions.assertEquals(requestDtoResult, requestDtoResult);
     }
 
@@ -128,7 +128,7 @@ class RequestServiceUnitTest {
     void testCreateRequestThrowsIdempotencyException() {
         createRequestDto.setInputData(new HashMap<>());
         Mockito.when(requestRepository.findByIdempotencyKey(request.getIdempotencyKey())).thenReturn(Optional.of(request));
-        Assertions.assertThrows(IdempotencyException.class, () -> requestService.createRequest(createRequestDto));
+        Assertions.assertThrows(IdempotencyException.class, () -> requestService.getOrSave(createRequestDto));
     }
 
     @Test

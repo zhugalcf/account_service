@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.request.CreateRequestDto;
 import faang.school.accountservice.dto.request.RequestDto;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.IdempotencyException;
+import faang.school.accountservice.exception.LockedRequestException;
 import faang.school.accountservice.exception.RequestNotFoundException;
 import faang.school.accountservice.mapper.request.CreateRequestMapper;
 import faang.school.accountservice.model.request.Request;
@@ -35,13 +37,13 @@ public class RequestService {
         return requestMapper.toDto(request);
     }
 
-    public List<RequestDto> getRequestByOwner(long ownerId) {
-        List<Request> request = requestRepository.findByOwnerId(ownerId);
+    public List<RequestDto> getRequestByOwner(long ownerId, OwnerType ownerType) {
+        List<Request> request = requestRepository.findByOwnerIdAndOwnerType(ownerId, ownerType);
         return requestMapper.toListDto(request);
     }
 
     @Transactional
-    public RequestDto createRequest(CreateRequestDto requestDto) {
+    public RequestDto getOrSave(CreateRequestDto requestDto) {
         Request incomeRequest = createRequestMapper.toEntity(requestDto);
         Request request = requestRepository.findByIdempotencyKey(requestDto.getIdempotencyKey()).orElse(null);
         if (request != null) {
@@ -61,7 +63,7 @@ public class RequestService {
         if (requestStatus != null) {
             request.setRequestStatus(requestStatus);
             request.setStatusDetails(statusDetails);
-            if (requestStatus == RequestStatus.DONE || requestStatus == RequestStatus.FAILURE) {
+            if (requestStatus.isTerminated()) {
                 request.setOpen(false);
             }
         }
@@ -69,13 +71,17 @@ public class RequestService {
     }
 
     private void validateSameTokenDifferentInput(Object newInput, Map<String, Object> oldInput) {
+        boolean inputSame = isInputDataSame(newInput, oldInput);
+        if (!inputSame) {
+            throw new IdempotencyException("You already have the request with same idempotent token");
+        }
+    }
+
+    private boolean isInputDataSame(Object newInput, Map<String, Object> oldInput) {
         try {
             String newInputData = objectMapper.writeValueAsString(newInput);
             String oldInputData = objectMapper.writeValueAsString(oldInput);
-            boolean inputSame = newInputData.equals(oldInputData);
-            if (!inputSame) {
-                throw new IdempotencyException("You already have the request with same idempotent token");
-            }
+            return newInputData.equals(oldInputData);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

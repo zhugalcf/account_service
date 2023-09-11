@@ -2,6 +2,7 @@ package faang.school.accountservice.handler;
 
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.IdempotencyException;
+import faang.school.accountservice.exception.LockedRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,14 @@ public class GlobalExceptionHandler {
         log.warn("IdempotencyException", e);
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(LockedRequestException.class)
+    public ResponseEntity<String> handleLockedRequestException(LockedRequestException e) {
+        log.warn("LockedRequestException", e);
+        return ResponseEntity
+                .status(HttpStatus.LOCKED)
                 .body(e.getMessage());
     }
 

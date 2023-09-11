@@ -78,17 +78,17 @@ public class RequestServiceIntegrationTest {
 
     @Test
     public void testRequestWithSameTokenIsNotCreating() {
-        RequestDto requestResult = requestService.createRequest(createRequestDto);
+        RequestDto requestResult = requestService.getOrSave(createRequestDto);
         Assertions.assertEquals(requestDto.getIdempotencyKey(), requestResult.getIdempotencyKey());
-        RequestDto sameRequestResult = requestService.createRequest(createRequestDto);
+        RequestDto sameRequestResult = requestService.getOrSave(createRequestDto);
         Assertions.assertEquals(requestResult.getId(), sameRequestResult.getId());
     }
 
     @Test
     public void testAnotherRequestWithSameTokenThrowsIdempotencyException() {
-        requestService.createRequest(createRequestDto);
+        requestService.getOrSave(createRequestDto);
         createRequestDto.setInputData(new HashMap<>());
-        Assertions.assertThrows(IdempotencyException.class, () -> requestService.createRequest(createRequestDto));
+        Assertions.assertThrows(IdempotencyException.class, () -> requestService.getOrSave(createRequestDto));
     }
 
     @Test
@@ -96,11 +96,11 @@ public class RequestServiceIntegrationTest {
         UUID newRequestKeyWithLockValue = UUID.fromString("6a8a12c5-3fc0-4f1a-80a5-d9e3a977d953");
         createRequestDto.setIdempotencyKey(newRequestKeyWithLockValue);
         createRequestDto.setLockValue("1");
-        requestService.createRequest(createRequestDto);
+        requestService.getOrSave(createRequestDto);
         UUID newRequestKeyWithSameLockValue = UUID.fromString("7a8a12c5-3fc0-4f1a-80a5-d9e3a977d953");
         createRequestDto.setIdempotencyKey(newRequestKeyWithSameLockValue);
         Assertions.assertThrows(org.springframework.dao.DataIntegrityViolationException.class,
-                () -> requestService.createRequest(createRequestDto));
+                () -> requestService.getOrSave(createRequestDto));
     }
 
     @Test
