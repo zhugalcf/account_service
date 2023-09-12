@@ -22,6 +22,8 @@ public class SavingsAccountDto {
     @NotNull(message = "current tariff cannot be null")
     private Long current_tariff;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private TariffDto tariffDto;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String tariffHistory;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime lastInterestDate;

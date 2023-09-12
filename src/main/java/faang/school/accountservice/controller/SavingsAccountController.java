@@ -1,7 +1,6 @@
 package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.SavingsAccountDto;
-import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.service.SavingsAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,8 @@ public class SavingsAccountController {
         return ResponseEntity.ok().body(accountDto);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<TariffDto> getTariffByAccountId(@PathVariable long id) {
-        var tariffDto = savingsAccountService.getTariffByAccountId(id);
+    public ResponseEntity<SavingsAccountDto> getSavingAccount(@PathVariable long id) {
+        var tariffDto = savingsAccountService.getSavingAccount(id);
         return ResponseEntity.ok().body(tariffDto);
     }
 }

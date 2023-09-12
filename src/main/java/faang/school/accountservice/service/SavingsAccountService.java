@@ -15,8 +15,8 @@ public class SavingsAccountService {
     private final SavingAccountRepository savingAccountRepository;
     private final TariffService tariffService;
 
-    public SavingsAccountDto openAccount(SavingsAccountDto accountDTO){
-        var savingAccount  = accountMapper.toEntity(accountDTO);
+    public SavingsAccountDto openAccount(SavingsAccountDto accountDTO) {
+        var savingAccount = accountMapper.toEntity(accountDTO);
         var account = accountService.getAccountById(accountDTO.getAccountId());
         var tariff = tariffService.getTariffById(accountDTO.getCurrent_tariff());
         savingAccount.setAccount(account);
@@ -25,8 +25,13 @@ public class SavingsAccountService {
         return accountMapper.toDto(savedAccount);
     }
 
-    public TariffDto getTariffByAccountId(long accountId){
-        var tariff = tariffService.getTariffById(accountId);
-        return accountMapper.toDto(tariff);
+    public SavingsAccountDto getSavingAccount(long accountId) {
+        var account = savingAccountRepository.findById(accountId).orElseThrow(
+                () -> new RuntimeException("Account with id: " + accountId + " wasn`t found")
+        );
+        var tariffDto = accountMapper.toDto(account.getCurrent_tariff());
+        var accountDto = accountMapper.toDto(account);
+        accountDto.setTariffDto(tariffDto);
+        return accountDto;
     }
 }
