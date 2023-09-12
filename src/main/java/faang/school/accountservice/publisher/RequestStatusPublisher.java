@@ -24,6 +24,6 @@ public class RequestStatusPublisher {
             throw new RuntimeException(e);
         }
         redisTemplate.convertAndSend(channel, jsonEvent);
-        log.info("Message published to channel " + channel);
+        log.debug("Message published to channel {}", channel);
     }
 }
