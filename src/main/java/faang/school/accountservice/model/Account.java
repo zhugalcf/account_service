@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -62,4 +61,7 @@ public class Account {
     @Version
     @Column(name = "version", nullable = false)
     private long version;
+
+    @OneToOne(mappedBy = "account")
+    private Balance balance;
 }
