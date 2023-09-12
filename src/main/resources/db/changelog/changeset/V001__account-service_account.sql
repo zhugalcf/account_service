@@ -1,12 +1,12 @@
 create table account
 (
-    id             bigint primary key,
+    id             bigserial primary key,
     account_number bigint not null unique
 );
 
 create table balance
 (
-    id                    bigint primary key,
+    id                    bigserial primary key,
     account_id            bigint  not null unique references account (id),
     authorization_balance numeric not null,
     current_balance       numeric not null,
