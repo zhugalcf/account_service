@@ -18,4 +18,6 @@ public interface AccountMapper {
     SavingsAccountDto toDto(SavingAccount entity);
 
     TariffDto toDto(Tariff entity);
+
+    Tariff toEntity(TariffDto dto);
 }
