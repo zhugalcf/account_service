@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Table(name = "savings_account")
-public class SavingsAccount {
+public class SavingAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -34,6 +35,7 @@ public class SavingsAccount {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
@@ -44,4 +46,8 @@ public class SavingsAccount {
     @Version
     @Column(name = "version", nullable = false)
     private Long version;
+
+    @ManyToOne
+    @JoinColumn(name = "current_tariff")
+    private Tariff current_tariff;
 }

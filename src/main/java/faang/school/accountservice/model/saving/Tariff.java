@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -25,6 +26,8 @@ public class Tariff {
     @Enumerated(EnumType.STRING)
     private TariffType tariffType;
 
+    @Column(name = "current_rate")
+    private float current_rate;
 
     @Column(name = "rate_history")
     private String rateHistory;
@@ -32,4 +35,7 @@ public class Tariff {
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "current_tariff")
+    private List<SavingAccount> savingAccount;
 }
