@@ -41,4 +41,10 @@ public class AccountController {
         log.info("Received request to close account by id = {}", id);
         return accountService.closeAccount(id);
     }
+
+    @PutMapping("/unlock/{id}")
+    public AccountResponseDto unlockAccount(@PathVariable long id) {
+        log.info("Received request to unlock account by id = {}", id);
+        return accountService.unlockAccount(id);
+    }
 }
