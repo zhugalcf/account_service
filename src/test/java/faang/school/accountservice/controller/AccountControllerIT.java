@@ -86,13 +86,27 @@ class AccountControllerIT {
     }
 
     @Test
-    void close() throws Exception {
-        var requestBuilder = MockMvcRequestBuilders.put("/account/close/3");
+    void block() throws Exception {
+        var requestBuilder = MockMvcRequestBuilders.put("/account/block/3");
 
         mockMvc.perform(requestBuilder)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.id").value(3))
                 .andExpect(jsonPath("$.number").value("12345678901312"))
+                .andExpect(jsonPath("$.userId").value("1"))
+                .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
+                .andExpect(jsonPath("$.currency").value("USD"))
+                .andExpect(jsonPath("$.status").value("BLOCKED"));
+    }
+
+    @Test
+    void close() throws Exception {
+        var requestBuilder = MockMvcRequestBuilders.put("/account/close/4");
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.id").value(4))
+                .andExpect(jsonPath("$.number").value("123456789013121"))
                 .andExpect(jsonPath("$.userId").value("1"))
                 .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
                 .andExpect(jsonPath("$.currency").value("USD"))

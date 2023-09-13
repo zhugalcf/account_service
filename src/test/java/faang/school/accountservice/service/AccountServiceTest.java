@@ -105,30 +105,6 @@ class AccountServiceTest {
     }
 
     @Test
-    void freeze_AccountIsFrozen_ShouldThrowException() {
-        Account account = mockAccount();
-        account.setStatus(AccountStatus.FROZEN);
-        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
-
-        DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
-            accountService.freeze(ID);
-        });
-        Assertions.assertEquals(String.format("Account with id %s is already frozen", ID), e.getMessage());
-    }
-
-    @Test
-    void freeze_AccountIsClosed_ShouldThrowException() {
-        Account account = mockAccount();
-        account.setStatus(AccountStatus.CLOSED);
-        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
-
-        DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
-            accountService.freeze(ID);
-        });
-        Assertions.assertEquals(String.format("Account with id %s is closed", ID), e.getMessage());
-    }
-
-    @Test
     void freeze_InputsAreCorrect_StatusShouldBeFrozenAndAccountShouldBeSaved() {
         Account account = mockAccount();
         Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
@@ -147,18 +123,6 @@ class AccountServiceTest {
             accountService.close(ID);
         });
         Assertions.assertEquals(String.format("Account with id %s not found", ID), e.getMessage());
-    }
-
-    @Test
-    void close_AccountIsClosed_ShouldThrowException() {
-        Account account = mockAccount();
-        account.setStatus(AccountStatus.CLOSED);
-        Mockito.when(accountRepository.findById(ID)).thenReturn(Optional.of(account));
-
-        DataValidationException e = Assertions.assertThrows(DataValidationException.class, () -> {
-            accountService.close(ID);
-        });
-        Assertions.assertEquals(String.format("Account with id %s is already closed", ID), e.getMessage());
     }
 
     @Test

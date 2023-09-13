@@ -29,19 +29,4 @@ public class AccountServiceValidator {
             projectServiceClient.getProject(dto.getProjectId()); // проверяю есть ли такой проект в проект сервисе
         }
     }
-
-    public void validateToFreeze(Account account) {
-        if (account.getStatus().equals(AccountStatus.FROZEN)) {
-            throw new DataValidationException(String.format("Account with id %s is already frozen", account.getId()));
-        }
-        if (account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new DataValidationException(String.format("Account with id %s is closed", account.getId()));
-        }
-    }
-
-    public void validateToClose(Account account) {
-        if (account.getStatus().equals(AccountStatus.CLOSED)) {
-            throw new DataValidationException(String.format("Account with id %s is already closed", account.getId()));
-        }
-    }
 }

@@ -38,6 +38,8 @@ public class AccountService {
 
         Account saved = accountRepository.save(account); // TODO: 06.09.2023 BC-5752
 
+        log.info("Created account: {}", saved);
+
         return accountMapper.toDto(saved);
     }
 
@@ -45,13 +47,24 @@ public class AccountService {
     public AccountDto freeze(Long id) {
         Account foundAccount = getAccountById(id);
 
-        accountServiceValidator.validateToFreeze(foundAccount);
-
-        log.info("Freezing account: {}", foundAccount);
-
         foundAccount.setStatus(AccountStatus.FROZEN);
 
         Account saved = accountRepository.save(foundAccount);
+
+        log.info("Account was frozen: {}", saved);
+
+        return accountMapper.toDto(saved);
+    }
+
+    @Transactional
+    public AccountDto block(Long id) {
+        Account foundAccount = getAccountById(id);
+
+        foundAccount.setStatus(AccountStatus.BLOCKED);
+
+        Account saved = accountRepository.save(foundAccount);
+
+        log.info("Account was blocked: {}", saved);
 
         return accountMapper.toDto(saved);
     }
@@ -60,14 +73,12 @@ public class AccountService {
     public AccountDto close(Long id) {
         Account foundAccount = getAccountById(id);
 
-        accountServiceValidator.validateToClose(foundAccount);
-
-        log.info("Closing account: {}", foundAccount);
-
         foundAccount.setStatus(AccountStatus.CLOSED);
         foundAccount.setClosedAt(Instant.now());
 
         Account saved = accountRepository.save(foundAccount);
+
+        log.info("Account was closed: {}", saved);
 
         return accountMapper.toDto(saved);
     }
