@@ -5,28 +5,36 @@ import faang.school.accountservice.model.AccountNumberType;
 import faang.school.accountservice.model.AccountNumbersSequence;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FreeAccountNumbersService {
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
-    private final Set<AccountNumberType> accountNumberTypeSet;
-
-    @PostConstruct
-    private void init(){
-        accountNumberTypeSet.stream().forEach(type -> accountNumbersSequenceRepository.createNewCounter(type));
-    }
+    @Value("${account_numbers.number_length}")
+    private int numberLength;
 
     public AccountNumber createNewNumber(AccountNumberType type){
-        AccountNumbersSequence current = accountNumbersSequenceRepository.getReferenceById(type);
-        return null;
+        AccountNumbersSequence current = null;
+        try {
+            current = accountNumbersSequenceRepository.getById(type);
+        }catch (EntityNotFoundException exception){
+            accountNumbersSequenceRepository.createNewCounter(type);
+            current = accountNumbersSequenceRepository.getById(type);
+        }
+
+        String number = String.format("%0" + numberLength + "d", current);
+        number = String.format("${account_numbers.%s}", type) + number;
+
+        log.info("Account number {} was created", number);
+
+        return freeAccountNumbersRepository.save(new AccountNumber(number, type));
     }
-    
 }

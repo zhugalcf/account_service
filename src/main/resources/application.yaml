@@ -39,6 +39,7 @@ project-service:
   port: 8082
 
 account_numbers:
+  number_length: 20
   type_code:
-    saving: 5536
-    debit: 4276
+    SAVING: 5536
+    DEBIT: 4276
