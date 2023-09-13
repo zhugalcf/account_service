@@ -37,3 +37,8 @@ user-service:
 project-service:
   host: localhost
   port: 8082
+
+account_numbers:
+  type_code:
+    saving: 5536
+    debit: 4276
