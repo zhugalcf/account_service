@@ -13,13 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface AccountNumbersSequenceRepository extends JpaRepository<AccountNumbersSequence, AccountNumberType> {
 
-    @Query("INSERT INTO AccountNumbersSequence (type, current) VALUES (:type, 0) " +
+    @Query(nativeQuery = true,
+            value = "INSERT INTO account_numbers_sequence (type, current) VALUES (:type, 0) " +
             "WHERE NOT EXISTS (SELECT * FROM account_numbers_sequence WHERE type = :type)")
     void createNewCounter(@Param("type") AccountNumberType type);
 
-    @Query("IF EXISTS(SELECT * FROM account_numbers_sequence WHERE type = :type) " +
-            "THEN" +
-            "UPDATE AccountNumbersSequence SET current = current + 1 WHERE type  = :type " +
+    @Query(nativeQuery = true,
+            value = "IF EXISTS(SELECT * FROM account_numbers_sequence WHERE type = :type) THEN " +
+            "UPDATE account_numbers_sequence SET current = current + 1 WHERE type  = :type " +
             "RETURN true " +
             "ELSE " +
             "RETURN false")
