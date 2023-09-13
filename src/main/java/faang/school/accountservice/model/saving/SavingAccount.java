@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,6 +27,9 @@ public class SavingAccount {
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @Column(name = "balance", nullable = false)
+    private BigDecimal balance;
 
     @Column(name = "tariff_history")
     private String tariffHistory;

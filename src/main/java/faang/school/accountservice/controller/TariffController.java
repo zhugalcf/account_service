@@ -24,7 +24,7 @@ public class TariffController {
         return ResponseEntity.ok().body(tariff);
     }
     @PutMapping("")
-    public ResponseEntity<TariffDto> getTariff(@RequestBody @Valid TariffDto tariffDto) {
+    public ResponseEntity<TariffDto> updateTariff(@RequestBody @Valid TariffDto tariffDto) {
         var tariff = tariffService.updateTariff(tariffDto);
         return ResponseEntity.ok().body(tariff);
     }

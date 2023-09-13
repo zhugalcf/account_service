@@ -35,6 +35,7 @@ public class TariffService {
         );
         tariff.setTariffType(tariffDto.getTariffType());
         tariff.setCurrentRate(tariffDto.getCurrentRate());
+        tariffRepository.save(tariff);
         return mapper.toDto(tariff);
     }
 }

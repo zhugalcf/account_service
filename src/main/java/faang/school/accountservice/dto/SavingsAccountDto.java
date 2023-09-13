@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,6 +20,7 @@ public class SavingsAccountDto {
     private Long id;
     @NotNull(message = "accountId cannot be null")
     private Long accountId;
+    private BigDecimal balance;
     @NotNull(message = "current tariff cannot be null")
     private Long current_tariff;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -31,5 +33,6 @@ public class SavingsAccountDto {
     private LocalDateTime createdAt;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime updatedAt;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long version;
 }

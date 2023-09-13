@@ -9,7 +9,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -23,3 +23,17 @@ server:
 logging:
   level:
     root: info
+
+account:
+  generate:
+    cron: "0 0/5 * * * ?"
+    count: 15
+  calculate:
+    cron: "0 0/5 * * * ?"
+    batchSize : 1
+
+thread-pool:
+  queueCapacity: 100
+  maxPoolSize: 4
+  corePoolSize: 4
+  threadNamePrefix: "poolThread-"

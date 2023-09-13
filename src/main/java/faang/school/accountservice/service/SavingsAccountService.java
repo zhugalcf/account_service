@@ -1,19 +1,25 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.SavingsAccountDto;
-import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.SavingAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SavingsAccountService {
     private final AccountMapper accountMapper;
     private final AccountService accountService;
     private final SavingAccountRepository savingAccountRepository;
     private final TariffService tariffService;
+    private final Executor executor;
+
 
     public SavingsAccountDto openAccount(SavingsAccountDto accountDTO) {
         var savingAccount = accountMapper.toEntity(accountDTO);
@@ -33,5 +39,20 @@ public class SavingsAccountService {
         var accountDto = accountMapper.toDto(account);
         accountDto.setTariffDto(tariffDto);
         return accountDto;
+    }
+
+    @Transactional
+    public void updateInterest(int batchSize) {
+        var accounts = savingAccountRepository.findAll();
+        for (int i = 0; i < accounts.size(); i++) {
+            var accountsBatch = accounts.subList(i, Math.min(accounts.size(), i + batchSize));
+            executor.execute(() -> {
+                accountsBatch.forEach(account -> {
+                    BigDecimal currentRate = BigDecimal.valueOf(account.getCurrent_tariff().getCurrentRate());
+                    BigDecimal newBalance = account.getBalance().add(account.getBalance().multiply(currentRate));
+                    account.setBalance(newBalance);
+                });
+            });
+        }
     }
 }

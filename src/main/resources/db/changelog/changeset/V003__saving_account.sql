@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS tariff (
 CREATE TABLE IF NOT EXISTS savings_account (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     account_id BIGINT NOT NULL ,
+    balance DECIMAL(19, 2) NOT NULL,
     tariff_history VARCHAR(2048),
     current_tariff BIGINT REFERENCES tariff (id),
     last_interest_date TIMESTAMPTZ,
