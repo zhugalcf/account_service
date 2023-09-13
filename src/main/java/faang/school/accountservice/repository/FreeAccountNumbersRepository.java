@@ -11,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface FreeAccountNumbersRepository extends JpaRepository<AccountNumber, String> {
 
-    @Query(value = "DELETE FROM AccountNumber an WHERE type = :type LIMIT 1 RETERNING an")
+    @Query(nativeQuery = true,
+            value = "DELETE FROM free_account_numbers WHERE type = :type LIMIT 1 RETERNING account_number")
     @Transactional
-    AccountNumber getFreeNumber(@Param("type") AccountNumberType type);
+    String getFreeNumber(@Param("type") AccountNumberType type);
 }
