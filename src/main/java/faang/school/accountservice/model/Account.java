@@ -44,6 +44,10 @@ public class Account {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private Owner owner;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "balance_id", referencedColumnName = "id")
+    private Balance balance;
+
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private AccountType type;
