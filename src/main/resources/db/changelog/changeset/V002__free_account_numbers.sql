@@ -1,4 +1,4 @@
-CREATE TABLE free_account_numbers
+CREATE TABLE IF NOT EXISTS free_account_numbers
 (
     id             bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     account_type   smallint                                         NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE free_account_numbers
 );
 CREATE UNIQUE INDEX account_type_number_idx ON free_account_numbers (account_type, account_number);
 
-CREATE TABLE account_numbers_sequence
+CREATE TABLE IF NOT EXISTS account_numbers_sequence
 (
     id            bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     account_type  smallint NOT NULL,

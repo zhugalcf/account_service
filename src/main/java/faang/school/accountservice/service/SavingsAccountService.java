@@ -41,7 +41,6 @@ public class SavingsAccountService {
         return accountDto;
     }
 
-    @Transactional
     public void updateInterest(int batchSize) {
         var accounts = savingAccountRepository.findAll();
         for (int i = 0; i < accounts.size(); i++) {

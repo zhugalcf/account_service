@@ -19,7 +19,7 @@ public class AccountScheduler {
     private int batchSize;
 
     @Scheduled(cron = "${account.generate.cron}")
-    private void generateSavingAccountNumbers(){
+    private void generateSavingAccountNumbers() {
         for (int i = 0; i < accountCount; i++) {
             freeAccountNumbersService.generateAccountNumber(AccountType.SAVINGS_ACCOUNT);
         }
@@ -27,6 +27,6 @@ public class AccountScheduler {
 
     @Scheduled(cron = "${account.calculate.cron}")
     private void calculateAndApplyInterest() {
-            savingsAccountService.updateInterest(batchSize);
+        savingsAccountService.updateInterest(batchSize);
     }
 }
