@@ -1,11 +1,9 @@
 package faang.school.accountservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.Status;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,9 +17,8 @@ public class AccountDto {
 
     private Long id;
 
-    @NotBlank(message = "Number payment must not be blank")
-    @Pattern(regexp = "^.{12,20}$", message = "Number payment must be between 12 and 20 characters")
-    private String numberPayment;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String accountNumber;
 
     @NotNull(message = "Owner id must not be null")
     private Long ownerId;
@@ -29,8 +26,8 @@ public class AccountDto {
     @NotNull(message = "Type must not be null")
     private AccountType type;
 
-    @NotNull(message = "Currency must not be null")
-    private Currency currency;
+    @NotNull(message = "Currency id must not be null")
+    private Long currencyId;
 
     @NotNull(message = "Status must not be null")
     private Status status;

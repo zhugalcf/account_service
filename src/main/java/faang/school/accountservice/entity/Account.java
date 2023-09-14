@@ -1,7 +1,6 @@
 package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -30,7 +30,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@Table(name = "account")
+@Table(name = "account", indexes = {@Index(name = "index_number_payment", columnList = "account_number"),
+        @Index(name = "index_owner_id", columnList = "account_number")})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Account {
@@ -39,22 +40,22 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "number_payment", length = 20, nullable = false, unique = true)
-    private String numberPayment;
+    @Column(name = "account_number", length = 20, nullable = false, unique = true)
+    private String accountNumber;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "type", nullable = false)
     private AccountType type;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "currency_id", nullable = false)
     private Currency currency;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private Status status;
 
