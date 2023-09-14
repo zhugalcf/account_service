@@ -16,7 +16,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "number", nullable = false, length = 16)
+    @Column(name = "number", nullable = false, length = 20)
     private String number;
 
     @OneToOne(mappedBy = "account")
