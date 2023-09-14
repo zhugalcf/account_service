@@ -4,5 +4,6 @@ public enum RequestStatus {
     CREATED,
     PENDING,
     COMPLETED,
-    CANCELED
+    CANCELED,
+    FAILED
 }

@@ -19,7 +19,7 @@ public class RequestMapperTest {
     @Test
     public void testToEntity() {
         RequestDto requestDto = new RequestDto();
-        requestDto.setUserId(1);
+        requestDto.setUserId(1L);
 
         Request request = requestMapper.toEntity(requestDto);
 
@@ -30,7 +30,7 @@ public class RequestMapperTest {
     @Test
     public void testToDto() {
         Request request = new Request();
-        request.setUserId(1);
+        request.setUserId(1L);
 
         RequestDto requestDto = requestMapper.toDto(request);
 
@@ -41,10 +41,10 @@ public class RequestMapperTest {
     @Test
     public void testUpdateRequestFromRequestDto() {
         Request request = new Request();
-        request.setUserId(1);
+        request.setUserId(1L);
 
         RequestDto requestDto = new RequestDto();
-        requestDto.setUserId(2);
+        requestDto.setUserId(2L);
 
         requestMapper.updateRequestFromRequestDto(requestDto, request);
 

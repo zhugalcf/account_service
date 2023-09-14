@@ -23,7 +23,7 @@ import java.util.UUID;
 public class RequestDto implements Serializable {
     private UUID id;
     @NotNull(message = "User id is required")
-    private Integer userId;
+    private Long userId;
     @NotNull(message = "Request type is required")
     private RequestType requestType;
     private Long lockValue;
@@ -33,6 +33,4 @@ public class RequestDto implements Serializable {
     private String statusDetails;
     private Instant createdAt;
     private Instant lastModified;
-    @Min(value = 1, message = "Version must be at least 1")
-    private Integer version;
 }

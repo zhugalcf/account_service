@@ -1,5 +1,7 @@
 package faang.school.accountservice.entity.request;
 
 public enum RequestType {
-    PAYMENT
+    PAYMENT,
+    DEBIT_ACCOUNT_CLOSE,
+    DEBIT_ACCOUNT_OPEN
 }

@@ -1,6 +1,8 @@
 package faang.school.accountservice.entity.request;
 
+import faang.school.accountservice.converter.MapToJsonConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -8,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +39,7 @@ public class Request {
 
     @NotNull
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     @NotNull
     @Column(name = "request_type", nullable = false)
@@ -54,6 +57,7 @@ public class Request {
 
     @Column(name = "input_data")
     @JdbcTypeCode(SqlTypes.JSON)
+    @Convert(converter = MapToJsonConverter.class)
     private Map<String, Object> inputData;
 
     @NotNull
@@ -76,5 +80,6 @@ public class Request {
 
     @NotNull
     @Column(name = "version", nullable = false)
-    private Integer version;
+    @Version
+    private Long version;
 }
