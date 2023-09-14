@@ -2,6 +2,7 @@ package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,15 +21,18 @@ public class RequestDto {
     @NotNull
     private Long userId;
 
-    private RequestStatus requestStatus;
-
     @NotNull
-    private Long lockValue;
+    private String lockValue;
 
     private boolean active;
+
+    @NotBlank
+    private String details;
 
     @NotNull
     private Long version;
 
     private RequestType requestType;
+
+    private RequestStatus requestStatus;
 }

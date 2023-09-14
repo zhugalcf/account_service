@@ -5,6 +5,7 @@ import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.RequestRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,29 +19,50 @@ public class RequestService {
     private final RequestRepository repository;
     private final RequestMapper requestMapper;
 
-    public RequestDto getRequest(RequestDto requestDto) {
-        Optional<Request> requestById = repository.findById(requestDto.getRequestId());
+    public RequestDto getRequest(long id) {
+        Optional<Request> requestById = repository.findById(id);
         validateRequest(requestById);
         return requestMapper.toDto(requestById.get());
     }
 
-    public RequestDto getOrSaveRequest(RequestDto requestDto, Long requestId) {
-        Optional<Request> requestById = repository.findById(requestId);
+    @Transactional
+    public RequestDto getOrSaveRequest(Request request) {
+        RequestDto requestDto = requestMapper.toDto(request);
+        Request build = build(requestDto);
+
+        Optional<Request> requestById = repository.findById(build.getId());
         if (requestById.isEmpty()) {
-            Request request = requestMapper.toEntity(requestDto);
-            repository.save(request);
-            return requestMapper.toDto(request);
+            repository.save(build);
+            return requestMapper.toDto(build);
         }
         return requestMapper.toDto(requestById.get());
     }
 
-    public RequestDto changeStatus(RequestDto requestDto) {
-        Optional<Request> requestById = repository.findById(requestDto.getRequestId());
-        validateRequest(requestById);
+    @Transactional
+    public RequestDto changeStatus(long id, RequestStatus requestStatus, String statusDetails) {
+        Optional<Request> requestById = repository.findById(id);
         Request request = requestById.get();
-        request.setRequestStatus(requestDto.getRequestStatus());
+        if (requestStatus == RequestStatus.FAILED) {
+            request.setActive(false);
+        }
+        validateRequest(requestById);
+        request.setRequestStatus(requestStatus);
+        request.setDetails(statusDetails);
         repository.save(request);
         return requestMapper.toDto(request);
+    }
+
+    private Request build(RequestDto requestDto) {
+        return Request.builder()
+                .id(requestDto.getRequestId())
+                .userId(requestDto.getUserId())
+                .lockValue(requestDto.getLockValue())
+                .active(requestDto.isActive())
+                .details(requestDto.getDetails())
+                .version(requestDto.getVersion())
+                .requestType(requestDto.getRequestType())
+                .requestStatus(requestDto.getRequestStatus())
+                .build();
     }
 
     private void validateRequest(Optional<Request> requestById) {
