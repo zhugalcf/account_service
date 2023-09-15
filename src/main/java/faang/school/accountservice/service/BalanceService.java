@@ -25,6 +25,7 @@ public class BalanceService {
     public BalanceDto getBalance(Long balanceId) {
         Balance balance = balanceExistsValidation(balanceId);
 
+        log.info("Balance with id: {} fetched", balanceId);
         return balanceMapper.toDto(balance);
     }
 
@@ -42,6 +43,7 @@ public class BalanceService {
 
         Balance savedBalance = balanceRepository.save(balance);
 
+        log.info("Balance with id: {} updated", balanceId);
         return balanceMapper.toDto(savedBalance);
     }
 
@@ -54,11 +56,5 @@ public class BalanceService {
     private Balance balanceExistsValidation(Long balanceId) {
         return balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with id: " + balanceId + " not found"));
-    }
-
-    public BalanceDto createBalance(BalanceDto balanceDto) {
-        Balance entity = balanceMapper.toEntity(balanceDto);
-        balanceRepository.save(entity);
-        return balanceMapper.toDto(entity);
     }
 }

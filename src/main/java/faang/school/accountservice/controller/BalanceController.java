@@ -3,6 +3,7 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.UpdateBalanceDto;
 import faang.school.accountservice.service.BalanceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,19 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class BalanceController {
     private final BalanceService balanceService;
 
-    @PostMapping
-    public BalanceDto createBalance(@RequestBody BalanceDto balanceDto) {
-        return balanceService.createBalance(balanceDto);
-    }
-
-
     @GetMapping("{balanceId}")
     public BalanceDto getBalance(@PathVariable Long balanceId) {
         return balanceService.getBalance(balanceId);
     }
 
     @PutMapping("{balanceId}")
-    public BalanceDto updateBalance(@RequestBody UpdateBalanceDto updateBalanceDto, @PathVariable Long balanceId) {
+    public BalanceDto updateBalance(@RequestBody @Valid UpdateBalanceDto updateBalanceDto, @PathVariable Long balanceId) {
         return balanceService.updateBalance(updateBalanceDto, balanceId);
     }
 }
