@@ -23,7 +23,7 @@ public class BalanceService {
 
     @Transactional(readOnly = true)
     public BalanceDto getBalance(Long balanceId) {
-        Balance balance = balanceExistsValidation(balanceId);
+        Balance balance = loadBalanceOrThrow(balanceId);
 
         log.info("Balance with id: {} fetched", balanceId);
         return balanceMapper.toDto(balance);
@@ -32,7 +32,7 @@ public class BalanceService {
     @Transactional
     public BalanceDto updateBalance(UpdateBalanceDto updateBalanceDto, Long balanceId) {
         validateOwnership(updateBalanceDto, balanceId);
-        Balance balance = balanceExistsValidation(updateBalanceDto.getId());
+        Balance balance = loadBalanceOrThrow(updateBalanceDto.getId());
 
         BigDecimal currentBalance = balance.getCurrentBalance();
         BigDecimal deposit = updateBalanceDto.getDeposit();
@@ -53,7 +53,7 @@ public class BalanceService {
         }
     }
 
-    private Balance balanceExistsValidation(Long balanceId) {
+    private Balance loadBalanceOrThrow(Long balanceId) {
         return balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with id: " + balanceId + " not found"));
     }

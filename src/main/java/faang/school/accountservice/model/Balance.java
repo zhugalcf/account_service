@@ -20,6 +20,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
@@ -46,12 +47,12 @@ public class Balance {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private ZonedDateTime updatedAt;
 
     @Version
     @Column(name = "version", nullable = false)
