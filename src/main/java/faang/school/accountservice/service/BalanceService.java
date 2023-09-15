@@ -2,11 +2,8 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.UpdateBalanceDto;
-import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
-import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
-import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +24,7 @@ public class BalanceService {
     @Transactional(readOnly = true)
     public BalanceDto getBalance(Long balanceId) {
         Balance balance = balanceExistsValidation(balanceId);
-        log.info(balance + " is retrieved");
+
         return balanceMapper.toDto(balance);
     }
 
@@ -44,7 +41,6 @@ public class BalanceService {
         balance.setCurrentBalance(updatedBalance);
 
         Balance savedBalance = balanceRepository.save(balance);
-        log.info(balance + " is updated");
 
         return balanceMapper.toDto(savedBalance);
     }
@@ -53,16 +49,6 @@ public class BalanceService {
         if (!Objects.equals(balanceId, updateBalanceDto.getId())) {
             throw new IllegalArgumentException("You can only update your own balance");
         }
-    }
-
-    private void saveBalance(Account savedAccount) {
-        Balance balance = Balance.builder()
-                .account(savedAccount)
-                .authorizationBalance(BigDecimal.ZERO)
-                .currentBalance(BigDecimal.ZERO)
-                .build();
-        balanceRepository.save(balance);
-        log.info(balance + " is saved to db");
     }
 
     private Balance balanceExistsValidation(Long balanceId) {

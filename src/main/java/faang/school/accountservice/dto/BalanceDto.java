@@ -19,5 +19,4 @@ public class BalanceDto {
     private BigDecimal currentBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long balanceVersion;
 }
