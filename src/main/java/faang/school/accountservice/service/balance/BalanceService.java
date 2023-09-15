@@ -1,6 +1,7 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.balance;
 
 import faang.school.accountservice.dto.balance.BalanceDto;
+import faang.school.accountservice.dto.balance.BalanceUpdateDto;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,8 @@ public class BalanceService {
     private final BalanceRepository balanceRepository;
 
     private final BalanceMapper balanceMapper;
+
+    private final List<BalanceUpdater> updaters;
 
     @Transactional
     public BalanceDto create(Long accountId) {
@@ -40,6 +44,26 @@ public class BalanceService {
         log.info("Got balance: {}", balance);
 
         return balanceMapper.toDto(balance);
+    }
+
+    @Transactional
+    public BalanceDto update(BalanceUpdateDto balanceUpdateDto) {
+        Balance balance = updateBalance(balanceUpdateDto);
+
+        balance = balanceRepository.save(balance);
+        log.info("Updated balance: {}", balance);
+
+        return balanceMapper.toDto(balance);
+    }
+
+    private Balance updateBalance(BalanceUpdateDto balanceUpdateDto) {
+        Balance balance = getBalance(balanceUpdateDto.balanceId());
+
+        return updaters.stream()
+                .filter(updater -> updater.isApplicable(balanceUpdateDto))
+                .findFirst()
+                .map(updater -> updater.update(balance, balanceUpdateDto))
+                .orElseThrow(() -> new IllegalArgumentException("Unknown balance update type: " + balanceUpdateDto.type()));
     }
 
     private Balance getBalance(Long balanceId) {
