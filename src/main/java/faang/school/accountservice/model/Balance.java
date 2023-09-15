@@ -36,10 +36,10 @@ public class Balance {
     private Account accountNumber;
 
     @Column(name = "current_authorization_balance")
-    private Long currentAuthorizationBalance;
+    private Double currentAuthorizationBalance;
 
     @Column(name = "current_actual_balance")
-    private Long currentActualBalance;
+    private Double currentActualBalance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -53,4 +53,8 @@ public class Balance {
 
     @Column(name = "version", nullable = false)
     private long version;
+
+    public void incrementVersion() {
+        version++;
+    }
 }

@@ -20,8 +20,8 @@ public class BalanceDto {
     @NotNull(message = "The balance must have an account")
     @Size(min = 12, max = 20, message = "Length of account number must be more then 12 and less then 20")
     private String accountNumber;
-    private Long currentAuthorizationBalance;
-    private Long currentActualBalance;
+    private Double currentAuthorizationBalance;
+    private Double currentActualBalance;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

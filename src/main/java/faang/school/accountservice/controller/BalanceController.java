@@ -19,7 +19,7 @@ public class BalanceController {
 
     @GetMapping
     public BalanceDto getBalance(@RequestParam("account") String accountNumber) {
-        log.info("Endpoint<getBalance>, uri = '/account/balances?account=*' was called successfully");
+        log.info("Endpoint<getBalance>, uri = '/account/balances?account={}' was called successfully", accountNumber);
         return balanceService.getBalance(accountNumber);
     }
 }

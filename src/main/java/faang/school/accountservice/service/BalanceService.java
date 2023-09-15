@@ -8,6 +8,9 @@ import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +27,24 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    public void create() {
+    @Transactional
+    public void create(BalanceDto balanceDto) {
+        Balance balance = balanceMapper.toModel(balanceDto);
+        balance.setVersion(1L);
+        balance.setCreatedAt(LocalDateTime.now());
+        balance.setUpdatedAt(LocalDateTime.now());
 
+        balanceRepository.save(balance);
+        log.info("New balance with account number ={} was created successfully", balance.getAccountNumber());
     }
 
-    public void update() {
-
+    @Transactional
+    public void update(BalanceDto balanceDto) {
+        Balance balance = balanceRepository.findBalanceByAccountNumber(balanceDto.getAccountNumber());
+        balance.setCurrentAuthorizationBalance(balanceDto.getCurrentAuthorizationBalance());
+        balance.setCurrentActualBalance(balanceDto.getCurrentActualBalance());
+        balance.setUpdatedAt(LocalDateTime.now());
+        balance.incrementVersion();
     }
 
     private void validateAccountNumber(String accountNumber) {
