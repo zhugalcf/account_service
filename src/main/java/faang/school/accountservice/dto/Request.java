@@ -2,6 +2,7 @@ package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.mapper.JsonConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
@@ -20,8 +21,8 @@ public class Request {
     private Long lockValue;
     @NotNull
     private boolean isOpenRequest;
-    @Type(type = "json")
-    @Column(columnDefinition = "json")
+    @Column(columnDefinition = "input_data")
+    @Convert(converter = JsonConverter.class)
     private Map<Object, String> inputData;
     @NotNull
     private RequestStatus requestStatus;
