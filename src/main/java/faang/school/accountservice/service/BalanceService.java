@@ -6,6 +6,7 @@ import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.util.exception.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,22 @@ public class BalanceService {
 
         log.info("Created balance: {}", balance);
         return balanceMapper.toDto(balance);
+    }
+
+    @Transactional
+    public BalanceDto get(Long balanceId) {
+        Balance balance = getBalance(balanceId);
+        log.info("Got balance: {}", balance);
+
+        return balanceMapper.toDto(balance);
+    }
+
+    private Balance getBalance(Long balanceId) {
+        try {
+            return balanceRepository.getReferenceById(balanceId);
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Balance with id " + balanceId + " not found");
+        }
     }
 
     private Balance createBalance(Long accountId) {

@@ -4,10 +4,7 @@ import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.service.BalanceService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,5 +16,10 @@ public class BalanceController {
     @PostMapping("/{accountId}/create")
     public BalanceDto create(@NotNull @PathVariable Long accountId) {
         return service.create(accountId);
+    }
+
+    @GetMapping("/{balanceId}/get")
+    public BalanceDto get(@NotNull @PathVariable Long balanceId) {
+        return service.get(balanceId);
     }
 }
