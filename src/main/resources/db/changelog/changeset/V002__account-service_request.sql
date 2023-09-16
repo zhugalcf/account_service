@@ -1,3 +1,5 @@
+CREATE EXTENSION "uuid-ossp";
+
 CREATE TABLE request (
                          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                          user_id bigint not NULL references users(id),
@@ -11,8 +13,6 @@ CREATE TABLE request (
                          updated_at TIMESTAMP DEFAULT current_timestamp,
                          version INT DEFAULT 1
 );
-
-CREATE EXTENSION "uuid-ossp";
 
 CREATE UNIQUE INDEX lock_user
     ON request (lock_value, user_id)
