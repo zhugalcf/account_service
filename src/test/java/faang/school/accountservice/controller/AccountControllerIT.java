@@ -66,9 +66,50 @@ class AccountControllerIT {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.number").value("123456789013123"))
                 .andExpect(jsonPath("$.userId").value("1"))
-                .andExpect(jsonPath("$.type").value("DEBIT"))
+                .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
                 .andExpect(jsonPath("$.currency").value("USD"))
-                .andExpect(jsonPath("$.version").value("0"))
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    void freeze() throws Exception {
+        var requestBuilder = MockMvcRequestBuilders.put("/account/freeze/2");
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.number").value("1234567890131232"))
+                .andExpect(jsonPath("$.userId").value("1"))
+                .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
+                .andExpect(jsonPath("$.currency").value("USD"))
+                .andExpect(jsonPath("$.status").value("FROZEN"));
+    }
+
+    @Test
+    void block() throws Exception {
+        var requestBuilder = MockMvcRequestBuilders.put("/account/block/3");
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.number").value("12345678901312"))
+                .andExpect(jsonPath("$.userId").value("1"))
+                .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
+                .andExpect(jsonPath("$.currency").value("USD"))
+                .andExpect(jsonPath("$.status").value("BLOCKED"));
+    }
+
+    @Test
+    void close() throws Exception {
+        var requestBuilder = MockMvcRequestBuilders.put("/account/close/4");
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.id").value(4))
+                .andExpect(jsonPath("$.number").value("123456789013121"))
+                .andExpect(jsonPath("$.userId").value("1"))
+                .andExpect(jsonPath("$.type").value("CURRENT_ACCOUNT"))
+                .andExpect(jsonPath("$.currency").value("USD"))
+                .andExpect(jsonPath("$.status").value("CLOSED"));
     }
 }
