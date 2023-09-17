@@ -2,6 +2,8 @@ package faang.school.accountservice.controller;
 
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.service.BalanceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,23 +21,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/balances")
 @RequiredArgsConstructor
+@Tag(name = "Balance", description = "Balance operations")
 public class BalanceController {
 
     private final BalanceService balanceService;
 
     @GetMapping("/{accountId}")
+    @Operation(summary = "Get balance by account id")
     public BalanceDto getBalance(@PathVariable Long accountId) {
         return balanceService.getBalanceByAccountId(accountId);
     }
 
     @PostMapping("/{accountId}")
+    @Operation(summary = "Create balance")
     public BalanceDto createBalance(@PathVariable Long accountId, @Valid @RequestBody BalanceDto balanceDto) {
         return balanceService.createBalance(accountId, balanceDto);
     }
 
     @PutMapping("/{accountId}")
+    @Operation(summary = "Update balance")
     public BalanceDto updateBalance(@PathVariable Long accountId, @Valid @RequestBody BalanceDto balanceDto) {
         return balanceService.updateBalance(accountId, balanceDto);
     }
 }
-
