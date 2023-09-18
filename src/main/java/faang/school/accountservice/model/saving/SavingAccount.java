@@ -53,5 +53,5 @@ public class SavingAccount {
 
     @ManyToOne
     @JoinColumn(name = "current_tariff")
-    private Tariff current_tariff;
+    private Tariff currentTariff;
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class Tariff {
     private TariffType tariffType;
 
     @Column(name = "current_rate")
-    private float currentRate;
+    private BigDecimal currentRate;
 
     @Column(name = "rate_history")
     private String rateHistory;
@@ -38,6 +39,6 @@ public class Tariff {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "current_tariff")
+    @OneToMany(mappedBy = "currentTariff")
     private List<SavingAccount> savingAccount;
 }

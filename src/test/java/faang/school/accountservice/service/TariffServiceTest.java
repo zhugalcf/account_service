@@ -12,6 +12,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 @SpringBootTest
@@ -49,12 +50,12 @@ public class TariffServiceTest {
     void setUp() {
         tariff = Tariff.builder()
                 .tariffType(TariffType.GOLD)
-                .currentRate(12)
+                .currentRate(BigDecimal.valueOf(12.1))
                 .build();
         tariffDto = TariffDto.builder()
                 .id(1L)
                 .tariffType(TariffType.GOLD)
-                .currentRate(12)
+                .currentRate(BigDecimal.valueOf(12.1))
                 .build();
         tariff = tariffRepository.save(tariff);
     }
@@ -68,6 +69,7 @@ public class TariffServiceTest {
     @Test
     void getTariffDtoByIdTest() {
         var res = tariffService.getTariffDtoById(tariff.getId());
+        System.out.println(tariff.getCurrentRate() + " " + res.getCurrentRate());
         Assertions.assertEquals(tariff.getTariffType(), res.getTariffType());
         Assertions.assertEquals(tariff.getCurrentRate(), res.getCurrentRate());
     }
@@ -90,7 +92,7 @@ public class TariffServiceTest {
         var previousHistory = tariffRepository.findById(tariff.getId()).get().getRateHistory();
         var previousRate = tariffDto.getCurrentRate();
 
-        tariffDto.setCurrentRate(100);
+        tariffDto.setCurrentRate(BigDecimal.valueOf(100));
         var res = tariffService.updateTariff(tariffDto);
         var newHistory = tariffRepository.findById(res.getId()).get().getRateHistory();
         Assertions.assertNotEquals(previousHistory, newHistory);

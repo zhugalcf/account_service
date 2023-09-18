@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 @Service
@@ -42,10 +43,10 @@ public class TariffService {
                 () -> new RuntimeException("No tariff with id: " + tariffDto.getId())
         );
         tariff.setTariffType(tariffDto.getTariffType());
-        if (tariffDto.getCurrentRate() != 0 && tariffDto.getCurrentRate() != tariff.getCurrentRate()) {
+        if (!tariffDto.getCurrentRate().equals(BigDecimal.valueOf(0)) && !tariffDto.getCurrentRate().equals(tariff.getCurrentRate())) {
             String history = tariff.getRateHistory();
             if (history == null) history = "[]";
-            var historyList = jsonMapper.toObject(history, ArrayList.class).orElse(new ArrayList<Float>());
+            var historyList = jsonMapper.toObject(history, ArrayList.class).orElse(new ArrayList<BigDecimal>());
             historyList.add(tariff.getCurrentRate());
             var json = jsonMapper.toJson(historyList).orElse("[]");
             tariff.setRateHistory(json);

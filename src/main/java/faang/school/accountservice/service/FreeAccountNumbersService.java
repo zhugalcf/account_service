@@ -43,7 +43,7 @@ public class FreeAccountNumbersService {
         freeAccountNumberRepository.save(freeAccountNumber);
     }
 
-    @Transactional
+    @Retryable(maxAttempts = 5)
     public void perform(AccountType accountType, Consumer<String> action) {
         var freeNumber = freeAccountNumberRepository.getAccountNumber(accountType.ordinal())
                 .orElseGet(() -> {

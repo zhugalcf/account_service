@@ -15,4 +15,7 @@ public class AccountService {
                 () -> new RuntimeException("No account with id: " + id)
         );
     }
+    public Account openAccount(Account account) {
+        return accountRepository.save(account);
+    }
 }

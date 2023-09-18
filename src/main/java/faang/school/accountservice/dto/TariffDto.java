@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +21,5 @@ public class TariffDto {
     private TariffType tariffType;
     @Min(value = 0, message = "currentRate must be greater than 0")
     @Max(value = 100, message = "currentRate must be less than 100")
-    private float currentRate;
+    private BigDecimal currentRate;
 }

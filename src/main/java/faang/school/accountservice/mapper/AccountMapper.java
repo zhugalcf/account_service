@@ -10,11 +10,11 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
-    @Mapping(source = "current_tariff", target = "current_tariff", ignore = true)
+    @Mapping(source = "currentTariff", target = "currentTariff", ignore = true)
     SavingAccount toEntity(SavingsAccountDto dto);
 
     @Mapping(target = "accountId", source = "account.id")
-    @Mapping(target = "current_tariff", source = "current_tariff.id")
+    @Mapping(target = "currentTariff", source = "currentTariff.id")
     SavingsAccountDto toDto(SavingAccount entity);
 
     TariffDto toDto(Tariff entity);

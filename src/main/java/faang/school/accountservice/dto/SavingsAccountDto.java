@@ -1,7 +1,7 @@
 package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotEmpty;
+import faang.school.accountservice.model.Currency;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,9 +20,13 @@ public class SavingsAccountDto {
     private Long id;
     @NotNull(message = "accountId cannot be null")
     private Long accountId;
+    @NotNull(message = "user id cannot be null")
+    private Long userId;
+    @NotNull(message = "currency cannot be null")
+    private Currency currency;
     private BigDecimal balance;
     @NotNull(message = "current tariff cannot be null")
-    private Long current_tariff;
+    private Long currentTariff;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private TariffDto tariffDto;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

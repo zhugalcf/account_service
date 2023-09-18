@@ -1,9 +1,6 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.SavingsAccountDto;
-import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.AccountStatus;
-import faang.school.accountservice.model.AccountType;
 import faang.school.accountservice.model.Currency;
 import faang.school.accountservice.model.saving.SavingAccount;
 import faang.school.accountservice.model.saving.Tariff;
@@ -32,7 +29,6 @@ public class SavingsAccountServiceTest {
     @Autowired
     TariffRepository tariffRepository;
 
-    Account account;
     Tariff tariff;
     SavingsAccountDto savingsAccountDto;
     SavingAccount savingAccount;
@@ -60,29 +56,21 @@ public class SavingsAccountServiceTest {
 
     @BeforeEach
     void setUp() {
-        account = Account.builder()
-                .number("1234567890875")
-                .currency(Currency.USD)
-                .status(AccountStatus.ACTIVE)
-                .type(AccountType.SAVINGS_ACCOUNT)
-                .userId(1L)
-                .build();
         tariff = Tariff.builder()
                 .tariffType(TariffType.GOLD)
-                .currentRate(12)
+                .currentRate(BigDecimal.valueOf(12))
                 .build();
-        account = accountRepository.save(account);
         tariff = tariffRepository.save(tariff);
         savingAccount = SavingAccount.builder()
-                .account(account)
                 .balance(new BigDecimal(1000))
-                .current_tariff(tariff)
+                .currentTariff(tariff)
                 .build();
 
         savingsAccountDto = SavingsAccountDto.builder()
-                .accountId(account.getId())
                 .balance(new BigDecimal(1000))
-                .current_tariff(tariff.getId())
+                .currentTariff(tariff.getId())
+                .currency(Currency.USD)
+                .userId(1L)
                 .build();
     }
 
@@ -94,14 +82,14 @@ public class SavingsAccountServiceTest {
 
     @Test
     void getSavingAccountTest() {
-        var account = savingAccountRepository.save(savingAccount);
+        var account = savingsAccountService.openAccount(savingsAccountDto);
         var res = savingsAccountService.getSavingAccount(account.getId());
         Assertions.assertEquals(res.getTariffDto().getCurrentRate(), tariff.getCurrentRate());
     }
 
     @Test
     void updateInterestTest() {
-        var account = savingAccountRepository.save(savingAccount);
+        var account = savingsAccountService.openAccount(savingsAccountDto);
         savingsAccountService.updateInterest(1);
         var res = savingAccountRepository.findById(account.getId());
         Assertions.assertTrue(!Objects.equals(res.get().getBalance(), account.getBalance()));

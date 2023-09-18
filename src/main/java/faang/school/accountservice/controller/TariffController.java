@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/saving-tariffs")
+@RequestMapping("/api/v1/savings-account/tariff")
 public class TariffController {
     private final TariffService tariffService;
 
@@ -18,12 +18,14 @@ public class TariffController {
         var tariff = tariffService.createTariff(tariffDto);
         return ResponseEntity.ok().body(tariff);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<TariffDto> getTariff(@PathVariable long id) {
         var tariff = tariffService.getTariffDtoById(id);
         return ResponseEntity.ok().body(tariff);
     }
-    @PutMapping("")
+
+    @PutMapping
     public ResponseEntity<TariffDto> updateTariff(@RequestBody @Valid TariffDto tariffDto) {
         var tariff = tariffService.updateTariff(tariffDto);
         return ResponseEntity.ok().body(tariff);
