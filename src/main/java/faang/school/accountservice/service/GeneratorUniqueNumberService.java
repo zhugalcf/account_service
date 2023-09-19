@@ -10,7 +10,6 @@ import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class GeneratorUniqueNumberService {
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
 
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     public void generateAccountNumbersOfType(long n, AccountType accountType, int length) {
         List<String> newAccountNumbers = new ArrayList<>();
@@ -46,7 +45,7 @@ public class GeneratorUniqueNumberService {
         freeAccountNumbersRepository.saveAll(accountsNumbers);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     public void generateAccountNumbersToReach(long targetCount, AccountType accountType, Integer length) {
 
@@ -96,6 +95,8 @@ public class GeneratorUniqueNumberService {
         return sequence;
     }
 
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public String getFreeAccountNumber(AccountType accountType) {
         Optional<FreeAccountNumber> accountNumber = freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType);
         if (accountNumber.isPresent()) {
