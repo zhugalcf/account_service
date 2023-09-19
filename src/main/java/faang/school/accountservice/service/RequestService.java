@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -27,32 +28,41 @@ public class RequestService {
 
     @Transactional
     public RequestDto getOrSaveRequest(Request request) {
-        RequestDto requestDto = requestMapper.toDto(request);
-        Request build = build(requestDto);
-
-        Optional<Request> requestById = repository.findById(build.getId());
+        Request requestBuild = getRequest(request);
+        Optional<Request> requestById = repository.findById(requestBuild.getId());
         if (requestById.isEmpty()) {
-            repository.save(build);
-            return requestMapper.toDto(build);
+            repository.save(requestBuild);
+            return requestMapper.toDto(requestBuild);
         }
         return requestMapper.toDto(requestById.get());
     }
 
     @Transactional
-    public RequestDto changeStatus(long id, RequestStatus requestStatus, String statusDetails) {
-        Optional<Request> requestById = repository.findById(id);
-        Request request = requestById.get();
-        if (requestStatus == RequestStatus.FAILED) {
-            request.setActive(false);
-        }
+    public RequestDto changeStatus(Request request) {
+        Request requestBuild = getRequest(request);
+        Optional<Request> requestById = repository.findById(requestBuild.getId());
         validateRequest(requestById);
-        request.setRequestStatus(requestStatus);
-        request.setDetails(statusDetails);
+        validateInputDataAndStatus(request, requestBuild);
+        request.setRequestStatus(request.getRequestStatus());
+        request.setDetails(request.getDetails());
         repository.save(request);
         return requestMapper.toDto(request);
     }
 
-    private Request build(RequestDto requestDto) {
+    private void validateInputDataAndStatus(Request request, Request requestBuild) {
+        Map<String, Object> inputData = requestBuild.getInputData();
+        Map<String, Object> inputDataFromRequest = request.getInputData();
+        for (Map.Entry<String, Object> stringObjectEntry : inputDataFromRequest.entrySet()) {
+            if (!inputData.containsKey(stringObjectEntry.getKey())) {
+                throw new IllegalArgumentException();
+            }
+        }
+        if (request.getRequestStatus() == RequestStatus.FAILED) {
+            request.setActive(false);
+        }
+    }
+
+    protected Request build(RequestDto requestDto) {
         return Request.builder()
                 .id(requestDto.getRequestId())
                 .userId(requestDto.getUserId())
@@ -62,7 +72,13 @@ public class RequestService {
                 .version(requestDto.getVersion())
                 .requestType(requestDto.getRequestType())
                 .requestStatus(requestDto.getRequestStatus())
+                .inputData(requestDto.getInputData())
                 .build();
+    }
+
+    private Request getRequest(Request request) {
+        RequestDto requestDto = requestMapper.toDto(request);
+        return build(requestDto);
     }
 
     private void validateRequest(Optional<Request> requestById) {

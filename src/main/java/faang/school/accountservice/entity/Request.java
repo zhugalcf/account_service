@@ -43,7 +43,7 @@ public class Request {
 
     @Column(name = "input_data")
     @Convert(converter = MapToJsonConverter.class)
-    private Map<String, Object> input_data;
+    private Map<String, Object> inputData;
 
     @Enumerated(EnumType.STRING)
     private RequestType requestType;

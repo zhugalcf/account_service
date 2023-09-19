@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Map;
+
 
 @Data
 @AllArgsConstructor
@@ -25,6 +27,8 @@ public class RequestDto {
     private String lockValue;
 
     private boolean active;
+
+    private Map<String, Object> inputData;
 
     @NotBlank
     private String details;

@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,11 +41,12 @@ class RequestServiceTest {
         requestDto = new RequestDto();
         requestDto.setRequestId(3L);
         requestDto.setUserId(2L);
-        requestDto.setRequestStatus(RequestStatus.COMPLETE);
+        requestDto.setRequestStatus(RequestStatus.PENDING);
         requestDto.setVersion(1L);
         requestDto.setActive(true);
-        requestDto.setLockValue(2L);
-        requestDto.setRequestType(RequestType.POST);
+        requestDto.setLockValue("2L");
+        requestDto.setRequestType(RequestType.TEST);
+        requestDto.setInputData(new HashMap<>());
 
         request = new Request();
         request.setId(requestDto.getRequestId());
@@ -54,7 +56,7 @@ class RequestServiceTest {
         request.setVersion(requestDto.getVersion());
         request.setActive(request.isActive());
         request.setLockValue(requestDto.getLockValue());
-
+        request.setInputData(requestDto.getInputData());
     }
 
     @Test
@@ -64,7 +66,7 @@ class RequestServiceTest {
         Mockito.when(requestMapper.toDto(request))
                 .thenReturn(requestDto);
 
-        RequestDto req = requestService.getRequest(requestDto);
+        RequestDto req = requestService.getRequest(requestDto.getRequestId());
         assertNotNull(req);
         assertEquals(requestDto, req);
 
@@ -75,18 +77,18 @@ class RequestServiceTest {
         Mockito.when(repository.findById(requestDto.getRequestId()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> requestService.getRequest(requestDto));
+        assertThrows(IllegalArgumentException.class, () -> requestService.getRequest(requestDto.getRequestId()));
     }
 
     @Test
     void getOrSaveRequest() {
-        Mockito.when(repository.findById(3L))
+        Mockito.when(repository.findById(requestDto.getRequestId()))
                 .thenReturn(Optional.empty());
-        Mockito.when(requestMapper.toEntity(requestDto))
-                .thenReturn(request);
+        Mockito.when(requestMapper.toDto(request))
+                .thenReturn(requestDto);
 
-        requestService.getOrSaveRequest(requestDto, 3L);
-        Mockito.verify(repository, Mockito.times(1)).save(request);
+        requestService.getOrSaveRequest(request);
+        Mockito.verify(repository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
@@ -96,8 +98,8 @@ class RequestServiceTest {
         Mockito.when(requestMapper.toDto(request))
                 .thenReturn(requestDto);
 
-        RequestDto expected = requestService.changeStatus(requestDto);
-        assertEquals(RequestStatus.COMPLETE, expected.getRequestStatus());
+        RequestDto expected = requestService.changeStatus(request);
+        assertEquals(RequestStatus.PENDING, expected.getRequestStatus());
 
         Mockito.verify(repository, Mockito.times(1)).save(request);
     }
