@@ -17,6 +17,13 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+  account:
+    generation:
+      numberOfAccounts: 100
+      accountNumberLength: 20
+      schedule:
+        cron: "0 0 * * * *"
+
 server:
   port: 8090
 

@@ -1,7 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Owner;
-import faang.school.accountservice.excpetion.EntityNotFoundException;
+import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.repository.OwnerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

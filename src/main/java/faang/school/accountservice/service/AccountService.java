@@ -5,7 +5,7 @@ import faang.school.accountservice.entity.Owner;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.account.Currency;
-import faang.school.accountservice.excpetion.EntityNotFoundException;
+import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,8 @@ public class AccountService {
     private final CurrencyService currencyService;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final GeneratorUniqueNumberService generatorUniqueNumberService;
+
 
     @Transactional(readOnly = true)
     public AccountDto get(Long id) {
@@ -37,11 +39,13 @@ public class AccountService {
     public AccountDto open(AccountDto accountDto) {
         Owner owner = ownerService.getOwner(accountDto.getOwnerId());
         Currency currency = currencyService.getCurrency(accountDto.getCurrencyCode());
+        String accountNumber = generatorUniqueNumberService.getFreeAccountNumber(accountDto.getAccountType());
 
         Account account = accountMapper.toEntity(accountDto);
         account.setCurrency(currency);
         account.setOwner(owner);
         account.setAccountStatus(AccountStatus.OPENED);
+        account.setAccountNumber(accountNumber);
 
         return accountMapper.toDto(accountRepository.save(account));
     }
