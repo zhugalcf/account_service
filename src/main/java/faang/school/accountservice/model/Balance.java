@@ -33,8 +33,8 @@ public class Balance {
     private long id;
 
     @OneToOne
-    @JoinColumn(name = "account_number")
-    private Account accountNumber;
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @Column(name = "current_authorization_balance")
     private BigDecimal currentAuthorizationBalance;
