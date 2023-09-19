@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -32,14 +33,14 @@ public class Balance {
     private long id;
 
     @OneToOne
-    @JoinColumn(name = "account_number", referencedColumnName = "number")
-    private Account accountNumber;
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @Column(name = "current_authorization_balance")
-    private Double currentAuthorizationBalance;
+    private BigDecimal currentAuthorizationBalance;
 
     @Column(name = "current_actual_balance")
-    private Double currentActualBalance;
+    private BigDecimal currentActualBalance;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
