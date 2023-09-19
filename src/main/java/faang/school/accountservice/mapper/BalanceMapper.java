@@ -11,10 +11,10 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BalanceMapper {
 
-    @Mapping(target = "accountNumber", source = "accountNumber", qualifiedByName = "toAccount")
+    @Mapping(target = "account", source = "accountNumber", qualifiedByName = "toAccount")
     Balance toModel(BalanceDto dto);
 
-    @Mapping(target = "accountNumber", source = "balance.accountNumber.number")
+    @Mapping(target = "accountNumber", source = "balance.account.number")
     BalanceDto toDto(Balance balance);
 
     @Named("toAccount")

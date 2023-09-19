@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,8 +21,8 @@ public class BalanceDto {
     @NotNull(message = "The balance must have an account")
     @Size(min = 12, max = 20, message = "Length of account number must be more then 12 and less then 20")
     private String accountNumber;
-    private Double currentAuthorizationBalance;
-    private Double currentActualBalance;
+    private BigDecimal currentAuthorizationBalance;
+    private BigDecimal currentActualBalance;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

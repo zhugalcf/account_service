@@ -3,13 +3,17 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.exception.IncorrectAccountBalanceLengthException;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -18,41 +22,50 @@ import java.time.LocalDateTime;
 public class BalanceService {
 
     private final BalanceRepository balanceRepository;
+    private final AccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
 
-    public BalanceDto getBalance(String accountNumber) {
-        validateAccountNumber(accountNumber);
+    @Transactional
+    public BalanceDto getBalance(long accountId) {
+        Account account = getAccountNumber(accountId);
+        String accountNumber = account.getNumber();
+
         Balance balance = balanceRepository.findBalanceByAccountNumber(accountNumber);
         log.info("Balance with number = {} has taken from DB successfully", accountNumber);
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
-    public void create(BalanceDto balanceDto) {
-        Balance balance = balanceMapper.toModel(balanceDto);
-        balance.setVersion(1L);
-        balance.setCreatedAt(LocalDateTime.now());
-        balance.setUpdatedAt(LocalDateTime.now());
+    public BalanceDto create(long accountId) {
+        Account account = getAccountNumber(accountId);
+        String accountNumber = account.getNumber();
 
-        balanceRepository.save(balance);
-        log.info("New balance with account number ={} was created successfully", balance.getAccountNumber());
+        Balance balance = Balance.builder()
+                .account(account)
+                .currentAuthorizationBalance(new BigDecimal(0.0))
+                .currentActualBalance(new BigDecimal(0.0))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .version(1L)
+                .build();
+
+        Balance savedBalance = balanceRepository.save(balance);
+        log.info("New balance with account number ={} was created successfully", account.getNumber());
+        return balanceMapper.toDto(savedBalance);
     }
 
     @Transactional
-    public void update(BalanceDto balanceDto) {
+    public BalanceDto update(BalanceDto balanceDto) {
         Balance balance = balanceRepository.findBalanceByAccountNumber(balanceDto.getAccountNumber());
+
         balance.setCurrentAuthorizationBalance(balanceDto.getCurrentAuthorizationBalance());
         balance.setCurrentActualBalance(balanceDto.getCurrentActualBalance());
         balance.setUpdatedAt(LocalDateTime.now());
-        balance.incrementVersion();
+        return balanceMapper.toDto(balance);
     }
 
-    private void validateAccountNumber(String accountNumber) {
-        if (accountNumber.isBlank()) {
-            throw new IllegalArgumentException("Account Number is empty");
-        }
-        if (accountNumber.length() < 12 || accountNumber.length() > 20) {
-            throw new IncorrectAccountBalanceLengthException("The length of account number must be more then 12 and less then 20");
-        }
+    private Account getAccountNumber(long accountId) {
+        return accountRepository.findById(accountId).orElseThrow(
+                () -> new EntityNotFoundException("Entity account not found"));
     }
 }
