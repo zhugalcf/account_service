@@ -76,7 +76,7 @@ class GeneratorUniqueNumberServiceTest {
 
         String generatedAccountNumber = generatorUniqueNumberService.generateAccountNumber(accountType, length);
 
-        assertTrue(generatedAccountNumber.startsWith(accountType.getGetNumberAccountType()));
+        assertTrue(generatedAccountNumber.startsWith(accountType.getFirstNumberOfAccount()));
 
         assertEquals(length, generatedAccountNumber.length());
         assertEquals(accountNumber, generatedAccountNumber);

@@ -12,5 +12,5 @@ public enum AccountType {
     FOREIGN_CURRENCY_ACCOUNT("4321"),
     LEGAL_ENTITY_CURRENT_ACCOUNT("4212");
 
-    private final String getNumberAccountType;
+    private final String firstNumberOfAccount;
 }
