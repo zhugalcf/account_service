@@ -41,5 +41,8 @@ project-service:
 account_numbers:
   number_length: 20
   type_code:
-    SAVING: 5536
+    SAVINGS: 5536
     DEBIT: 4276
+    CURRENCY: 2060
+    CREDIT: 7781
+    DEPOSIT: 5478

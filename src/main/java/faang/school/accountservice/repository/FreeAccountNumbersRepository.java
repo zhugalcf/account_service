@@ -27,4 +27,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<AccountNumbe
                     """)
     @Transactional
     String getFreeNumber(@Param("type") AccountType type);
+
+    long countAccountNumberByType(AccountType type);
 }

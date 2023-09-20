@@ -26,4 +26,6 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
             """)
     @Transactional
     boolean increment(@Param("type") AccountType type);
+
+    AccountNumbersSequence getAccountNumbersSequenceByType(AccountType type);
 }

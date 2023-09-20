@@ -36,6 +36,4 @@ public class AccountNumberController {
         return ResponseEntity.ok(type);
     }
 
-    @PostMapping("/increment")
-    public ResponseEntity<Object> optimisticI
 }
