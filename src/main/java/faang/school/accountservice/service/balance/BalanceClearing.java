@@ -3,7 +3,9 @@ package faang.school.accountservice.service.balance;
 import faang.school.accountservice.dto.balance.BalanceUpdateDto;
 import faang.school.accountservice.dto.balance.BalanceUpdateType;
 import faang.school.accountservice.model.Balance;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BalanceClearing implements BalanceUpdater {
     @Override
     public boolean isApplicable(BalanceUpdateDto dto) {
