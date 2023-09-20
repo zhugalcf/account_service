@@ -6,6 +6,12 @@ import faang.school.accountservice.service.balance.BalanceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,8 +22,10 @@ public class BalanceController {
     private final BalanceService service;
 
     @PostMapping("/{accountId}/create")
-    public BalanceDto create(@NotNull @PathVariable Long accountId) {
-        return service.create(accountId);
+    public ResponseEntity<BalanceDto> create(@NotNull @PathVariable Long accountId) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.create(accountId));
     }
 
     @GetMapping("/{balanceId}/get")
