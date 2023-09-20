@@ -43,11 +43,9 @@ public class BalanceService {
     }
 
     private Balance getBalance(Long balanceId) {
-        try {
-            return balanceRepository.getReferenceById(balanceId);
-        } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException("Balance with id " + balanceId + " not found");
-        }
+        return balanceRepository
+                .findById(balanceId)
+                .orElseThrow(() -> new EntityNotFoundException("Balance with id " + balanceId + " not found"));
     }
 
     private Balance createBalance(Long accountId) {

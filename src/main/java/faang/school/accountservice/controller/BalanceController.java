@@ -4,6 +4,8 @@ import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.service.BalanceService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +21,9 @@ public class BalanceController {
     }
 
     @GetMapping("/{balanceId}/get")
-    public BalanceDto get(@NotNull @PathVariable Long balanceId) {
-        return service.get(balanceId);
+    public ResponseEntity<BalanceDto> get(@NotNull @PathVariable Long balanceId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(service.get(balanceId));
     }
 }

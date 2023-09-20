@@ -9,8 +9,3 @@ CREATE TABLE IF NOT EXISTS balances (
 
     CONSTRAINT fk_account_id FOREIGN KEY (account_id) REFERENCES account (id)
 );
-
-ALTER TABLE account
-ADD COLUMN IF NOT EXISTS
-balance_id BIGINT NOT NULL
-CONSTRAINT fk_balance_id REFERENCES balances(id);
