@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GeneratorUniqueNumberService {
+public class UniqueNumberService {
 
     private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;

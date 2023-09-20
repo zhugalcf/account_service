@@ -21,9 +21,9 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GeneratorUniqueNumberServiceTest {
+class UniqueNumberServiceTest {
     @InjectMocks
-    private GeneratorUniqueNumberService generatorUniqueNumberService;
+    private UniqueNumberService uniqueNumberService;
     @Mock
     private FreeAccountNumbersRepository freeAccountNumbersRepository;
     @Mock
@@ -54,7 +54,7 @@ class GeneratorUniqueNumberServiceTest {
     void generateAccountNumbersOfType_shouldSaveAllFreeAccountNumbers() {
         when(freeAccountNumbersRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
 
-        generatorUniqueNumberService.generateAccountNumbersOfType(targetCountAccounts, accountType, length);
+        uniqueNumberService.generateAccountNumbersOfType(targetCountAccounts, accountType, length);
 
         verify(freeAccountNumbersRepository).saveAll(argThat(argument -> argument.spliterator().estimateSize() == targetCountAccounts));
     }
@@ -63,7 +63,7 @@ class GeneratorUniqueNumberServiceTest {
     void generateAccountNumbersToReach_shouldSaveAllFreeAccountNumbers() {
         when(freeAccountNumbersRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
 
-        generatorUniqueNumberService.generateAccountNumbersToReach(targetCountAccounts, accountType, length);
+        uniqueNumberService.generateAccountNumbersToReach(targetCountAccounts, accountType, length);
 
         verify(freeAccountNumbersRepository).saveAll(argThat(argument -> argument.spliterator().estimateSize() == targetCountAccounts));
     }
@@ -74,7 +74,7 @@ class GeneratorUniqueNumberServiceTest {
         when(accountNumberSequenceRepository.save(accountNumberSequence)).thenReturn(accountNumberSequence);
         String accountNumber  = "4255000002";
 
-        String generatedAccountNumber = generatorUniqueNumberService.generateAccountNumber(accountType, length);
+        String generatedAccountNumber = uniqueNumberService.generateAccountNumber(accountType, length);
 
         assertTrue(generatedAccountNumber.startsWith(accountType.getFirstNumberOfAccount()));
 
@@ -87,7 +87,7 @@ class GeneratorUniqueNumberServiceTest {
     @Test
     void getOrCreateSequence_shouldReturnExistingSequence() {
         when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(accountNumberSequence);
-        AccountNumberSequence result = generatorUniqueNumberService.getOrCreateSequence(accountType);
+        AccountNumberSequence result = uniqueNumberService.getOrCreateSequence(accountType);
 
         assertEquals(accountNumberSequence, result);
 
@@ -98,7 +98,7 @@ class GeneratorUniqueNumberServiceTest {
     void getOrCreateSequence_shouldCreateNewSequence() {
         when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(null);
 
-        AccountNumberSequence result = generatorUniqueNumberService.getOrCreateSequence(accountType);
+        AccountNumberSequence result = uniqueNumberService.getOrCreateSequence(accountType);
 
         assertNotNull(result);
         assertEquals(accountType, result.getAccountType());
@@ -112,7 +112,7 @@ class GeneratorUniqueNumberServiceTest {
         when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoFreeAccountNumbersException.class, () -> generatorUniqueNumberService.getFreeAccountNumber(accountType));
+        assertThrows(NoFreeAccountNumbersException.class, () -> uniqueNumberService.getFreeAccountNumber(accountType));
     }
 
     @Test
@@ -120,7 +120,7 @@ class GeneratorUniqueNumberServiceTest {
         when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
                 .thenReturn(Optional.of(freeAccountNumber));
 
-        String accountNumber = generatorUniqueNumberService.getFreeAccountNumber(accountType);
+        String accountNumber = uniqueNumberService.getFreeAccountNumber(accountType);
 
         assertEquals(freeAccountNumber.getAccountNumber(), accountNumber);
 
@@ -132,6 +132,6 @@ class GeneratorUniqueNumberServiceTest {
         when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoFreeAccountNumbersException.class, () -> generatorUniqueNumberService.getFreeAccountNumber(accountType));
+        assertThrows(NoFreeAccountNumbersException.class, () -> uniqueNumberService.getFreeAccountNumber(accountType));
     }
 }
