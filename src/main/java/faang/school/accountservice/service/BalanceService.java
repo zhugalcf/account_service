@@ -9,6 +9,8 @@ import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.BalanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,7 @@ public class BalanceService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public BalanceDto updateBalance(Long accountId, BalanceDto balanceDto) {
         Balance balance = getBalance(accountId);
         balanceMapper.updateBalanceFromBalanceDto(balanceDto, balance);
@@ -50,6 +53,7 @@ public class BalanceService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public BalanceDto deposit(Long accountId, BigDecimal amount) {
         Balance balance = getBalance(accountId);
         BigDecimal currentAuthorizationBalance = balance.getAuthorizationBalance();
@@ -62,6 +66,7 @@ public class BalanceService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public BalanceDto withdraw(Long accountId, BigDecimal amount) {
         Balance balance = getBalance(accountId);
         BigDecimal currentAuthorizationBalance = balance.getAuthorizationBalance();
@@ -78,6 +83,7 @@ public class BalanceService {
     }
 
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public void transfer(Long senderId, Long receiverId, BigDecimal amount) {
         Balance senderBalance = getBalance(senderId);
         Balance receiverBalance = getBalance(receiverId);
