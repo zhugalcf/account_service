@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/changeset/V002__account-service_payment-account.sql
   - include:
       file: db/changelog/changeset/V003__request.sql
+  - include:
+      file: db/changelog/changeset/V005__free_account_numbers.sql
+  - include:
+      file: db/changelog/changeset/V006__account_numbers_sequence.sql
