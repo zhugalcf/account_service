@@ -10,4 +10,6 @@ CREATE table account (
     updated_at timestamptz DEFAULT current_timestamp,
     closed_at timestamptz DEFAULT current_timestamp,
     version INTEGER not null
-)
+);
+
+create index index_account_owner on account(account_owner);
