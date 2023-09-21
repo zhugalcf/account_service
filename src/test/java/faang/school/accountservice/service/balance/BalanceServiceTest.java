@@ -34,6 +34,9 @@ class BalanceServiceTest {
     @Spy
     BalanceMapperImpl balanceMapper;
 
+    @Mock
+    BalanceHistoryService balanceHistoryService;
+
     @InjectMocks
     BalanceService balanceService;
 

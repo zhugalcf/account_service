@@ -23,6 +23,7 @@ public class BalanceService {
 
     private final AccountRepository accountRepository;
     private final BalanceRepository balanceRepository;
+    private final BalanceHistoryService balanceHistoryService;
 
     private final BalanceMapper balanceMapper;
 
@@ -51,6 +52,7 @@ public class BalanceService {
         Balance balance = updateBalance(balanceUpdateDto);
 
         balance = balanceRepository.save(balance);
+        balanceHistoryService.save(balance, balanceUpdateDto.type(), balanceUpdateDto.amount());
         log.info("Updated balance: {}", balance);
 
         return balanceMapper.toDto(balance);

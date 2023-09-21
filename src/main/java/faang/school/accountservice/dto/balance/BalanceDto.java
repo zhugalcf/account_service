@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,6 +18,7 @@ public class BalanceDto {
     private Long accountId;
     private BigDecimal authBalance;
     private BigDecimal actualBalance;
+    private List<BalanceHistoryDto> history;
     private Instant createdAt;
     private Instant updatedAt;
 }
