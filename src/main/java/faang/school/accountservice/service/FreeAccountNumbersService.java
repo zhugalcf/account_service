@@ -7,6 +7,8 @@ import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.repository.AccountNumberSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +25,14 @@ public class FreeAccountNumbersService {
         Long freeAccountNumber = freeAccountNumberRepository.getAccountNumber(accountType.ordinal())
                 .orElseGet(() -> {
                     generateAccountNumber(accountType);
-                    throw new RuntimeException("Not found free account number");
+                    return freeAccountNumberRepository.getAccountNumber(accountType.ordinal()).get();
                 });
         consumer.accept(freeAccountNumber.toString());
 
     }
 
     @Transactional
+    @Retryable(retryFor = RuntimeException.class ,maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public void generateAccountNumber(AccountType accountType) {
         AccountNumberSequence sequence = accountNumberSequenceRepository.findByAccountType(accountType)
                 .orElseThrow(() -> new EntityNotFoundException("No found account with this type"));
