@@ -50,12 +50,14 @@ public class BalanceServiceTest {
                 .number(ACCOUNT_NUMBER)
                 .build();
         balance = Balance.builder()
+                .id(1L)
                 .account(account)
                 .currentAuthorizationBalance(new BigDecimal(100.0))
                 .currentActualBalance(new BigDecimal(100.0))
                 .version(1L)
                 .build();
         balanceDto = BalanceDto.builder()
+                .id(1L)
                 .accountNumber(ACCOUNT_NUMBER)
                 .currentAuthorizationBalance(new BigDecimal(100.0))
                 .currentActualBalance(new BigDecimal(100.0))
@@ -64,15 +66,14 @@ public class BalanceServiceTest {
     }
 
     @Test
-    void testGetBalanceWithoutAccountInDB() {
-        when(accountRepository.findById(INCORRECT_ACCOUNT_ID)).thenThrow(EntityNotFoundException.class);
+    void testGetBalanceWithoutBalanceInDB() {
+        when(balanceRepository.findBalanceByAccountId(INCORRECT_ACCOUNT_ID)).thenThrow(EntityNotFoundException.class);
         assertThrows(EntityNotFoundException.class, () -> balanceService.getBalance(INCORRECT_ACCOUNT_ID));
     }
 
     @Test
     void testGetBalance() {
-        when(balanceRepository.findBalanceByAccountNumber(ACCOUNT_NUMBER)).thenReturn(balance);
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.ofNullable(account));
+        when(balanceRepository.findBalanceByAccountId(ACCOUNT_ID)).thenReturn(Optional.ofNullable(balance));
 
         BalanceDto actualBalanceDto = balanceService.getBalance(ACCOUNT_ID);
         assertEquals(balanceDto, actualBalanceDto);
@@ -110,7 +111,7 @@ public class BalanceServiceTest {
     void testUpdateBalance() {
         balanceDto.setCurrentActualBalance(new BigDecimal(250.0));
         balanceDto.setCurrentAuthorizationBalance(new BigDecimal(200.0));
-        when(balanceRepository.findBalanceByAccountNumber(ACCOUNT_NUMBER)).thenReturn(balance);
+        when(balanceRepository.findById(1L)).thenReturn(Optional.ofNullable(balance));
 
         BalanceDto actualDto = balanceService.update(balanceDto);
         BigDecimal actualAuthorizationBalance = actualDto.getCurrentAuthorizationBalance();

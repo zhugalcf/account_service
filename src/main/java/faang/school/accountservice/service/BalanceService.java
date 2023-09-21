@@ -8,8 +8,11 @@ import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,20 +28,17 @@ public class BalanceService {
     private final AccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public BalanceDto getBalance(long accountId) {
-        Account account = getAccountNumber(accountId);
-        String accountNumber = account.getNumber();
-
-        Balance balance = balanceRepository.findBalanceByAccountNumber(accountNumber);
-        log.info("Balance with number = {} has taken from DB successfully", accountNumber);
+        Balance balance = balanceRepository.findBalanceByAccountId(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Entity balance not found"));
+        log.info("Balance with id = {} has taken from DB successfully", balance.getId());
         return balanceMapper.toDto(balance);
     }
 
     @Transactional
     public BalanceDto create(long accountId) {
-        Account account = getAccountNumber(accountId);
-        String accountNumber = account.getNumber();
+        Account account = getAccount(accountId);
 
         Balance balance = Balance.builder()
                 .account(account)
@@ -55,16 +55,19 @@ public class BalanceService {
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public BalanceDto update(BalanceDto balanceDto) {
-        Balance balance = balanceRepository.findBalanceByAccountNumber(balanceDto.getAccountNumber());
+        Balance balance = balanceRepository.findById(balanceDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Entity balance not found"));
 
         balance.setCurrentAuthorizationBalance(balanceDto.getCurrentAuthorizationBalance());
         balance.setCurrentActualBalance(balanceDto.getCurrentActualBalance());
         balance.setUpdatedAt(LocalDateTime.now());
+        log.info("Balance with account number = {} was updated successfully", balanceDto.getAccountNumber());
         return balanceMapper.toDto(balance);
     }
 
-    private Account getAccountNumber(long accountId) {
+    private Account getAccount(long accountId) {
         return accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException("Entity account not found"));
     }

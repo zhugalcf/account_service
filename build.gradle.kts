@@ -35,6 +35,7 @@ dependencies {
     /**
      * Utils & Logging
      */
+    implementation("org.springframework.retry:spring-retry:2.0.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
     implementation("org.slf4j:slf4j-api:2.0.5")
     implementation("ch.qos.logback:logback-classic:1.4.6")
