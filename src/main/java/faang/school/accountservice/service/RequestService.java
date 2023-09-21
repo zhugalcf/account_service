@@ -42,23 +42,21 @@ public class RequestService {
         Request requestBuild = getRequest(request);
         Optional<Request> requestById = repository.findById(requestBuild.getId());
         validateRequest(requestById);
-        validateInputDataAndStatus(request, requestBuild);
+        validateInputData(request, requestBuild);
+        if (request.getRequestStatus() == RequestStatus.FAILED) {
+            request.setActive(false);
+        }
         request.setRequestStatus(request.getRequestStatus());
         request.setDetails(request.getDetails());
         repository.save(request);
         return requestMapper.toDto(request);
     }
 
-    private void validateInputDataAndStatus(Request request, Request requestBuild) {
+    private void validateInputData(Request request, Request requestBuild) {
         Map<String, Object> inputData = requestBuild.getInputData();
         Map<String, Object> inputDataFromRequest = request.getInputData();
-        for (Map.Entry<String, Object> stringObjectEntry : inputDataFromRequest.entrySet()) {
-            if (!inputData.containsKey(stringObjectEntry.getKey())) {
-                throw new IllegalArgumentException();
-            }
-        }
-        if (request.getRequestStatus() == RequestStatus.FAILED) {
-            request.setActive(false);
+        if(!inputData.equals(inputDataFromRequest)) {
+            throw new IllegalArgumentException();
         }
     }
 
