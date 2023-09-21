@@ -17,8 +17,8 @@ public class SavingsAccountDto {
     private long id;
     @Min(value = 1, message = "Значение должно быть не меньше 1")
     private long accountId;
-    private int version;
     private TariffType tariffType;
+    private int version;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

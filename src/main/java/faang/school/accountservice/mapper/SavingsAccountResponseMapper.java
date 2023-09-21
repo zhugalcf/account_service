@@ -10,8 +10,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = TariffMapper.class)
 public interface SavingsAccountResponseMapper {
 
-//    @Mapping(target = "accountId", source = "account.id")
-//    @Mapping(target = "tariffDto", source = "tariffHistory", qualifiedByName = "getCurrentTariff")
-//    SavingsAccountResponseDto toDto(SavingsAccount savingsAccount);
+    @Mapping(target = "accountId", source = "account.id")
+    @Mapping(target = "tariffDto", source = "tariffHistory", qualifiedByName = "getCurrentTariff")
+    SavingsAccountResponseDto toDto(SavingsAccount savingsAccount);
 
 }

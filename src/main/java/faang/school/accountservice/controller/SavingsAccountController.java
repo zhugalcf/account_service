@@ -15,23 +15,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/savings/account")
+@RequestMapping("api/v1/savings/account")
 @Slf4j
 public class SavingsAccountController {
 
     private final SavingsAccountService savingsAccountService;
 
     @PostMapping("/open")
-    public SavingsAccountDto openSavingsAccount(@RequestBody @Valid SavingsAccountDto savingsAccountDto) {
+    public SavingsAccountResponseDto openSavingsAccount(@RequestBody @Valid SavingsAccountDto savingsAccountDto) {
         log.info("Received request to open account for savings by account id = {}", savingsAccountDto.getAccountId());
         return savingsAccountService.openSavingsAccount(savingsAccountDto);
     }
 
-//    @GetMapping("/{id}")
-//    public SavingsAccountResponseDto getSavingsAccountByAccountId(@PathVariable long id) {
-//        log.info("Received request of getting savings account with account id: {}", id);
-//        return savingsAccountService.getSavingsAccountByAccountId(id);
-//    }
+    @GetMapping("/{id}")
+    public SavingsAccountResponseDto getSavingsAccountByAccountId(@PathVariable long id) {
+        log.info("Received request of getting savings account with account id: {}", id);
+        return savingsAccountService.getSavingsAccountByAccountId(id);
+    }
 //
 //    @GetMapping("/user/{ownerId}")
 //    public SavingsAccountResponseDto getSavingsAccountByOwnerId(@PathVariable long ownerId) {

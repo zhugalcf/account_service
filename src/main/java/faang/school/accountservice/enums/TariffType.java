@@ -9,7 +9,6 @@ public enum TariffType {
     BUSINESS("business"),
     UNLIMITED("unlimited"),
     PREMIUM("premium"),
-    VIP("vip"),
     CUSTOM("custom")
     ;
 

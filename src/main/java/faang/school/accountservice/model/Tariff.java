@@ -9,9 +9,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -34,7 +31,7 @@ public class Tariff {
     private long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, unique = true)
+    @Column(name = "tariff_type", nullable = false, unique = true)
     private TariffType type;
 
     @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)

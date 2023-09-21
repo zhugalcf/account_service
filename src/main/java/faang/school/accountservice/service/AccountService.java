@@ -82,6 +82,7 @@ public class AccountService {
     }
 
     public Account getAccountById(long accountId) {
+        log.info("A request to retrieve an account by its ID: {}, has been received.", accountId);
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
     }

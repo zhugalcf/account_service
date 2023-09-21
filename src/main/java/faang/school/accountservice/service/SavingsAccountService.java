@@ -1,9 +1,10 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.SavingsAccountDto;
+import faang.school.accountservice.dto.SavingsAccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.enums.TariffType;
+import faang.school.accountservice.exception.AccountAlreadyExistException;
 import faang.school.accountservice.exception.InvalidStatusException;
 import faang.school.accountservice.exception.InvalidTypeException;
 import faang.school.accountservice.exception.NotFoundException;
@@ -11,10 +12,8 @@ import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.mapper.SavingsAccountResponseMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.SavingsAccount;
-import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.model.TariffHistory;
 import faang.school.accountservice.repository.SavingsAccountRepository;
-import faang.school.accountservice.repository.TariffHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,46 +30,40 @@ public class SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final AccountService accountService;
     private final SavingsAccountMapper savingsAccountMapper;
-    private final TariffHistoryRepository tariffHistoryRepository;
     private final TariffService tariffService;
     private final SavingsAccountResponseMapper savingsAccountResponseMapper;
 
     @Transactional
-    public SavingsAccountDto openSavingsAccount(SavingsAccountDto savingsAccountDto) {
+    public SavingsAccountResponseDto openSavingsAccount(SavingsAccountDto savingsAccountDto) {
         long accountId = savingsAccountDto.getAccountId();
         Account account = accountService.getAccountById(accountId);
 
-        AccountType accountType = account.getAccountType();
-        AccountStatus accountStatus = account.getStatus();
-
-        validateAccountType(accountType);
-        validateAccountStatus(accountStatus);
+        checkSavingsAccountExistence(account);
+        validateAccountTypeAndStatus(account);
+        log.info("Account with ID: {}, successfully passed all the necessary validations.", accountId);
 
         SavingsAccount accountToSave = savingsAccountMapper.toEntity(savingsAccountDto);
         accountToSave.setAccount(account);
         accountToSave.setVersion(1);
 
-        Tariff tariff = tariffService.getTariff(savingsAccountDto.getTariffType());
-        TariffHistory tariffHistory = TariffHistory.builder()
-                .savingsAccount(accountToSave)
-                .tariff(tariff)
-                .build();
-        tariffHistoryRepository.save(tariffHistory);
-//        accountToSave.setTariffHistory(new ArrayList<>(List.of(tariffHistory)));
+//        savingsAccountRepository.save(accountToSave);
 
+        TariffHistory tariffHistory = tariffService.assignTariffToSavingsAccount(accountToSave, savingsAccountDto.getTariffType());
+        accountToSave.setTariffHistory(new ArrayList<>(List.of(tariffHistory)));
 
-        savingsAccountRepository.save(accountToSave);
-        return savingsAccountMapper.toDto(accountToSave);
+        return savingsAccountResponseMapper.toDto(savingsAccountRepository.save(accountToSave));
     }
 
 
+    public SavingsAccountResponseDto getSavingsAccountByAccountId(long id) {
+        SavingsAccount account = savingsAccountRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("There is no account with id: %d", id)));
+        String first = "3";
+        int a = 1;
+        return savingsAccountResponseMapper.toDto(account);
+    }
 
-    //    public SavingsAccountResponseDto getSavingsAccountByAccountId(long id) {
-//        SavingsAccount account = savingsAccountRepository.findById(id)
-//                .orElseThrow(() -> new NotFoundException(String.format("There is no account with id: %d", id)));
-//        return savingsAccountResponseMapper.toDto(account);
-//    }
-//
+    //
 //    public SavingsAccountResponseDto getSavingsAccountByOwnerId(long ownerId) {
 //        Account account = accountService.getAccountByOwnerId(ownerId);
 //        validateSavingsAccountExists(account);
@@ -79,6 +72,14 @@ public class SavingsAccountService {
 //    public SavingsAccount getSavingsAccountById(long accountId) {
 //
 //    }
+//    private checkAccountAlreadyHasSavingsAccount() {
+//
+//    }
+    private void checkSavingsAccountExistence(Account account) {
+        if (account.getSavingsAccount() != null) {
+            throw new AccountAlreadyExistException(String.format("Account with id: %d, already has a savings account", account.getId()));
+        }
+    }
 
     private void validateSavingsAccountExists(Account account) {
         if (account.getSavingsAccount() == null) {
@@ -86,15 +87,20 @@ public class SavingsAccountService {
         }
     }
 
-    private void validateAccountType(AccountType accountType) {
+    private void validateAccountTypeAndStatus(Account account) {
+        AccountType accountType = account.getAccountType();
+        AccountStatus accountStatus = account.getStatus();
+
         if (accountType != AccountType.SAVINGS) {
             throw new InvalidTypeException(String.format("Your account type: %s must be type of %s", accountType, AccountType.SAVINGS));
-        }
-    }
-
-    private void validateAccountStatus(AccountStatus accountStatus) {
-        if (accountStatus != AccountStatus.OPEN) {
+        } else if (accountStatus != AccountStatus.OPEN) {
             throw new InvalidStatusException("Account status must be open");
         }
     }
 }
+//        Tariff tariff = tariffService.getTariff(savingsAccountDto.getTariffType());
+//        TariffHistory tariffHistory = TariffHistory.builder()
+//                .savingsAccount(accountToSave)
+//                .tariff(tariff)
+//                .build();
+//        tariffHistoryService.saveTariffHistory(tariffHistory);

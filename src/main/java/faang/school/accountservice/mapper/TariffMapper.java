@@ -3,6 +3,7 @@ package faang.school.accountservice.mapper;
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.model.Rate;
 import faang.school.accountservice.model.Tariff;
+import faang.school.accountservice.model.TariffHistory;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,14 +22,14 @@ public interface TariffMapper {
     Tariff toEntity(TariffDto tariffDto);
 
     @Named("getCurrentRatePercent")
-    default BigDecimal getCurrentRatePercent(List<Rate> rateList) {
-        Rate currentRate = rateList.get(rateList.size() - 1);
-        return currentRate.getPercent();
+    default float getCurrentRatePercent(List<Rate> rateList) {
+        return rateList.get(rateList.size() - 1)
+                .getPercent();
     }
 
     @Named("getCurrentTariff")
-    default TariffDto getCurrentTariff(List<Tariff> tariffList) {
-        Tariff tariff = tariffList.get(tariffList.size() - 1);
+    default TariffDto getCurrentTariff(List<TariffHistory> tariffList) {
+        Tariff tariff = tariffList.get(tariffList.size() - 1).getTariff();
         return toDto(tariff);
     }
 }

@@ -44,7 +44,6 @@ public class SavingsAccount {
     @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY)
     private List<TariffHistory> tariffHistory;
 
-    @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_interest_date")
     private LocalDateTime lastInterestCalculateDate;

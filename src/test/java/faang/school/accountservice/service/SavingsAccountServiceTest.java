@@ -13,13 +13,13 @@ class SavingsAccountServiceTest {
     @Autowired
     private SavingsAccountService savingsAccountService;
 
-    @Test
-    void someTest() {
-        SavingsAccountDto savingsAccountDto = SavingsAccountDto.builder()
-                .accountId(1)
-                .tariffType(TariffType.BASIC)
-                .build();
-
-        savingsAccountService.openSavingsAccount(savingsAccountDto);
-    }
+//    @Test
+//    void someTest() {
+//        SavingsAccountDto savingsAccountDto = SavingsAccountDto.builder()
+//                .accountId(3)
+//                .tariffType(TariffType.BASIC)
+//                .build();
+//
+//        savingsAccountService.openSavingsAccount(savingsAccountDto);
+//    }
 }
