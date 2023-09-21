@@ -1,9 +1,9 @@
 -- Write your sql migration here!
-CREATE table account (
+CREATE TABLE account (
 	id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
 	number varchar(20) UNIQUE check (LENGTH(number) BETWEEN 12 AND 20) not null,
-	account_owner varchar(128) not null,
-	account_type varchar(64) not null,
+	owner varchar(128) not null,
+	type varchar(64) not null,
 	currency varchar(3) not null,
 	status varchar(64) not null,
 	created_at timestamptz DEFAULT current_timestamp,
@@ -12,4 +12,4 @@ CREATE table account (
     version INTEGER not null
 );
 
-create index index_account_owner on account(account_owner);
+CREATE INDEX index_owner ON account(owner);
