@@ -1,5 +1,6 @@
 package faang.school.accountservice.entity;
 
+import faang.school.accountservice.entity.account.AccountType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,8 +19,13 @@ public class AccountNumbersSequence {
     private Long id;
 
     @Column(name = "account_type", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private AccountType accountType;
 
     @Column(name = "current", nullable = false)
     private Long current;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 }
