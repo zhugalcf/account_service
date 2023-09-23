@@ -16,15 +16,13 @@ public class FreeAccountNumbersController {
 
     @PostMapping("/generate")
     public void createFreeAccountNumbers(@RequestParam int count,
-                                         @RequestParam AccountType accountType,
-                                         @RequestParam(required = false) Integer length) {
-        uniqueNumberService.generateAccountNumbersOfType(count, accountType, length);
+                                         @RequestParam AccountType accountType) {
+        uniqueNumberService.generateAccountNumbersOfType(count, accountType);
     }
 
     @PostMapping("/generate/reach")
     public void createFreeAccountNumbersToReach(@RequestParam int count,
-                                                @RequestParam AccountType accountType,
-                                                @RequestParam(required = false) Integer length) {
-        uniqueNumberService.generateAccountNumbersToReach(count, accountType, length);
+                                                @RequestParam AccountType accountType) {
+        uniqueNumberService.generateAccountNumbersToReach(count, accountType);
     }
 }
