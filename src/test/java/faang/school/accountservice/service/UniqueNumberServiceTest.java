@@ -77,45 +77,6 @@ class UniqueNumberServiceTest {
         verify(accountNumberSequenceRepository, times(10)).save(accountNumberSequence);
     }
 
-//    @Test
-//    void generateAccountNumber_shouldReturnGeneratedAccountNumber() {
-//        when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(accountNumberSequence);
-//        when(accountNumberSequenceRepository.save(accountNumberSequence)).thenReturn(accountNumberSequence);
-//        String accountNumber  = "4255000002";
-//
-//        String generatedAccountNumber = uniqueNumberService.generateAccountNumber(accountType, length);
-//
-//        assertTrue(generatedAccountNumber.startsWith(accountType.getFirstNumberOfAccount()));
-//
-//        assertEquals(length, generatedAccountNumber.length());
-//        assertEquals(accountNumber, generatedAccountNumber);
-//
-//        verify(accountNumberSequenceRepository, times(1)).save(accountNumberSequence);
-//    }
-//
-//    @Test
-//    void getOrCreateSequence_shouldReturnExistingSequence() {
-//        when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(accountNumberSequence);
-//        AccountNumberSequence result = uniqueNumberService.getOrCreateSequence(accountType);
-//
-//        assertEquals(accountNumberSequence, result);
-//
-//        verify(accountNumberSequenceRepository, never()).save(any(AccountNumberSequence.class));
-//    }
-//
-//    @Test
-//    void getOrCreateSequence_shouldCreateNewSequence() {
-//        when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(null);
-//
-//        AccountNumberSequence result = uniqueNumberService.getOrCreateSequence(accountType);
-//
-//        assertNotNull(result);
-//        assertEquals(accountType, result.getAccountType());
-//        assertEquals(1L, result.getCurrentCount());
-//
-//        verify(accountNumberSequenceRepository).save(any(AccountNumberSequence.class));
-//    }
-
     @Test
     void getFreeAccountNumber() {
         when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
