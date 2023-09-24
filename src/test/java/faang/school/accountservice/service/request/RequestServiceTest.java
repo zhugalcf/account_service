@@ -103,7 +103,7 @@ public class RequestServiceTest {
 
     @Test
     public void testFindByRequestType() {
-        RequestType type = RequestType.PAYMENT;
+        RequestType type = RequestType.AUTHORIZATION;
 
         when(requestRepository.findByRequestType(type)).thenReturn(requests);
 

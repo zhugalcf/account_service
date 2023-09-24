@@ -2,6 +2,7 @@ package faang.school.accountservice.service.request;
 
 import faang.school.accountservice.config.context.UserContext;
 import faang.school.accountservice.dto.request.RequestDto;
+import faang.school.accountservice.entity.request.Request;
 import faang.school.accountservice.entity.request.RequestStatus;
 import faang.school.accountservice.entity.request.RequestType;
 import faang.school.accountservice.mapper.RequestMapper;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -21,7 +23,11 @@ public class RequestService {
 
     @Transactional
     public RequestDto createRequest(RequestDto requestDto) {
-        return requestMapper.toDto(requestRepository.save(requestMapper.toEntity(requestDto)));
+        Request request = requestMapper.toEntity(requestDto);
+        request.setLockValue(requestDto.getUserId());
+        request.setIsOpen(true);
+        request = requestRepository.save(request);
+        return requestMapper.toDto(request);
     }
 
     @Transactional(readOnly = true)
