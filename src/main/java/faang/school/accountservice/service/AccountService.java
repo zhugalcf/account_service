@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountRequestMapper;
 import faang.school.accountservice.mapper.AccountResponseMapper;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +28,8 @@ public class AccountService {
 
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public AccountResponseDto getAccount(long accountId) {
+        checkAccountClosedStatus(getAccountById(accountId));
+        checkAccountBlockedStatus(getAccountById(accountId));
         Account account = getAccountById(accountId);
         return accountResponseMapper.accountToResponseDto(account);
     }
@@ -40,6 +45,7 @@ public class AccountService {
 
     @Transactional
     public AccountResponseDto blockAccount(long accountId) {
+        checkAccountBlockedStatus(getAccountById(accountId));
         Account account = getAccountById(accountId);
         int version = account.getVersion();
         log.info("Account number: {}, is blocked!", account.getNumber());
@@ -51,12 +57,27 @@ public class AccountService {
 
     @Transactional
     public AccountResponseDto closeAccount(long accountId) {
+        checkAccountClosedStatus(getAccountById(accountId));
         Account account = getAccountById(accountId);
         int version = account.getVersion();
         log.info("Account number: {}, is closed!", account.getNumber());
         account.setStatus(AccountStatus.CLOSED);
         account.setVersion(version + 1);
+        account.setClosedAt(LocalDateTime.now());
         saveAccountAfterClose(account);
+        return accountResponseMapper.accountToResponseDto(account);
+    }
+
+    @Transactional
+    public AccountResponseDto unlockAccount(long accountId) {
+        Account account = getAccountById(accountId);
+        if (account.getStatus() != AccountStatus.OPEN) {
+            int version = account.getVersion();
+            log.info("Account number: {}, is unlocked!", account.getNumber());
+            account.setStatus(AccountStatus.OPEN);
+            account.setVersion(version + 1);
+            saveAccountAfterUnlock(account);
+        }
         return accountResponseMapper.accountToResponseDto(account);
     }
 
@@ -78,6 +99,26 @@ public class AccountService {
             accountRepository.save(account);
         } catch (OptimisticLockingFailureException e) {
             throw new IllegalArgumentException("Account is closed by another transaction");
+        }
+    }
+
+    private void saveAccountAfterUnlock(Account account) {
+        try {
+            accountRepository.save(account);
+        } catch (OptimisticLockingFailureException e) {
+            throw new IllegalArgumentException("Account is already opened");
+        }
+    }
+
+    public void checkAccountBlockedStatus(Account account) {
+        if (account.getStatus() == AccountStatus.BLOCKED) {
+            throw new DataValidationException("Account is blocked already");
+        }
+    }
+
+    public void checkAccountClosedStatus(Account account) {
+        if (account.getStatus() == AccountStatus.CLOSED) {
+            throw new DataValidationException("Account is closed already");
         }
     }
 }

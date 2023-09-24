@@ -60,4 +60,3 @@ public class Account {
     @Column(name = "version", nullable = false)
     private int version;
 }
-
