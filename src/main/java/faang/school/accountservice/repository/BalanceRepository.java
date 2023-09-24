@@ -17,4 +17,7 @@ public interface BalanceRepository extends JpaRepository<Balance, Long> {
 
     @Query("SELECT b FROM Balance b WHERE b.account.id IN :accountIds")
     List<Balance> findAllByAccountIds(List<Long> accountIds);
+
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM Balance b WHERE b.account.id = :accountId")
+    boolean existsByAccountId(@NotNull Long accountId);
 }

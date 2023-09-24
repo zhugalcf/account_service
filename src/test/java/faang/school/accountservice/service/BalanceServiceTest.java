@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.excpetion.DuplicateBalanceException;
 import faang.school.accountservice.excpetion.EntityNotFoundException;
 import faang.school.accountservice.excpetion.InsufficientBalanceException;
 import faang.school.accountservice.mapper.BalanceMapperImpl;
@@ -79,6 +80,14 @@ public class BalanceServiceTest {
         BalanceDto result = balanceService.createBalance(1L, balanceDto);
         assertNotNull(result);
         assertEquals(balanceDto, result);
+    }
+
+    @Test
+    public void testCreateBalanceIfDuplicateExists_ExceptionThrown() {
+        when(accountService.getAccount(1L)).thenReturn(account);
+        when(balanceRepository.existsByAccountId(1L)).thenReturn(true);
+
+        assertThrows(DuplicateBalanceException.class, () -> balanceService.createBalance(1L, balanceDto));
     }
 
     @Test

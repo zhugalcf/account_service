@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
+import faang.school.accountservice.excpetion.DuplicateBalanceException;
 import faang.school.accountservice.excpetion.EntityNotFoundException;
 import faang.school.accountservice.excpetion.InsufficientBalanceException;
 import faang.school.accountservice.mapper.BalanceMapper;
@@ -37,6 +38,11 @@ public class BalanceService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BalanceDto createBalance(Long accountId, BalanceDto balanceDto) {
         Account account = accountService.getAccount(accountId);
+
+        if (balanceRepository.existsByAccountId(accountId)) {
+            throw new DuplicateBalanceException("Balance already exists for account.");
+        }
+
         Balance balance = Balance.builder()
                 .authorizationBalance(balanceDto.getAuthorizationBalance())
                 .actualBalance(balanceDto.getActualBalance())
