@@ -12,9 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BalanceDto createBalance(Long accountId, BalanceDto balanceDto) {
         Account account = accountService.getAccount(accountId);
         Balance balance = Balance.builder()
@@ -43,7 +46,7 @@ public class BalanceService {
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public BalanceDto updateBalance(Long accountId, BalanceDto balanceDto) {
         Balance balance = getBalance(accountId);
@@ -52,20 +55,21 @@ public class BalanceService {
         return balanceMapper.toDto(balanceRepository.save(balance));
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public BalanceDto deposit(Long accountId, BigDecimal amount) {
         Balance balance = getBalance(accountId);
         BigDecimal currentAuthorizationBalance = balance.getAuthorizationBalance();
+        BigDecimal currentActualBalance = balance.getActualBalance();
 
         balance.setAuthorizationBalance(currentAuthorizationBalance.add(amount));
-        balance.setActualBalance(balance.getActualBalance().add(amount));
+        balance.setActualBalance(currentActualBalance.add(amount));
 
         Balance saved = balanceRepository.save(balance);
         return balanceMapper.toDto(saved);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public BalanceDto withdraw(Long accountId, BigDecimal amount) {
         Balance balance = getBalance(accountId);
@@ -82,25 +86,31 @@ public class BalanceService {
         return balanceMapper.toDto(saved);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public void transfer(Long senderId, Long receiverId, BigDecimal amount) {
-        Balance senderBalance = getBalance(senderId);
-        Balance receiverBalance = getBalance(receiverId);
+        List<Balance> balances = balanceRepository.findAllByAccountIds(Arrays.asList(senderId, receiverId));
+
+        if (balances.size() != 2) {
+            throw new EntityNotFoundException("Account balances not found.");
+        }
+
+        Balance senderBalance = balances.stream().filter(b -> b.getAccount().getId().equals(senderId)).findFirst().orElseThrow();
+        Balance receiverBalance = balances.stream().filter(b -> b.getAccount().getId().equals(receiverId)).findFirst().orElseThrow();
 
         BigDecimal senderAuthorizationBalance = senderBalance.getAuthorizationBalance();
+        BigDecimal senderActualBalance = senderBalance.getActualBalance();
 
         if (senderAuthorizationBalance.compareTo(amount) < 0) {
             throw new InsufficientBalanceException("Not enough authorization balance to transfer.");
         }
 
         senderBalance.setAuthorizationBalance(senderAuthorizationBalance.subtract(amount));
-        senderBalance.setActualBalance(senderBalance.getActualBalance().subtract(amount));
+        senderBalance.setActualBalance(senderActualBalance.subtract(amount));
 
         receiverBalance.setActualBalance(receiverBalance.getActualBalance().add(amount));
 
-        balanceRepository.save(senderBalance);
-        balanceRepository.save(receiverBalance);
+        balanceRepository.saveAll(Arrays.asList(senderBalance, receiverBalance));
     }
 
     private Balance getBalance(Long accountId) {

@@ -7,6 +7,7 @@ import faang.school.accountservice.excpetion.EntityNotFoundException;
 import faang.school.accountservice.excpetion.InsufficientBalanceException;
 import faang.school.accountservice.mapper.BalanceMapperImpl;
 import faang.school.accountservice.repository.BalanceRepository;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,7 +93,7 @@ public class BalanceServiceTest {
     }
 
     @Test
-    public void testGetBalanceByAccountIdFail() {
+    public void testGetBalanceByAccountId_ExceptionThrown() {
         when(balanceRepository.findByAccountId(1L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> balanceService.getBalanceByAccountId(1L));
@@ -124,7 +128,7 @@ public class BalanceServiceTest {
     }
 
     @Test
-    public void testDepositInvalidAccountId() {
+    public void testDepositWithInvalidAccountId_ExceptionThrown() {
         Long invalidAccountId = -1L;
         BigDecimal amount = BigDecimal.TEN;
 
@@ -134,7 +138,7 @@ public class BalanceServiceTest {
     }
 
     @Test
-    public void testDepositNegativeAmount() {
+    public void testDepositWithNegativeAmount_ExceptionThrown() {
         Long accountId = 1L;
         BigDecimal negativeAmount = BigDecimal.valueOf(-10);
 
@@ -144,7 +148,7 @@ public class BalanceServiceTest {
     }
 
     @Test
-    public void testDepositBalanceNotFound() {
+    public void testDepositWithBalanceNotFound_ExceptionThrown() {
         Long accountId = 1L;
         BigDecimal amount = BigDecimal.TEN;
 
@@ -186,7 +190,7 @@ public class BalanceServiceTest {
     }
 
     @Test
-    void testWithdrawWithInsufficientAuthorizationBalanceFail() {
+    void testWithdrawWithInsufficientAuthorizationBalance_ExceptionThrown() {
         Long accountId = 123L;
         BigDecimal amount = new BigDecimal("100.00");
 
@@ -199,57 +203,69 @@ public class BalanceServiceTest {
     }
 
     @Test
-    void testTransferWithSufficientAuthorizationBalanceSuccess() {
-        Long senderId = 123L;
-        Long receiverId = 456L;
-        BigDecimal amount = new BigDecimal("100.00");
+    public void testTransferWithSufficientAuthorizationBalanceSuccess() {
+        Long senderId = 1L;
+        Long receiverId = 2L;
+        BigDecimal amount = BigDecimal.valueOf(100);
 
-        Balance senderBalance = new Balance();
-        senderBalance.setAuthorizationBalance(new BigDecimal("200.00"));
-        senderBalance.setActualBalance(new BigDecimal("500.00"));
+        Balance senderBalance = getSenderBalance(senderId);
 
-        when(balanceRepository.findByAccountId(senderId)).thenReturn(Optional.of(senderBalance));
+        Balance receiverBalance = getReceiverBalance(receiverId);
 
-        Balance receiverBalance = new Balance();
-        receiverBalance.setActualBalance(new BigDecimal("300.00"));
+        List<Balance> balances = Arrays.asList(senderBalance, receiverBalance);
 
-        when(balanceRepository.findByAccountId(receiverId)).thenReturn(Optional.of(receiverBalance));
-
-        Balance updatedSenderBalance = new Balance();
-        updatedSenderBalance.setAuthorizationBalance(new BigDecimal("100.00"));
-        updatedSenderBalance.setActualBalance(new BigDecimal("400.00"));
-
-        when(balanceRepository.save(senderBalance)).thenReturn(updatedSenderBalance);
-
-        Balance updatedReceiverBalance = new Balance();
-        updatedReceiverBalance.setActualBalance(new BigDecimal("400.00"));
-
-        when(balanceRepository.save(receiverBalance)).thenReturn(updatedReceiverBalance);
+        when(balanceRepository.findAllByAccountIds(Arrays.asList(senderId, receiverId))).thenReturn(balances);
 
         balanceService.transfer(senderId, receiverId, amount);
 
-        assertEquals(new BigDecimal("100.00"), senderBalance.getAuthorizationBalance());
-        assertEquals(new BigDecimal("400.00"), senderBalance.getActualBalance());
-        assertEquals(new BigDecimal("400.00"), receiverBalance.getActualBalance());
+        verify(balanceRepository, times(1)).saveAll(balances);
+        assertEquals(BigDecimal.valueOf(100), senderBalance.getAuthorizationBalance());
+        assertEquals(BigDecimal.valueOf(200), senderBalance.getActualBalance());
+        assertEquals(BigDecimal.valueOf(600), receiverBalance.getActualBalance());
     }
 
-    @Test
-    void testTransferWithInsufficientAuthorizationBalanceFail() {
-        Long senderId = 123L;
-        Long receiverId = 456L;
-        BigDecimal amount = new BigDecimal("100.00");
+    @Test()
+    public void testTransferWithNotFoundAccounts_ExceptionThrown() {
+        Long senderId = 1L;
+        Long receiverId = 2L;
+        BigDecimal amount = BigDecimal.valueOf(100);
 
-        Balance senderBalance = new Balance();
-        senderBalance.setAuthorizationBalance(new BigDecimal("50.00"));
-        senderBalance.setActualBalance(new BigDecimal("500.00"));
+        when(balanceRepository.findAllByAccountIds(Arrays.asList(senderId, receiverId))).thenReturn(Collections.emptyList());
 
-        when(balanceRepository.findByAccountId(senderId)).thenReturn(Optional.of(senderBalance));
+        assertThrows(EntityNotFoundException.class, () -> balanceService.transfer(senderId, receiverId, amount));
+    }
 
-        Balance receiverBalance = new Balance();
-        receiverBalance.setActualBalance(new BigDecimal("300.00"));
+    @Test()
+    public void testTransferWithInsufficientAuthorizationBalance_ExceptionThrown() {
+        Long senderId = 1L;
+        Long receiverId = 2L;
+        BigDecimal amount = BigDecimal.valueOf(300);
 
-        when(balanceRepository.findByAccountId(receiverId)).thenReturn(Optional.of(receiverBalance));
+        Balance senderBalance = getSenderBalance(senderId);
+
+        Balance receiverBalance = getReceiverBalance(receiverId);
+
+        List<Balance> balances = Arrays.asList(senderBalance, receiverBalance);
+
+        when(balanceRepository.findAllByAccountIds(Arrays.asList(senderId, receiverId))).thenReturn(balances);
 
         assertThrows(InsufficientBalanceException.class, () -> balanceService.transfer(senderId, receiverId, amount));
+    }
+
+    @NotNull
+    private Balance getSenderBalance(Long senderId) {
+        Balance senderBalance = new Balance();
+        senderBalance.setAccount(Account.builder().id(senderId).build());
+        senderBalance.setAuthorizationBalance(BigDecimal.valueOf(200));
+        senderBalance.setActualBalance(BigDecimal.valueOf(300));
+        return senderBalance;
+    }
+
+    @NotNull
+    private Balance getReceiverBalance(Long receiverId) {
+        Balance receiverBalance = new Balance();
+        receiverBalance.setAccount(Account.builder().id(receiverId).build());
+        receiverBalance.setActualBalance(BigDecimal.valueOf(500));
+        return receiverBalance;
     }
 }
