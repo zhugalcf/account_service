@@ -13,5 +13,6 @@ public enum RequestStatus {
     private final boolean terminated;
     public boolean isTerminated() {
         return terminated;
+
     }
 }
