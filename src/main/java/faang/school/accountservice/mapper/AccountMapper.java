@@ -1,5 +1,7 @@
 package faang.school.accountservice.mapper;
 
+import faang.school.accountservice.dto.account.AccountDto;
+import faang.school.accountservice.model.Account;
 import faang.school.accountservice.dto.SavingsAccountDto;
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.model.saving.SavingAccount;
@@ -10,6 +12,11 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
+
+    AccountDto toDto(Account account);
+
+    @Mapping(target = "status", expression = "java(faang.school.accountservice.model.AccountStatus.ACTIVE)")
+    Account toEntity(AccountDto accountDto);
     @Mapping(source = "currentTariff", target = "currentTariff", ignore = true)
     SavingAccount toEntity(SavingsAccountDto dto);
 
