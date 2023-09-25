@@ -10,6 +10,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,8 +34,8 @@ public class Balance {
     private long id;
 
     @OneToOne
-    @JoinColumn(name = "account_number")
-    private Account accountNumber;
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @Column(name = "current_authorization_balance")
     private BigDecimal currentAuthorizationBalance;
@@ -52,6 +53,7 @@ public class Balance {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Version
     @Column(name = "version", nullable = false)
     private long version;
 }
