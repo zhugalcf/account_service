@@ -25,14 +25,14 @@ public class FreeAccountNumbersService {
         Long freeAccountNumber = freeAccountNumberRepository.getAccountNumber(accountType.ordinal())
                 .orElseGet(() -> {
                     generateAccountNumber(accountType);
-                    return freeAccountNumberRepository.getAccountNumber(accountType.ordinal()).get();
+                    return freeAccountNumberRepository.getAccountNumber(accountType.ordinal()).isPresent()
+                            ? freeAccountNumberRepository.getAccountNumber(accountType.ordinal()).get() : null;
                 });
         consumer.accept(freeAccountNumber.toString());
-
     }
 
     @Transactional
-    @Retryable(retryFor = RuntimeException.class ,maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    @Retryable(retryFor = RuntimeException.class , backoff = @Backoff(delay = 1000))
     public void generateAccountNumber(AccountType accountType) {
         AccountNumberSequence sequence = accountNumberSequenceRepository.findByAccountType(accountType)
                 .orElseThrow(() -> new EntityNotFoundException("No found account with this type"));

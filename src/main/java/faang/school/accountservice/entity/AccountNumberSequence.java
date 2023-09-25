@@ -24,4 +24,8 @@ public class AccountNumberSequence {
 
     @Column(name = "current_count", nullable = false)
     private Long currentCount;
+
+    @Version
+    @Column(name = "version")
+    private long version;
 }
