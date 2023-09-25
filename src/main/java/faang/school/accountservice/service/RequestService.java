@@ -30,19 +30,28 @@ public class RequestService {
     public RequestDto getOrSaveRequest(Request request) {
         Request requestBuild = getRequest(request);
         Optional<Request> requestById = repository.findById(requestBuild.getId());
-        if (requestById.isEmpty()) {
-            repository.save(requestBuild);
-            return requestMapper.toDto(requestBuild);
+        if (requestById.isPresent()) {
+            validateInputData(requestBuild, requestById);
+            return requestMapper.toDto(requestById.get());
         }
-        return requestMapper.toDto(requestById.get());
+        repository.save(requestBuild);
+        return requestMapper.toDto(requestBuild);
     }
+
+    private void validateInputData(Request requestBuild, Optional<Request> requestById) {
+        Map<String, Object> inputData = requestBuild.getInputData();
+        Map<String, Object> inputDataDB = requestById.get().getInputData();
+        if(!inputData.equals(inputDataDB)) {
+            throw new Error("409");
+        }
+    }
+
 
     @Transactional
     public RequestDto changeStatus(Request request) {
         Request requestBuild = getRequest(request);
         Optional<Request> requestById = repository.findById(requestBuild.getId());
         validateRequest(requestById);
-        validateInputData(request, requestBuild);
         if (request.getRequestStatus() == RequestStatus.FAILED) {
             request.setActive(false);
         }
@@ -50,14 +59,6 @@ public class RequestService {
         request.setDetails(request.getDetails());
         repository.save(request);
         return requestMapper.toDto(request);
-    }
-
-    private void validateInputData(Request request, Request requestBuild) {
-        Map<String, Object> inputData = requestBuild.getInputData();
-        Map<String, Object> inputDataFromRequest = request.getInputData();
-        if(!inputData.equals(inputDataFromRequest)) {
-            throw new IllegalArgumentException();
-        }
     }
 
     protected Request build(RequestDto requestDto) {
