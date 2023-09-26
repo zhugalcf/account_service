@@ -3,6 +3,7 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountRequestMapper;
@@ -87,9 +88,9 @@ public class AccountService {
                 .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
     }
 
-    public Account getAccountByOwnerId(long ownerId) {
-        return accountRepository.getAccountByOwnerId(ownerId)
-                .orElseThrow(() -> new NotFoundException(String.format("There is no account with owner id: %d", ownerId)));
+    public Account findAccountByOwnerIdAndOwnerType(long ownerId, OwnerType ownerType) {
+        return accountRepository.findAccountByOwnerIdAndOwnerType(ownerId, ownerType.name())
+                .orElseThrow(() -> new NotFoundException(String.format("%s with id: %d, does not have an account", ownerType, ownerId)));
     }
 
     private void saveAccountAfterBlock(Account account) {

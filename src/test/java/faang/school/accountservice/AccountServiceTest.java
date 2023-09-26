@@ -6,6 +6,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.Currency;
 import faang.school.accountservice.enums.OwnerType;
+import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.mapper.AccountRequestMapper;
 import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
@@ -19,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AccountServiceTest {
@@ -107,5 +110,34 @@ public class AccountServiceTest {
         AccountResponseDto result = accountService.unlockAccount(1L);
         assertEquals(AccountStatus.OPEN, account.getStatus());
         assertEquals(account.getVersion(), result.getVersion());
+    }
+
+    @Test
+    void findAccountByOwnerIdAndOwnerTypeTest() {
+        Account account = Account.builder()
+                .id(2)
+                .ownerType(OwnerType.USER)
+                .ownerId(2)
+                .accountType(AccountType.SAVINGS)
+                .currency(Currency.USD)
+                .status(AccountStatus.OPEN)
+                .version(1)
+                .build();
+
+        when(accountRepository.findAccountByOwnerIdAndOwnerType(2, OwnerType.USER.name()))
+                .thenReturn(Optional.of(account));
+
+        Account result = accountService.findAccountByOwnerIdAndOwnerType(2, OwnerType.USER);
+
+        assertEquals(account, result);
+        verify(accountRepository).findAccountByOwnerIdAndOwnerType(2, OwnerType.USER.name());
+    }
+
+    @Test
+    void findAccountByOwnerIdAndOwnerTypeThrowExceptionTest() {
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> accountService.findAccountByOwnerIdAndOwnerType(2, OwnerType.USER));
+
+        assertEquals("USER with id: 2, does not have an account", exception.getMessage());
     }
 }

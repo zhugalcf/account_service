@@ -11,7 +11,11 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query(nativeQuery = true, value = """
-            SELECT a.* FROM account a WHERE owner_id = :ownerId
+            SELECT *
+            FROM account
+            WHERE owner_id = :ownerId
+            AND account_type = 'SAVINGS'
+            AND owner_type = :ownerType
             """)
-    Optional<Account> getAccountByOwnerId(long ownerId);
+    Optional<Account> findAccountByOwnerIdAndOwnerType(long ownerId, String ownerType);
 }

@@ -1,9 +1,8 @@
 package faang.school.accountservice.mapper;
 
-import faang.school.accountservice.dto.SavingsAccountDto;
+import faang.school.accountservice.dto.SavingsAccountCreateDto;
 import faang.school.accountservice.enums.TariffType;
 import faang.school.accountservice.model.SavingsAccount;
-import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.model.TariffHistory;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -17,10 +16,10 @@ import java.util.List;
 public interface SavingsAccountMapper {
 
     @Mapping(target = "accountId", source = "account.id")
-//    @Mapping(target = "tariffType", source = "tariffHistory", qualifiedByName = "getCurrentTariff")
-    SavingsAccountDto toDto(SavingsAccount savingsAccount);
+    @Mapping(target = "tariffType", source = "tariffHistory", qualifiedByName = "getCurrentTariff")
+    SavingsAccountCreateDto toDto(SavingsAccount savingsAccount);
 
-    SavingsAccount toEntity(SavingsAccountDto savingsAccountDto);
+    SavingsAccount toEntity(SavingsAccountCreateDto savingsAccountCreateDto);
 
     @Named("getCurrentTariff")
     default TariffType getCurrentTariff(List<TariffHistory> tariffHistoryList) {

@@ -15,7 +15,7 @@ public class TariffHistoryService {
     private final TariffHistoryRepository tariffHistoryRepository;
 
     @Transactional
-    public void saveTariffHistory(TariffHistory tariffHistory) {
-        tariffHistoryRepository.save(tariffHistory);
+    public TariffHistory saveTariffHistory(TariffHistory tariffHistory) {
+        return tariffHistoryRepository.save(tariffHistory);
     }
 }

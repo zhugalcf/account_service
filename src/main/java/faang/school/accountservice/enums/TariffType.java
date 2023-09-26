@@ -9,8 +9,7 @@ public enum TariffType {
     BUSINESS("business"),
     UNLIMITED("unlimited"),
     PREMIUM("premium"),
-    CUSTOM("custom")
-    ;
+    CUSTOM("custom");
 
     private final String type;
 
@@ -21,4 +20,5 @@ public enum TariffType {
     public String getType() {
         return type;
     }
+
 }

@@ -32,7 +32,4 @@ public class Rate {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tariff_id")
     private Tariff tariff;
-
-//    @OneToMany(mappedBy = "rate", fetch = FetchType.LAZY)
-//    private List<Tariff> tariffs;
 }

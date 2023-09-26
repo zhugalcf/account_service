@@ -1,16 +1,20 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.SavingsAccountDto;
+import faang.school.accountservice.dto.SavingsAccountCreateDto;
 import faang.school.accountservice.dto.SavingsAccountResponseDto;
+import faang.school.accountservice.dto.SavingsAccountUpdateDto;
+import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.service.SavingsAccountService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,20 +26,29 @@ public class SavingsAccountController {
     private final SavingsAccountService savingsAccountService;
 
     @PostMapping("/open")
-    public SavingsAccountResponseDto openSavingsAccount(@RequestBody @Valid SavingsAccountDto savingsAccountDto) {
-        log.info("Received request to open account for savings by account id = {}", savingsAccountDto.getAccountId());
-        return savingsAccountService.openSavingsAccount(savingsAccountDto);
+    public SavingsAccountResponseDto openSavingsAccount(@RequestBody @Validated SavingsAccountCreateDto savingsAccountCreateDto) {
+        log.info("Received request to open account for savings by account id = {}", savingsAccountCreateDto.getAccountId());
+        return savingsAccountService.openSavingsAccount(savingsAccountCreateDto);
+    }
+
+    @PutMapping("/update")
+    public SavingsAccountResponseDto changeSavingsAccountTariff(@RequestBody @Validated SavingsAccountUpdateDto updateDto) {
+        log.info("Received request to change tariff of savings account with id: {}, to a new tariff: {}",
+                updateDto.getSavingsAccountId(), updateDto.getTariffType());
+        return savingsAccountService.changeSavingsAccountTariff(updateDto);
     }
 
     @GetMapping("/{id}")
-    public SavingsAccountResponseDto getSavingsAccountByAccountId(@PathVariable long id) {
-        log.info("Received request of getting savings account with account id: {}", id);
-        return savingsAccountService.getSavingsAccountByAccountId(id);
+    public SavingsAccountResponseDto getSavingsAccountBy(@PathVariable long id) {
+        log.info("Received request of getting savings account with id: {}", id);
+        return savingsAccountService.getSavingsAccountBy(id);
     }
-//
-//    @GetMapping("/user/{ownerId}")
-//    public SavingsAccountResponseDto getSavingsAccountByOwnerId(@PathVariable long ownerId) {
-//        log.info("Received request of getting savings account with ownerId: {}", ownerId);
-//        return savingsAccountService.getSavingsAccountByOwnerId(ownerId);
-//    }
+
+    @GetMapping
+    public SavingsAccountResponseDto getSavingsAccountByOwnerIdAndOwnerType(
+            @RequestParam("ownerId") long ownerId,
+            @RequestParam("ownerType") OwnerType ownerType) {
+        log.info("Received request of getting savings account with owner id: {}, type: {}", ownerId, ownerType);
+        return savingsAccountService.getSavingsAccountByOwnerIdAndOwnerType(ownerId, ownerType);
+    }
 }

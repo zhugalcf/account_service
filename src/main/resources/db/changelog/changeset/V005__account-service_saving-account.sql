@@ -11,7 +11,11 @@ CREATE TABLE savings_account (
 
 CREATE TABLE tariff (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    tariff_type VARCHAR(20) NOT NULL
+    tariff_type VARCHAR(20) NOT NULL,
+    created_at timestamptz DEFAULT current_timestamp,
+    updated_at timestamptz DEFAULT current_timestamp,
+
+    CONSTRAINT idx_unique_tariff_type UNIQUE (tariff_type)
 );
 
 CREATE TABLE tariff_history (
