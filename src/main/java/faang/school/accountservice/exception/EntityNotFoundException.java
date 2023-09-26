@@ -1,4 +1,4 @@
-package faang.school.accountservice.excpetion;
+package faang.school.accountservice.exception;
 
 public class EntityNotFoundException extends RuntimeException {
     public EntityNotFoundException(String message) {

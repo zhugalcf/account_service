@@ -1,8 +1,7 @@
 package faang.school.accountservice.controller;
 
-import faang.school.accountservice.dto.Error;
 import faang.school.accountservice.dto.ErrorResponseDto;
-import faang.school.accountservice.excpetion.EntityNotFoundException;
+import faang.school.accountservice.exception.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
