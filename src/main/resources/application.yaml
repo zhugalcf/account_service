@@ -22,7 +22,11 @@ spring:
       port: 6379
       host: localhost
       channels:
-        request: request-chanel
+        request: request-channel
+        create-request: create-request-channel
+        open-request: open-request-channel
+        update-request: update-request-channel
+        execute-request: execute-request
 
 server:
   port: 8090
@@ -35,3 +39,4 @@ request:
   schedule:
     period: 10000
   max-number-of-requests: 50
+  number-of-requests-for-executing:10000

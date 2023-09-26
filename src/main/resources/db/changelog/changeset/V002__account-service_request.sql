@@ -3,8 +3,8 @@ CREATE EXTENSION "uuid-ossp";
 CREATE TABLE request (
                          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                          user_id bigint not NULL references users(id),
-                         request_type integer not null check (request_type<8),
-                         lock_value bigint not NULL,
+                         request_type integer not null check (request_type<3),
+                         lock_value varchar(255) not NULL,
                          is_open_request boolean not null,
                          input_data varchar(1024) not null,
                          request_status integer not null check (request_status<4),

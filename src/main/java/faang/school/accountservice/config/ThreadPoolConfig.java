@@ -16,5 +16,11 @@ public class ThreadPoolConfig {
         return new ThreadPoolExecutor(10, 15, 5000L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(10000));
     }
+
+    @Bean
+    public ExecutorService createRequestsPool(){
+        return new ThreadPoolExecutor(10, 15, 5000L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(10000));
+    }
 }
 

@@ -12,12 +12,9 @@ import java.util.Map;
 @Data
 @Builder
 public class RequestDto {
-    @NotNull
     private Long userId;
     @Convert(converter = JsonConverter.class)
     private Map<String, Object> inputData;
-    @NotNull
     private RequestStatus requestStatus;
-    private Long lockValue;
     private String additionalData;
 }

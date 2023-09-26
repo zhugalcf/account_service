@@ -1,9 +1,11 @@
-package faang.school.accountservice.message;
+package faang.school.accountservice.message.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.RequestDto;
+import faang.school.accountservice.dto.UpdateRequestDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -11,20 +13,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RequestNumberPublisher implements MessagePublisher<RequestDto>{
-    @Value("${spring.data.redis.channels.request}")
+@Slf4j
+public class UpdateRequestPublisher implements MessagePublisher<UpdateRequestDto>{
+    private final ObjectMapper objectMapper;
+    @Value("${spring.data.redis.channels.update-request}")
     private String topic;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
 
     @Override
-    @Async(value = "exceedRequestsPool")
-    public void publish(RequestDto message) {
-        String json = null;
+    @Async(value = "createRequestsPool")
+    public void publish(UpdateRequestDto message) {
+        String json;
         try {
             json = objectMapper.writeValueAsString(message);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            throw new RuntimeException("Error during mapping updateRequestDto into Json");
         }
         redisTemplate.convertAndSend(topic, json);
     }

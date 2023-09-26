@@ -21,7 +21,7 @@ public class Request {
     private Long userId;
     @NotNull
     private RequestType requestType;
-    private Long lockValue;
+    private String lockValue;
     @NotNull
     private Boolean isOpenRequest;
     @Column(columnDefinition = "input_data")
