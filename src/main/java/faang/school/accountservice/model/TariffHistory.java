@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -39,7 +39,7 @@ public class TariffHistory {
     @JoinColumn(name = "tariff_id")
     private Tariff tariff;
 
-    @UpdateTimestamp
+    @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;

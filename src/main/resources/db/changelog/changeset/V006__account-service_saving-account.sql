@@ -11,7 +11,11 @@ CREATE TABLE savings_account (
 
 CREATE TABLE tariff (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    "type" VARCHAR(20) NOT NULL
+    tariff_type VARCHAR(20) NOT NULL,
+    created_at timestamptz DEFAULT current_timestamp,
+    updated_at timestamptz DEFAULT current_timestamp,
+
+    CONSTRAINT idx_unique_tariff_type UNIQUE (tariff_type)
 );
 
 CREATE TABLE tariff_history (
@@ -26,7 +30,7 @@ CREATE TABLE tariff_history (
 
 CREATE TABLE rate (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    "percent" DECIMAL(5, 2) NOT NULL,
+    rate_percent float NOT NULL,
     tariff_id bigint NOT NULL,
 
     CONSTRAINT fk_tariff_rate FOREIGN KEY (tariff_id) REFERENCES tariff (id)

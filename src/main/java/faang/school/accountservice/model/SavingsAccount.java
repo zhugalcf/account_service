@@ -1,5 +1,6 @@
 package faang.school.accountservice.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,7 +40,7 @@ public class SavingsAccount {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TariffHistory> tariffHistory;
 
     @Temporal(TemporalType.TIMESTAMP)
