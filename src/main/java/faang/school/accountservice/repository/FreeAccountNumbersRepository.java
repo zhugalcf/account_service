@@ -39,10 +39,4 @@ public interface FreeAccountNumbersRepository extends JpaRepository<AccountNumbe
                     SELECT COUNT(*) FROM free_account_numbers WHERE type = :type
                     """)
     long countAccountNumberByType(@Param("type") String type);
-
-    @Query(nativeQuery = true,
-            value = """
-                    SELECT * FROM free_account_numbers WHERE account_number = :account_number
-                    """)
-    AccountNumber findByAccount_number(@Param("account_number") String account_number);
 }
