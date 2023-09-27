@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface BalanceAuditRepository extends JpaRepository<BalanceAudit, Long> {
-    List<BalanceAudit> findAllByAccount_Id(Long accountId);
+    List<BalanceAudit> findAllByAccountId(Long accountId);
 }

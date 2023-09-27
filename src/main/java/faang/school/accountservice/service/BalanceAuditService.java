@@ -40,7 +40,7 @@ public class BalanceAuditService {
 
     @Transactional
     public List<BalanceAuditDto> getBalanceAudits(Long accountId){
-        List<BalanceAudit> balanceAudits = balanceAuditRepository.findAllByAccount_Id(accountId);
+        List<BalanceAudit> balanceAudits = balanceAuditRepository.findAllByAccountId(accountId);
         return mapper.toDtoList(balanceAudits);
     }
 }
