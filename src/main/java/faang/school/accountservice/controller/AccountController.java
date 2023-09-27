@@ -24,7 +24,7 @@ public class AccountController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseAccountDto open(@RequestBody @Valid CreateAccountDto createAccountDto) {
+    public ResponseAccountDto open(@RequestBody CreateAccountDto createAccountDto) {
         return accountService.open(createAccountDto);
     }
 

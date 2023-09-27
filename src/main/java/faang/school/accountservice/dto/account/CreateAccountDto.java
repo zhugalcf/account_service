@@ -3,6 +3,7 @@ package faang.school.accountservice.dto.account;
 import faang.school.accountservice.annotations.ValidOwner;
 import faang.school.accountservice.dto.OwnerDto;
 import faang.school.accountservice.enums.AccountType;
+import faang.school.accountservice.model.Balance;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
