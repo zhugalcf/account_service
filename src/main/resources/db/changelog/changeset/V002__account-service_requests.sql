@@ -1,4 +1,4 @@
-CREATE EXTENSION "uuid-ossp";
+-- CREATE EXTENSION "uuid-ossp";
 
 CREATE TABLE request (
                          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
