@@ -140,4 +140,9 @@ public class RequestService {
             return requestDto;
         }
     }
+
+    @Transactional
+    public Request saveRequestInternal(Request request){
+        return repository.save(request);
+    }
 }

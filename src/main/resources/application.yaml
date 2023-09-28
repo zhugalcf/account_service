@@ -27,6 +27,7 @@ spring:
         open-request: open-request-channel
         update-request: update-request-channel
         execute-request: execute-request
+        payment-request: payment-request
 
 thread-pools:
   exceed:
