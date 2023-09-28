@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.account.ResponseAccountDto;
 import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -24,6 +26,12 @@ public class AccountService {
     @Transactional
     public ResponseAccountDto open(CreateAccountDto createAccountDto) {
         Account account = accountRepository.save(accountMapper.createDtoToEntity(createAccountDto));
+        account.setBalance(Balance.builder()
+                .account(account)
+                        .currentBalance(BigDecimal.ZERO)
+                .authorizationBalance(BigDecimal.ZERO)
+                .currentBalance(BigDecimal.ZERO)
+                .build());
         log.info("Created Account. Id: {}", account.getId());
         return accountMapper.entityToResponseDto(account);
     }

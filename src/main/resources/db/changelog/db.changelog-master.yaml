@@ -2,4 +2,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V001__account-service_account.sql
   - include:
-      file: db/changelog/changeset/V002_account-service_savings_account_tariff.sql
+      file: db/changelog/changeset/V004_account-service_savings_account_tariff.sql
+  - include:
+      file: db/changelog/changeset/V003__free_account_numbers.sql
+  - include:
+      file: db/changelog/changeset/V002__account-service_balance.sql
