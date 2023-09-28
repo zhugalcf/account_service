@@ -28,17 +28,17 @@ spring:
         update-request: update-request-channel
         execute-request: execute-request
 
-  thread-pools:
-    exceed:
-      core: 10
-      max: 15
-      alive-time: 5000
-      queue: 10000
-    create:
-      core: 10
-      max: 15
-      alive-time: 5000
-      queue: 10000
+thread-pools:
+  exceed:
+    core: 10
+    max: 15
+    alive-time: 5000
+    queue: 10000
+  create:
+    core: 10
+    max: 15
+    alive-time: 5000
+    queue: 10000
 
 server:
   port: 8090
