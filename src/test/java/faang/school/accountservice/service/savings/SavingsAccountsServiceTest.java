@@ -49,7 +49,7 @@ class SavingsAccountsServiceTest {
 
     @Test
     void openScore() {
-        SavingsAccount dto = SavingsAccount.builder().number("33000000000055").tariffHistory("[0]").amount(BigDecimal.valueOf(0))
+        SavingsAccount dto = SavingsAccount.builder().number("00000000000000").tariffHistory("[0]").amount(BigDecimal.valueOf(0))
                 .account(Account.builder().id(1L).build()).build();
         when(userContext.getUserId()).thenReturn(1L);
         when(tariffRepository.findByType("Basic")).thenReturn(new Tariff());

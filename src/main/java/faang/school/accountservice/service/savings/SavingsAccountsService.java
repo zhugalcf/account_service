@@ -48,7 +48,7 @@ public class SavingsAccountsService {
     public OpenSavingsScoreDto openScore() {
         long accountId = userContext.getUserId();
         Tariff tariff = tariffRepository.findByType("Basic");
-        SavingsAccount savingsAccount = SavingsAccount.builder().number("33000000000055").account(Account.builder().id(accountId).build())
+        SavingsAccount savingsAccount = SavingsAccount.builder().number("00000000000000").account(Account.builder().id(accountId).build())
                 .amount(new BigDecimal(0)).tariffHistory("[" + tariff.getId() + "]").build();
 
         SavingsAccount newSavings = savingsAccountRepository.save(savingsAccount);
