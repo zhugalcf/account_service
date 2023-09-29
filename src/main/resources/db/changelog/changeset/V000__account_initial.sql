@@ -14,9 +14,9 @@ CREATE TABLE account
     type          VARCHAR(255)                            NOT NULL,
     currency      VARCHAR(255)                            NOT NULL,
     status        VARCHAR(255)                            NOT NULL,
-    created_time  TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
-    modified_time TIMESTAMP WITHOUT TIME ZONE,
-    closed_time   TIMESTAMP WITHOUT TIME ZONE,
+    created_time  TIMESTAMP DEFAULT CURRENT_TIMESTAMP     NOT NULL,
+    modified_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    closed_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     version       INTEGER                                 NOT NULL,
     CONSTRAINT pk_account PRIMARY KEY (id)
 );
