@@ -26,7 +26,7 @@ public class Owner {
     private Long id;
 
     @Column(name = "external_id", nullable = false)
-    private String externalId; // ID проекта или пользователя из другого сервиса
+    private String ownerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
