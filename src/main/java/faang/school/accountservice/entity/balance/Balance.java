@@ -29,7 +29,6 @@ import java.sql.Timestamp;
 public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
     private Long id;
 
     @OneToOne

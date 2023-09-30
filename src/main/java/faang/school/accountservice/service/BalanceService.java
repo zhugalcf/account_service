@@ -81,9 +81,7 @@ public class BalanceService {
         Balance balance = getBalance(accountId);
         BigDecimal currentAuthorizationBalance = balance.getAuthorizationBalance();
 
-        if (currentAuthorizationBalance.compareTo(amount) < 0) {
-            throw new InsufficientBalanceException("Not enough authorization balance.");
-        }
+        checkBalanceAmount(currentAuthorizationBalance, amount, "Not enough authorization balance.");
 
         balance.setAuthorizationBalance(currentAuthorizationBalance.subtract(amount));
         balance.setActualBalance(balance.getActualBalance().subtract(amount));
@@ -101,15 +99,13 @@ public class BalanceService {
             throw new EntityNotFoundException("Account balances not found.");
         }
 
-        Balance senderBalance = balances.stream().filter(b -> b.getAccount().getId().equals(senderId)).findFirst().orElseThrow();
-        Balance receiverBalance = balances.stream().filter(b -> b.getAccount().getId().equals(receiverId)).findFirst().orElseThrow();
+        Balance senderBalance = getFilteredBalance(senderId, balances);
+        Balance receiverBalance = getFilteredBalance(receiverId, balances);
 
         BigDecimal senderAuthorizationBalance = senderBalance.getAuthorizationBalance();
         BigDecimal senderActualBalance = senderBalance.getActualBalance();
 
-        if (senderAuthorizationBalance.compareTo(amount) < 0) {
-            throw new InsufficientBalanceException("Not enough authorization balance to transfer.");
-        }
+        checkBalanceAmount(senderAuthorizationBalance, amount, "Not enough authorization balance to transfer.");
 
         senderBalance.setAuthorizationBalance(senderAuthorizationBalance.subtract(amount));
         senderBalance.setActualBalance(senderActualBalance.subtract(amount));
@@ -117,6 +113,16 @@ public class BalanceService {
         receiverBalance.setActualBalance(receiverBalance.getActualBalance().add(amount));
 
         balanceRepository.saveAll(Arrays.asList(senderBalance, receiverBalance));
+    }
+
+    private void checkBalanceAmount(BigDecimal currentAuthorizationBalance, BigDecimal amount, String message) {
+        if (currentAuthorizationBalance.compareTo(amount) < 0) {
+            throw new InsufficientBalanceException(message);
+        }
+    }
+
+    private Balance getFilteredBalance(Long senderId, List<Balance> balances) {
+        return balances.stream().filter(b -> b.getAccount().getId().equals(senderId)).findFirst().orElseThrow();
     }
 
     private Balance getBalance(Long accountId) {
