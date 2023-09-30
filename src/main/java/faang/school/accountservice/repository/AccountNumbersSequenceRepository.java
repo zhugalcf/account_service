@@ -29,8 +29,6 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
     @Transactional
     int increment(@Param("type") String type, @Param("current") long current);
 
-    AccountNumbersSequence getAccountNumbersSequenceByType(String type);
-
     @Query(nativeQuery = true,
             value = """
                     SELECT current FROM account_numbers_sequence WHERE type = :type
