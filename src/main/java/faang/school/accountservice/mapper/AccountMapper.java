@@ -12,11 +12,15 @@ import org.springframework.stereotype.Component;
 @Component
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccountMapper {
-    @Named("mapOwnerId")
-    default Long mapOwnerId(Owner owner) {
-        return owner.getId();
-    }
-   @Mapping(source = "owner", target = "id", qualifiedByName = "mapOwnerId")
+//    @Named("map")
+//    default Long map(Owner owner) {
+//        return owner.getId();
+//    }
+//   @Mapping(source = "owner", target = "id", qualifiedByName = "map")
+//    AccountDto toDto(Account account);
+@Mapping(source = "owner", target = "owner.id")
+Account toEntity(AccountDto accountDto);
+
+    @Mapping(source = "owner.id", target = "owner")
     AccountDto toDto(Account account);
-    Account toEntity(AccountDto accountDto);
 }

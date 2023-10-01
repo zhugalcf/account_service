@@ -30,7 +30,7 @@ public class FreeAccountNumberService {
     private final AccountNumbersSequenceRepository accountNumberSequenceRepository;
     private final static int MINIMAL_FREE_ACCOUNT_NUM = 5;
 
-    public void getFreeNumber(AccountType accountType, Consumer<String> action) {
+    public BigInteger getFreeNumber(AccountType accountType, Consumer<String> action) {
         Optional<FreeAccountNumber> freeAccountNumber = freeAccountNumberRepository.getFreeAccountNumber(accountType.getValue());
         if (freeAccountNumber.isEmpty()){
             log.error("No free accounts left");
@@ -46,7 +46,10 @@ public class FreeAccountNumberService {
                     .thenRun(() -> log.info("Less than {} accounts left. New accounts generated", MINIMAL_FREE_ACCOUNT_NUM));
         }
 
-        action.accept(MessageFormat.format("Generated number {0}", freeAccountNumber.get().getAccountNumber().toString()));
+        String accountNumber = freeAccountNumber.get().getAccountNumber().toString();
+
+        action.accept(MessageFormat.format("Generated number {0}",accountNumber));
+        return new BigInteger(String.valueOf(accountNumber));
     }
 
     @Transactional

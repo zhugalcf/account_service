@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class BalanceDto {
     private Long id;
-    private Long accountNumber;
+    private BigInteger accountNumber;
     private BigDecimal authorizationBalance;
     private BigDecimal currentBalance;
     private LocalDateTime created;

@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.AccountCreationRequest;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.UpdateBalanceDto;
@@ -14,12 +15,14 @@ import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.repository.OwnerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Service
@@ -28,20 +31,27 @@ import java.time.LocalDateTime;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final BalanceRepository balanceRepository;
+    private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
     private final BalanceMapper balanceMapper;
+    private final FreeAccountNumberService freeAccountNumberService;
 
     @Transactional
-    public AccountDto createAccount(Long accountNumber, Owner owner, AccountType accountType, Currency currency, AccountStatus accountStatus){
+    public AccountDto createAccount(AccountCreationRequest accountCreationRequest){
+        Owner owner = ownerRepository.getById(accountCreationRequest.getOwnerId());
+        BigInteger accountNumber = (freeAccountNumberService.getFreeNumber(accountCreationRequest.getType(),
+                        number -> System.out.println("The generated number is " +
+                                number)));
         Account account = Account.builder()
                 .number(accountNumber)
                 .owner(owner)
-                .type(accountType)
-                .currency(currency)
-                .status(accountStatus)
+                .type(accountCreationRequest.getType())
+                .currency(accountCreationRequest.getCurrency())
+                .status(accountCreationRequest.getStatus())
+                .createdTime(LocalDateTime.now())
                 .build();
         Account savedAccount = accountRepository.save(account);
-        log.info(account.getId() + " is saved to db");
+        log.info("Account {} is saved to db", account.getId());
 
         Balance balance = Balance.builder()
                 .account(savedAccount)

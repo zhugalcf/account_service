@@ -6,18 +6,12 @@ import faang.school.accountservice.enums.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.math.BigInteger;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class AccountDto {
-    private Long id;
-    private BigInteger number;
-    private Long owner;
+public class AccountCreationRequest {
+    private Long ownerId;
     private AccountType type;
     private Currency currency;
     private AccountStatus status;

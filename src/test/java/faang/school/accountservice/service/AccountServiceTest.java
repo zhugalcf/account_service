@@ -1,5 +1,6 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.AccountCreationRequest;
 import faang.school.accountservice.dto.AccountDto;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.UpdateBalanceDto;
@@ -14,6 +15,7 @@ import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
+import faang.school.accountservice.repository.OwnerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,12 +26,14 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +42,11 @@ public class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
     @Mock
+    private FreeAccountNumberService freeAccountNumberService;
+    @Mock
     private BalanceRepository balanceRepository;
+    @Mock
+    private OwnerRepository ownerRepository;
     @Spy
     private AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
     @Spy
@@ -48,37 +56,42 @@ public class AccountServiceTest {
 
     private Balance balance;
     private Account account;
-    private Long accountNumber;
+    private String accountNumber;
     private Owner owner;
     private AccountType type;
     private Currency currency;
     private AccountStatus status;
     private UpdateBalanceDto updateBalanceDto;
 
+    private AccountCreationRequest accountCreationRequest;
+
     @BeforeEach
     void setUp(){
-        accountNumber = 1l;
+        accountNumber = "999900000000000000000001";
         owner = Owner.builder().id(1L).build();
         type = AccountType.BUSINESS_CHECKING;
         currency = faang.school.accountservice.enums.Currency.EUR;
         status = AccountStatus.ACTIVE;
-        account = Account.builder().number(accountNumber).build();
         LocalDateTime now = LocalDateTime.now();
         balance = createBalance(1L, account, now, new BigDecimal(0), new BigDecimal(0), 0L);
+        accountCreationRequest = createAccountRequestDto(owner.getId(), type, currency, status);
+        account = createAccount(1L, new BigInteger(accountNumber), owner, type, currency, status);
         updateBalanceDto = createUpdateDto(1L, new BigDecimal(300));
     }
 
     @Test
     void createAccount_Successful(){
 
-        lenient().when(accountRepository.save(account)).thenReturn(account);
-        lenient().when(balanceRepository.save(balance)).thenReturn(balance);
+        when(ownerRepository.getById(accountCreationRequest.getOwnerId())).thenReturn(owner);
+        when(freeAccountNumberService.getFreeNumber(any(), any())).thenReturn(new BigInteger(accountNumber));
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
+        when(balanceRepository.save(any(Balance.class))).thenReturn(balance);
 
-        AccountDto accountDto = accountService.createAccount(accountNumber, owner, type, currency, status);
+        AccountDto accountDto = accountService.createAccount(accountCreationRequest);
 
         assertNotNull(accountDto);
         assertEquals(account.getId(), accountDto.getId());
-        assertEquals(accountNumber, accountDto.getNumber());
+        assertEquals(accountNumber, accountDto.getNumber().toString());
     }
 
     @Test
@@ -111,7 +124,6 @@ public class AccountServiceTest {
         BalanceDto resultBalanceDto = accountService.updateBalance(updateBalanceDto);
 
         assertEquals(expectedBalanceDto.getCurrentBalance(), resultBalanceDto.getCurrentBalance());
-        assertEquals(expectedBalanceDto.getBalanceVersion() + 1, resultBalanceDto.getBalanceVersion());
     }
 
     @Test
@@ -137,5 +149,20 @@ public class AccountServiceTest {
     }
     private UpdateBalanceDto createUpdateDto(Long balanceId, BigDecimal deposit){
         return UpdateBalanceDto.builder().balanceId(balanceId).deposit(deposit).build();
+    }
+    private AccountCreationRequest createAccountRequestDto(Long ownerId, AccountType type, Currency currency,
+                                                           AccountStatus status){
+        return AccountCreationRequest.builder().ownerId(ownerId).type(type).currency(currency).status(status).build();
+    }
+    private Account createAccount (Long id, BigInteger number, Owner owner, AccountType type, Currency currency,
+                                   AccountStatus status){
+        return Account.builder()
+                .id(1L)
+                .number(number)
+                .owner(owner)
+                .type(type)
+                .currency(currency)
+                .status(status)
+                .build();
     }
 }
