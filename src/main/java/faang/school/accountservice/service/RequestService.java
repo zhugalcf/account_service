@@ -115,7 +115,8 @@ public class RequestService {
     }
 
     @Scheduled(fixedRateString = "${request.schedule.period}")
-    private void checkRequestNumber() {
+    @Transactional
+    public void checkRequestNumber() {
         ZonedDateTime requiredTime = ZonedDateTime.now().minusNanos(requiredPeriod);
         Map<Long, Long> usersHavingTooMuchRequests =
                 repository.findAllGroupedByUserIdForPeriod(requiredTime, maxNumberOfRequests);
