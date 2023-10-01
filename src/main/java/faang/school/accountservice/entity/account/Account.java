@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
@@ -34,7 +35,7 @@ public class Account {
     private Long id;
 
     @Column(length = 20, nullable = false)
-    private String number;
+    private BigInteger number;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
