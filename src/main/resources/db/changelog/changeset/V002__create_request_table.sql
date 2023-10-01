@@ -1,7 +1,7 @@
 CREATE TABLE request (
     uuid UUID PRIMARY KEY not null,
     user_id bigint not null,
-    type INTEGER not null,
+    type varchar(64) not null,
     lock bigint not null,
     flag boolean not null,
     input json not null,
