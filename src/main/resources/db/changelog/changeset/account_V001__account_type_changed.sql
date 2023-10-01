@@ -1,0 +1,5 @@
+ALTER TABLE account
+ALTER COLUMN number TYPE BIGINT USING number::BIGINT;
+
+ALTER TABLE account
+ADD CONSTRAINT unique_number UNIQUE (number);

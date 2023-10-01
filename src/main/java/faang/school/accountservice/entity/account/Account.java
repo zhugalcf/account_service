@@ -34,7 +34,7 @@ public class Account {
     private Long id;
 
     @Column(length = 20, nullable = false)
-    private String number;
+    private Long number;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
