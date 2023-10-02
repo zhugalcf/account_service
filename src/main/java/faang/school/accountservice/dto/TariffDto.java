@@ -1,11 +1,12 @@
 package faang.school.accountservice.dto;
 
 import faang.school.accountservice.entity.TariffType;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -14,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class TariffDto {
     private Long id;
-    @NotNull(message = "Tariff type is required")
     private TariffType tariffType;
-    private List<Double> rates;
+    private List<BigDecimal> rates;
 }

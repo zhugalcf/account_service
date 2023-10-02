@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -25,5 +26,5 @@ public class Tariff {
     @ElementCollection
     @CollectionTable(name = "tariff_rates", joinColumns = @JoinColumn(name = "tariff_id"))
     @Column(name = "rate")
-    private List<Double> rates;
+    private List<BigDecimal> rates;
 }

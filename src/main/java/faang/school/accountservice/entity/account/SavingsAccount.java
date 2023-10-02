@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SavingsAccount {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -31,6 +32,14 @@ public class SavingsAccount {
     @CollectionTable(name = "savings_account_tariff_history", joinColumns = @JoinColumn(name = "savings_account_id"))
     @Column(name = "tariff_history_id")
     private List<Long> tariffHistoryIds;
+
+    @Column(name = "account_type", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private AccountType accountType;
+
+    @Column(name = "savings_account_status", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private AccountStatus accountStatus;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

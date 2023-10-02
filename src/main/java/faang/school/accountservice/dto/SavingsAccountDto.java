@@ -2,13 +2,14 @@ package faang.school.accountservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import faang.school.accountservice.entity.account.AccountStatus;
+import faang.school.accountservice.entity.account.AccountType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -16,12 +17,12 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SavingsAccountDto {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
-    @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private AccountDto account;
-    private List<Long> tariffHistoryIds;
+    private Long accountId;
+    @NotNull(message = "Account type is required")
+    private AccountType accountType;
+    private AccountStatus accountStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime closedAt;
