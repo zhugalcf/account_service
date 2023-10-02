@@ -10,8 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Service
@@ -23,7 +27,7 @@ public class FreeAccountNumbersService {
 
     @Transactional
     @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 3000))
-    public void generateAccountNumber(AccountType accountType) {
+    public void generateAccountNumber(int amountNum, AccountType accountType) {
         var sequence = accountNumberSequenceRepository.findByAccountType(accountType).orElseThrow(
                 () -> new NotFoundException("Account type is not found")
         );
@@ -35,19 +39,32 @@ public class FreeAccountNumbersService {
                             return new RuntimeException(errorMessage);
                         }
                 );
-        String accountNumber = String.format("%s%08d", accountType.getIdentityString(), currentCount);
-        FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
-                .accountType(accountType)
-                .accountNumber(accountNumber)
-                .build();
-        freeAccountNumberRepository.save(freeAccountNumber);
+        List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
+        for (int i = 0; i < amountNum; i++) {
+            String accountNumber = String.format("%s%08d", accountType.getIdentityString(), currentCount);
+            FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
+                    .accountType(accountType)
+                    .accountNumber(accountNumber)
+                    .build();
+
+            freeAccountNumbers.add(freeAccountNumber);
+        }
+
+        freeAccountNumberRepository.saveAll(freeAccountNumbers);
+
+        accountNumberSequenceRepository.incrementCurrentCount(sequence.getAccountType().ordinal(), currentCount);
     }
 
     @Transactional
-    public void perform(AccountType accountType, Consumer<String> action) {
+    public void perform(int amountNum, AccountType accountType, Consumer<String> action) {
+        int countNum = freeAccountNumberRepository.getCountForAccountType(accountType.ordinal());
+        if (countNum < amountNum) {
+            int toGenerate = amountNum - countNum;
+            generateAccountNumber(toGenerate, accountType);
+        }
+
         var freeNumber = freeAccountNumberRepository.getAccountNumber(accountType.ordinal())
-                .orElseGet(() -> {
-                    generateAccountNumber(accountType);
+                .orElseThrow(() -> {
                     throw new NotFoundException("Free number is not found for " + accountType);
                 });
         action.accept(freeNumber.toString());
