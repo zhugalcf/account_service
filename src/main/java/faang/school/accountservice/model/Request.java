@@ -5,14 +5,20 @@ import faang.school.accountservice.enums.RequestType;
 import faang.school.accountservice.mapper.JsonConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "request")
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
