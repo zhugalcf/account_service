@@ -38,6 +38,7 @@ public class Request {
     private String additionalData;
     private ZonedDateTime createdAt;
     private  ZonedDateTime updatedAt;
+    @Version
     private int version;
 
 }
