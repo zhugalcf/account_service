@@ -195,6 +195,13 @@ public class RequestService {
         return repository.save(request);
     }
 
+    @Transactional
+    public Request saveRequestInternal(Request request){
+        return repository.save(request);
+    }
 
-    getRequestByUserIdAndLock
+    @Transactional
+    public Request getRequestByUserIdAndLock(Long userId, String lock){
+        return repository.findByUserIdAndLockValue(userId, lock);
+    }
 }

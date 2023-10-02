@@ -34,4 +34,6 @@ public interface RequestRepository extends CrudRepository<Request, Long> {
 
     @Query
     Optional<List<Request>> findAllByUserId(Long userId);
+
+    Request findByUserIdAndLockValue(Long userId, String lockValue);
 }
