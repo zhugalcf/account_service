@@ -31,7 +31,7 @@ public class ThreadPoolConfig {
 
 
     @Bean
-    public ExecutorService exceedRequestsPool(){
+    public ExecutorService requestsPool(){
         return new ThreadPoolExecutor(exceedCoreSize, maxExceedCoreSize, aliveTimeExceed, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(exceedQueue));
     }
