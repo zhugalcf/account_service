@@ -53,12 +53,8 @@ public class RequestService {
             throw new TooManyAttemptsException(MessagesForUsers.TOO_MANY_ATTEMPTS);
         }
         Request request = requestMapper.toEntity(requestDto);
-        request.setRequestType(RequestType.CREATE);
-        request.setRequestStatus(RequestStatus.PENDING);
-        request.setIsOpenRequest(false);
-        request.setVersion(1);
-        request.setLockValue(String.format("%d%s", requestDto.getUserId(), RequestType.CREATE));
         try {
+            request = createRequestInDB(request);
             requestDto = saveRequestIntoDB(request, requestDto);
             createRequestPublisher.publish(requestDto);
             return requestDto;
@@ -173,4 +169,32 @@ public class RequestService {
             throw new RuntimeException("Request was updated by other thread, so it can't be saved");
         }
     }
+
+    @Transactional
+    public Request createRequestInternal(Request request) {
+        if(usersHavingTooMuchRequests.contains(request.getUserId())){
+            throw new TooManyAttemptsException(MessagesForUsers.TOO_MANY_ATTEMPTS);
+        }
+        try {
+            return createRequestInDB(request);
+        } catch (DataIntegrityViolationException e) {
+            log.error(e.getMessage());
+            request.setRequestStatus(RequestStatus.REJECTED);
+            request.setAdditionalData(MessagesForUsers.TOO_MANY_ATTEMPTS);
+            return request;
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Request createRequestInDB(Request request){
+        request.setRequestType(RequestType.CREATE);
+        request.setRequestStatus(RequestStatus.PENDING);
+        request.setIsOpenRequest(false);
+        request.setVersion(1);
+        request.setLockValue(String.format("%d%s", request.getUserId(), RequestType.CREATE));
+        return repository.save(request);
+    }
+
+
+    getRequestByUserIdAndLock
 }

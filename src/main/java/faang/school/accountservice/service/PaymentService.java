@@ -51,7 +51,7 @@ public class PaymentService {
                 .inputData(inputData)
                 .requestStatus(RequestStatus.PENDING)
                 .version(1).build();
-        requestService.saveRequestInternal(request);
+        requestService.createRequestInternal(request);
     }
 
     @Transactional
