@@ -12,4 +12,4 @@ CREATE TABLE account (
     version INTEGER not null
 );
 
-CREATE INDEX index_owner ON account(owner);
+CREATE INDEX idx_unique_number ON account(number);

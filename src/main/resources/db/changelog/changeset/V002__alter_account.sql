@@ -1,0 +1,1 @@
+alter table account add column balance numeric default 0
