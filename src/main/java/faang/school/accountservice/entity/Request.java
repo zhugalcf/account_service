@@ -1,6 +1,5 @@
 package faang.school.accountservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
 import faang.school.accountservice.util.MapToJsonConverter;
@@ -12,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +24,9 @@ import java.util.UUID;
 @Table(name = "request")
 public class Request {
     @Id
+    private Long id;
+
+    @Column(name = "idempotent_token")
     private UUID idempotentToken;
 
     @Column(name = "user_id", nullable = false)
@@ -33,19 +36,19 @@ public class Request {
     private RequestStatus requestStatus;
 
     @Column(name = "lock_value", nullable = false)
-    private Long lockValue;
+    private String lockValue;
 
     @Column(name = "active", nullable = false)
     private boolean active;
 
     @Column(name = "input_data")
     @Convert(converter = MapToJsonConverter.class)
-    private Map<String, Object> input_data;
+    private Map<String, Object> inputData;
 
     @Enumerated(EnumType.STRING)
     private RequestType requestType;
 
-    @Column(name = "details")
+    @Column(name = "status_details")
     private String details;
 
     @CreationTimestamp
@@ -56,7 +59,7 @@ public class Request {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Column(name = "version", nullable = false)
     private Long version;
