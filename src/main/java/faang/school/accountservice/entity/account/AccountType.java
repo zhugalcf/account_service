@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AccountType {
     CHECKING_ACCOUNT("5233"),
-    SAVINGS_ACCOUNT("4255"),
+    SAVINGS_ACCOUNT("5236"),
+    DEBIT_ACCOUNT("4200"),
     INVESTMENT_ACCOUNT("2352"),
     FOREIGN_CURRENCY_ACCOUNT("4321"),
     LEGAL_ENTITY_CURRENT_ACCOUNT("4212");
+
 
     private final String firstNumberOfAccount;
 }

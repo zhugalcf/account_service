@@ -1,62 +1,108 @@
 package faang.school.accountservice.service;
 
-import faang.school.accountservice.entity.FreeAccountNumber;
+import faang.school.accountservice.config.account.AccountGenerationConfig;
+import faang.school.accountservice.entity.account.numbers.FreeAccountNumber;
 import faang.school.accountservice.entity.account.AccountType;
+import faang.school.accountservice.exception.NoFreeAccountNumbersException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
-import faang.school.accountservice.repository.FreeAccountNumberRepository;
-import lombok.AllArgsConstructor;
+import faang.school.accountservice.repository.FreeAccountNumbersRepository;
+import jakarta.persistence.LockModeType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
 public class FreeAccountNumbersService {
-
-    private final FreeAccountNumberRepository freeAccountNumberRepository;
+    private final FreeAccountNumbersRepository freeAccountNumbersRepository;
     private final AccountNumbersSequenceRepository accountNumbersSequenceRepository;
+    private final AccountGenerationConfig accountGenerationConfig;
+
 
     @Transactional
-    public FreeAccountNumber createNewFreeAccountNumber(FreeAccountNumber freeAccountNumber) {
-        return freeAccountNumberRepository.save(freeAccountNumber);
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
+    public void generateAccountNumbersOfType(long numberOfAccounts, AccountType accountType) {
+        createListAccountNumbers(numberOfAccounts, accountType);
     }
 
     @Transactional
-    public String findAndDeleteFirstFreeAccountNumber(AccountType accountType) {
-        FreeAccountNumber freeAccountNumber = freeAccountNumberRepository.findFirstByOrderByAccountNumber(accountType);
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
+    public void generateAccountNumbersToReach(long targetCount, AccountType accountType) {
 
-        if (freeAccountNumber != null) {
-            String accountNumber = freeAccountNumber.getAccountNumber();
-            freeAccountNumberRepository.deleteFirstByAccountNumber(accountNumber);
-            return accountNumber;
+        long currentCount = freeAccountNumbersRepository.countByAccountType(accountType);
+        long remainingCount = targetCount - currentCount;
+
+        if (remainingCount > 0) {
+            createListAccountNumbers(remainingCount, accountType);
         }
-        return null;
+    }
+
+    private void createListAccountNumbers(long remainingCount, AccountType accountType) {
+        int accountNumberLength = accountGenerationConfig.getAccountNumberLength();
+
+        List<String> newAccountNumbers = LongStream.range(0, remainingCount)
+                .mapToObj(i -> generateAccountNumber(accountType, accountNumberLength)).toList();
+
+        List<FreeAccountNumber> accountNumbers = newAccountNumbers.stream()
+                .map(accountNumber -> FreeAccountNumber.builder()
+                        .accountType(accountType)
+                        .accountNumber(accountNumber)
+                        .build()).collect(Collectors.toList());
+        freeAccountNumbersRepository.saveAll(accountNumbers);
+    }
+
+    private String generateAccountNumber(AccountType accountType, int length) {
+        String prefix = accountType.getFirstNumberOfAccount();
+
+        long currentCount = getOrCreateSequence(accountType);
+        accountNumbersSequenceRepository.incrementByAccountType(accountType);
+
+        return prefix + String.format("%0" + (length - prefix.length()) + "d", currentCount);
+    }
+
+    private Long getOrCreateSequence(AccountType accountType) {
+        return accountNumbersSequenceRepository.findByAccountType(accountType).orElseGet(() ->
+                accountNumbersSequenceRepository.createAccountNumberSequence(accountType));
     }
 
     @Transactional
-    public void executeInTransactionWithFreeAccountNumber(Consumer<String> transactionalMethod) {
-//        Optional<String> freeAccountNumber = freeAccountNumberRepository.findFirstByOrderByAccountNumber();
-//
-//        if (freeAccountNumber.isPresent()) {
-//            String accountNumber = freeAccountNumber.get();
-//            freeAccountNumberRepository.deleteFirstByAccountNumber(accountNumber);
-//            transactionalMethod.accept(accountNumber);
-//        } else {
-//            // Если свободного номера счета нет, генерируем новый
-//            String newAccountNumber = generateNewAccountNumber();
-//            transactionalMethod.accept(newAccountNumber);
-//        }
+    @Lock(LockModeType.OPTIMISTIC)
+    public String getFreeAccountNumber(AccountType accountType) {
+        try {
+            Optional<String> accountNumber = tryToGetFreeAccountNumber(accountType);
+            if (accountNumber.isPresent()) {
+                return accountNumber.get();
+            }
+        } catch (OptimisticLockingFailureException ole) {
+            log.warn("Optimistic locking failure while getting free account number: {}", ole.getMessage());
+        } catch (Exception e) {
+            log.error("Error while getting free account number: {}", e.getMessage());
+        }
+        throw new NoFreeAccountNumbersException("No free account numbers even after generating additional numbers.");
     }
 
-    private String generateNewAccountNumber() {
-        // Здесь реализуйте логику для генерации нового номера счета
-        // Например, инкрементируйте счетчик и верните новый номер
-        // Ваш код может выглядеть примерно так:
-//        Long currentMaxAccountNumber = accountNumbersSequenceRepository.findMaxAccountNumber();
-//        Long newAccountNumber = currentMaxAccountNumber != null ? currentMaxAccountNumber + 1 : 1;
-//        return newAccountNumber.toString();
-        return null;
+    private Optional<String> tryToGetFreeAccountNumber(AccountType accountType) {
+        Optional<String> accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType);
+        if (accountNumber.isEmpty()) {
+            generateAdditionalAccountNumbers(accountType);
+            log.warn("No free account numbers. Generated additional account numbers for {}.", accountType);
+            accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType);
+        }
+        return accountNumber;
+    }
+
+    private void generateAdditionalAccountNumbers(AccountType accountType) {
+        int additionalNumbersToGenerate = 10;
+        createListAccountNumbers(additionalNumbersToGenerate, accountType);
     }
 }
