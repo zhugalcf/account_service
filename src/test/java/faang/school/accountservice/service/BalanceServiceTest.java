@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -142,7 +143,7 @@ public class BalanceServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> balanceService.deposit(invalidAccountId, amount));
 
-        verifyNoInteractions(balanceMapper);
+        Mockito.verifyNoInteractions(balanceMapper);
     }
 
     @Test
@@ -152,7 +153,7 @@ public class BalanceServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> balanceService.deposit(accountId, negativeAmount));
 
-        verifyNoInteractions(balanceMapper);
+        Mockito.verifyNoInteractions(balanceMapper);
     }
 
     @Test
@@ -165,7 +166,7 @@ public class BalanceServiceTest {
         assertThrows(EntityNotFoundException.class, () -> balanceService.deposit(accountId, amount));
 
         verify(balanceRepository, times(1)).findByAccountId(accountId);
-        verifyNoInteractions(balanceMapper);
+        Mockito.verifyNoInteractions(balanceMapper);
     }
 
     @Test
