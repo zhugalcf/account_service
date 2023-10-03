@@ -3,7 +3,6 @@ package faang.school.accountservice.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.account.AccountType;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -22,8 +21,6 @@ public class AccountDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
-    @NotBlank(message = "Account number is required")
-    @Pattern(message = "Account number must be between 12 and 20 characters", regexp = "^(.{12,20})$")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String accountNumber;
 

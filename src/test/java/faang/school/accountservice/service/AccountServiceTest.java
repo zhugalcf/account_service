@@ -39,6 +39,8 @@ class AccountServiceTest {
     private AccountRepository accountRepository;
     @Mock
     private AccountMapper accountMapper;
+    @Mock
+    private UniqueNumberService uniqueNumberService;
     private Account account;
     private AccountDto accountDto;
 
@@ -72,11 +74,14 @@ class AccountServiceTest {
                 .updatedAt(dateTime)
                 .build();
 
+        String accountNumber = "52330000000000000001";
+
         when(ownerService.getOwner(1L)).thenReturn(owner);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
         when(accountRepository.save(account)).thenReturn(account);
         when(accountMapper.toDto(account)).thenReturn(accountDto);
         when(accountMapper.toEntity(accountDto)).thenReturn(account);
+        when(uniqueNumberService.getFreeAccountNumber(AccountType.CHECKING_ACCOUNT)).thenReturn(accountNumber);
     }
 
     @Test
@@ -113,6 +118,12 @@ class AccountServiceTest {
     void open_shouldInvokeMapperToDto() {
         accountService.open(accountDto);
         verify(accountMapper).toDto(account);
+    }
+
+    @Test
+    void open_shouldInvokeGeneratorUniqueNumberServiceGetFreeAccountNumber() {
+        accountService.open(accountDto);
+        verify(uniqueNumberService).getFreeAccountNumber(accountDto.getAccountType());
     }
 
     @Test
