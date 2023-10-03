@@ -9,7 +9,7 @@ CREATE TABLE tariff
 CREATE TABLE savings_account
 (
     id                 BIGSERIAL PRIMARY KEY,
-    account_id         BIGINT       NOT NULL,
+    account_id         BIGINT       NOT NULL UNIQUE,
     history_tariff     VARCHAR(255) NOT NULL,
     latest_report_date TIMESTAMPTZ           DEFAULT CURRENT_TIMESTAMP,
     version            BIGINT       NOT NULL DEFAULT 0,
