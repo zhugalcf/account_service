@@ -21,11 +21,13 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
     @Transactional
     @Retryable(retryFor = OptimisticLockException.class)
     public AccountDto open(AccountDto accountDto) {
         accountDto.setStatus(Status.ACTIVE);
+        freeAccountNumbersService.getFreeAccountNumber(accountDto.getType(), accountDto::setAccountNumber);
         Account account = accountRepository.save(accountMapper.toEntity(accountDto));
         return accountMapper.toDto(account);
     }
