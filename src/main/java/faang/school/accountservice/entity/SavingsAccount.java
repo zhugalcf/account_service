@@ -40,7 +40,9 @@ public class SavingsAccount {
     @Column(name = "history_tariff")
     private String historyTariff;
 
+    @UpdateTimestamp
     @Column(name = "latest_report_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime latestReportDate;
 
     @CreationTimestamp

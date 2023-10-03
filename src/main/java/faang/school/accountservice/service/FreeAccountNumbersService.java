@@ -12,6 +12,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class FreeAccountNumbersService {
                     return freeAccountNumberRepository.getAccountNumber(accountType.ordinal()).isPresent()
                             ? freeAccountNumberRepository.getAccountNumber(accountType.ordinal()).get() : null;
                 });
-        consumer.accept(freeAccountNumber.toString());
+        consumer.accept(Objects.requireNonNull(freeAccountNumber).toString());
     }
 
     @Transactional
