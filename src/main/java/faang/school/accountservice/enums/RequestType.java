@@ -1,5 +1,5 @@
 package faang.school.accountservice.enums;
 
-public enum Type {
-
+public enum RequestType {
+    PAYMENT
 }

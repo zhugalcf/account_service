@@ -1,8 +1,7 @@
 package faang.school.accountservice.entity;
 
-
 import faang.school.accountservice.enums.RequestStatus;
-import faang.school.accountservice.enums.Type;
+import faang.school.accountservice.enums.RequestType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,16 +29,16 @@ import java.util.UUID;
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    private UUID requestId;
 
     @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
     @Column(name = "type", nullable = false)
-    private Type type;
+    private RequestType requestType;
 
-    @Column(name = "flag", nullable = false)
-    private boolean flag;
+    @Column(name = "is_open", nullable = false)
+    private boolean isOpen;
 
     @Column(name = "input", nullable = false)
     private String input;
