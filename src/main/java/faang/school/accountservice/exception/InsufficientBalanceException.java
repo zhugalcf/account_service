@@ -1,4 +1,4 @@
-package faang.school.accountservice.excpetion;
+package faang.school.accountservice.exception;
 
 public class InsufficientBalanceException extends RuntimeException {
     public InsufficientBalanceException(String message) {

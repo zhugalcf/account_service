@@ -1,7 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.account.Currency;
-import faang.school.accountservice.excpetion.EntityNotFoundException;
+import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.repository.CurrencyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

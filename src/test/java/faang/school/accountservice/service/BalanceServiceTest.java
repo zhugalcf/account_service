@@ -3,9 +3,9 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.balance.Balance;
-import faang.school.accountservice.excpetion.DuplicateBalanceException;
-import faang.school.accountservice.excpetion.EntityNotFoundException;
-import faang.school.accountservice.excpetion.InsufficientBalanceException;
+import faang.school.accountservice.exception.DuplicateBalanceException;
+import faang.school.accountservice.exception.EntityNotFoundException;
+import faang.school.accountservice.exception.InsufficientBalanceException;
 import faang.school.accountservice.mapper.BalanceMapperImpl;
 import faang.school.accountservice.repository.BalanceRepository;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

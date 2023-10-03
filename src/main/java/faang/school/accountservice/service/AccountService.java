@@ -5,7 +5,7 @@ import faang.school.accountservice.entity.Owner;
 import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.account.Currency;
-import faang.school.accountservice.excpetion.EntityNotFoundException;
+import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
