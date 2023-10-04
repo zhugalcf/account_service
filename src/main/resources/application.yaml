@@ -39,6 +39,8 @@ project-service:
   port: 8082
 
 account-numbers:
+  generation_delay: 100000
+  max_retry_count: 5
   number_length: 20
   type_code_length: 4
   account_numbers_buffer_size: 10

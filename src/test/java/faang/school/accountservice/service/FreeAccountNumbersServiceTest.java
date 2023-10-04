@@ -1,8 +1,7 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.enums.AccountType;
-import faang.school.accountservice.model.AccountNumber;
-import faang.school.accountservice.model.AccountNumbersSequence;
+import faang.school.accountservice.model.account.number.AccountNumber;
 import faang.school.accountservice.repository.AccountNumberContainer;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
@@ -36,18 +35,12 @@ class FreeAccountNumbersServiceTest {
 
     @BeforeAll
     public void setUp() {
-        numbersRepository.deleteAll();
-        sequenceRepository.deleteAll();
-        sequenceRepository.save(AccountNumbersSequence.builder()
-                .type(AccountType.CREDIT)
-                .current(3)
-                .version(0)
-                .build());
     }
 
     @Test
     void testGetNumber() {
-        String number = service.getNumber(AccountType.DEBIT);
+        String number = service.getNumber(AccountType.DEBIT, (t, s) -> {
+        });
         assertNotNull(number);
         assertEquals(20, number.length());
         assertTrue(number.startsWith("4276"));
@@ -72,7 +65,17 @@ class FreeAccountNumbersServiceTest {
 
     @Test
     void testGetAndIncrementSequence() {
+        long expected = sequenceRepository.findByType(AccountType.CREDIT.toString()) + 1;
         long actual = service.getAndIncrementSequence(AccountType.CREDIT);
-        assertEquals(4, actual);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testOptimisticLock() {
+        long current = sequenceRepository.findByType(AccountType.CREDIT.toString());
+        sequenceRepository.increment(AccountType.CREDIT.toString(), current);
+        sequenceRepository.increment(AccountType.CREDIT.toString(), current);
+        assertEquals(++current, sequenceRepository.findByType(AccountType.CREDIT.toString()));
+
     }
 }

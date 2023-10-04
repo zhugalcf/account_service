@@ -2,6 +2,5 @@ CREATE TABLE account_numbers_sequence
 (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     type VARCHAR(20) NOT NULL UNIQUE,
-    current BIGINT NOT NULL,
-    version BIGINT NOT NULL
+    current BIGINT NOT NULL
 );

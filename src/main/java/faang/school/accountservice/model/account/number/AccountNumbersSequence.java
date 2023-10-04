@@ -1,4 +1,4 @@
-package faang.school.accountservice.model;
+package faang.school.accountservice.model.account.number;
 
 import faang.school.accountservice.enums.AccountType;
 import jakarta.persistence.Column;
@@ -30,9 +30,7 @@ public class AccountNumbersSequence {
     @Column(name = "type", length = 20, nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private AccountType type;
+    @Version
     @Column(name = "current", nullable = false)
     private long current;
-    @Version
-    @Column(name = "version", nullable = false)
-    private long version;
 }

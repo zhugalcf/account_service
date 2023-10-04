@@ -1,6 +1,6 @@
 package faang.school.accountservice.repository;
 
-import faang.school.accountservice.model.AccountNumbersSequence;
+import faang.school.accountservice.model.account.number.AccountNumbersSequence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,11 +13,12 @@ public interface AccountNumbersSequenceRepository extends JpaRepository<AccountN
 
     @Query(nativeQuery = true,
             value = """
-                    INSERT INTO account_numbers_sequence (type, current, version)
-                    SELECT :type, 0, 0
-                    WHERE NOT EXISTS (SELECT * FROM account_numbers_sequence WHERE type = :type)
+                    INSERT INTO account_numbers_sequence (type, current)
+                    VALUES(:type, 0)
+                    ON CONFLICT(type) DO NOTHING
                     """)
     @Modifying
+    @Transactional
     void createNewCounterIfNotExists(@Param("type") String type);
 
     @Query(nativeQuery = true,

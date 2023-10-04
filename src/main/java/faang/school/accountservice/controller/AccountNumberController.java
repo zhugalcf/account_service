@@ -3,22 +3,20 @@ package faang.school.accountservice.controller;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.service.FreeAccountNumbersService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/number")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountNumberController {
 
     private final FreeAccountNumbersService service;
 
-    @GetMapping
-    public ResponseEntity<Object> createFreeNumber(@RequestParam("type") String typeString) {
-        AccountType type = AccountType.valueOf(typeString);
-        return ResponseEntity.ok(service.getNumber(type));
+    @PostMapping
+    public ResponseEntity<Object> createFreeNumber(@RequestParam("type") AccountType type) {
+        return ResponseEntity.ok(service.getNumber(type, (t, s) -> log.info("Number {} of type {} was accepted.", s, t)));
     }
 }
