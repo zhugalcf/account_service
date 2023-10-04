@@ -88,11 +88,9 @@ public class FreeAccountNumbersService {
     @Scheduled(fixedDelayString = "${account-numbers.generation_delay}")
     @Async("numberGenerator")
     protected void generate() {
-        System.out.println(Arrays.toString(AccountType.values()));
-        Arrays.stream(AccountType.values())
-                .forEach((type) -> {
-                    checkFreeNumbersCountAndGenerateNumbers(type);
-                });
+        Arrays.stream(AccountType.values()).forEach((type) -> {
+            checkFreeNumbersCountAndGenerateNumbers(type);
+        });
     }
 
     private void checkFreeNumbersCountAndGenerateNumbers(AccountType type) {
