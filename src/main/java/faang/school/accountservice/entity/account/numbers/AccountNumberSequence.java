@@ -18,7 +18,7 @@ public class AccountNumberSequence {
     private Long id;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "account_type", nullable = false, unique = true)
+    @Column(name = "account_type", nullable = false)
     private AccountType accountType;
 
     @Column(name = "current_count", nullable = false)

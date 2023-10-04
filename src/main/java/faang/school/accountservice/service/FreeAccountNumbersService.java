@@ -6,11 +6,9 @@ import faang.school.accountservice.entity.account.AccountType;
 import faang.school.accountservice.exception.NoFreeAccountNumbersException;
 import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
-import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,18 +63,24 @@ public class FreeAccountNumbersService {
         String prefix = accountType.getFirstNumberOfAccount();
 
         long currentCount = getOrCreateSequence(accountType);
-        accountNumbersSequenceRepository.incrementByAccountType(accountType);
+        accountNumbersSequenceRepository.incrementByAccountType(accountType.ordinal());
 
         return prefix + String.format("%0" + (length - prefix.length()) + "d", currentCount);
     }
 
-    private Long getOrCreateSequence(AccountType accountType) {
-        return accountNumbersSequenceRepository.findByAccountType(accountType).orElseGet(() ->
-                accountNumbersSequenceRepository.createAccountNumberSequence(accountType));
+    public Long getOrCreateSequence(AccountType accountType) {
+        return accountNumbersSequenceRepository
+                .getCurrentCountByAccountType(accountType.ordinal())
+                .orElseGet(() -> {
+                    accountNumbersSequenceRepository.createAccountNumberSequence(accountType.ordinal());
+                    return accountNumbersSequenceRepository
+                            .getCurrentCountByAccountType(accountType.ordinal())
+                            .orElse(null);
+                });
     }
 
     @Transactional
-    @Lock(LockModeType.OPTIMISTIC)
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public String getFreeAccountNumber(AccountType accountType) {
         try {
             Optional<String> accountNumber = tryToGetFreeAccountNumber(accountType);
@@ -92,11 +96,11 @@ public class FreeAccountNumbersService {
     }
 
     private Optional<String> tryToGetFreeAccountNumber(AccountType accountType) {
-        Optional<String> accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType);
+        Optional<String> accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal());
         if (accountNumber.isEmpty()) {
             generateAdditionalAccountNumbers(accountType);
             log.warn("No free account numbers. Generated additional account numbers for {}.", accountType);
-            accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType);
+            accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal());
         }
         return accountNumber;
     }

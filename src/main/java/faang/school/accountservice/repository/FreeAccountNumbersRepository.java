@@ -20,9 +20,9 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
             "WHERE account_type = ( " +
             "SELECT account_type " +
             "FROM free_account_numbers " +
-            "WHERE account_type = :account_type " +
+            "WHERE account_type = :accountType " +
             "ORDER BY created_at ASC " +
             "LIMIT 1) " +
             "RETURNING account_number")
-    Optional<String> deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(@Param("account_type") AccountType account_type);
+    Optional<String> deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(@Param("accountType") int accountType);
 }
