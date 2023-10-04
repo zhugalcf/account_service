@@ -83,9 +83,8 @@ public class SavingsAccountService {
         }
     }
 
-
     @Async
-    @jakarta.transaction.Transactional
+    @Transactional
     @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public void calculateAndApplyLastPercent() {
 
@@ -100,5 +99,4 @@ public class SavingsAccountService {
             savingsAccount.setLastUpdateCalculationAt(LocalDateTime.now());
         }
     }
-
 }
