@@ -4,7 +4,7 @@ import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.exception.TariffValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
+import java.math.BigDecimal;
 
 @Component
 @RequiredArgsConstructor
@@ -18,8 +18,8 @@ public class TariffValidator {
             throw new TariffValidationException("Tariff type is required");
         }
 
-        if (CollectionUtils.isEmpty(tariff.getRates())) {
-            throw new TariffValidationException("Tariff rates are required");
+        if (tariff.getRate() == null || tariff.getRate().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new TariffValidationException("Invalid tariff rate");
         }
     }
 }

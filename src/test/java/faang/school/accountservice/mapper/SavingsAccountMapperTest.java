@@ -5,62 +5,74 @@ import faang.school.accountservice.entity.account.Account;
 import faang.school.accountservice.entity.account.AccountStatus;
 import faang.school.accountservice.entity.account.AccountType;
 import faang.school.accountservice.entity.account.SavingsAccount;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class SavingsAccountMapperTest {
     @Spy
     private SavingsAccountMapperImpl savingsAccountMapper;
+    private SavingsAccount savingsAccount;
+    private SavingsAccountDto dto;
 
-    @Spy
-    private AccountMapperImpl accountMapper;
-    private SavingsAccount expectedSavingsAccount;
-    private SavingsAccountDto expectedSavingsAccountDto;
+        @Test
+        public void testToEntity() {
+            LocalDateTime dateTime = LocalDateTime.of(2023, 1, 1, 0, 0);
 
-    @BeforeEach
-    void setUp() {
+            dto = SavingsAccountDto.builder()
+                    .id(1L)
+                    .accountId(101L)
+                    .accountType(AccountType.SAVINGS_ACCOUNT)
+                    .accountStatus(AccountStatus.OPENED)
+                    .createdAt(dateTime)
+                    .updatedAt(dateTime)
+                    .closedAt(null)
+                    .lastUpdateCalculationAt(dateTime)
+                    .build();
+
+            SavingsAccount entity = savingsAccountMapper.toEntity(dto);
+
+            assertEquals(dto.getId(), entity.getId());
+            assertEquals(dto.getAccountId(), entity.getAccount().getId());
+            assertEquals(dto.getAccountType(), entity.getAccountType());
+            assertEquals(dto.getAccountStatus(), entity.getAccountStatus());
+            assertEquals(dto.getCreatedAt(), entity.getCreatedAt());
+            assertEquals(dto.getUpdatedAt(), entity.getUpdatedAt());
+            assertEquals(dto.getClosedAt(), entity.getClosedAt());
+            assertEquals(dto.getLastUpdateCalculationAt(), entity.getLastUpdateCalculationAt());
+        }
+
+    @Test
+    public void testEntityToDtoMapping() {
         LocalDateTime dateTime = LocalDateTime.of(2023, 1, 1, 0, 0);
 
-        expectedSavingsAccount = SavingsAccount.builder()
+        savingsAccount = SavingsAccount.builder()
                 .id(1L)
-                .account(Account.builder().id(2L).build())
+                .account(Account.builder().id(101L).build())
+                .tariffHistoryIds(Collections.singletonList(1L))
                 .accountType(AccountType.SAVINGS_ACCOUNT)
                 .accountStatus(AccountStatus.OPENED)
                 .createdAt(dateTime)
                 .updatedAt(dateTime)
                 .closedAt(null)
-                .lastUpdateCalculationAt(null)
+                .lastUpdateCalculationAt(dateTime)
+                .version(1L)
                 .build();
 
-        expectedSavingsAccountDto = SavingsAccountDto.builder()
-                .id(1L)
-                .accountId(2L)
-                .accountType(AccountType.SAVINGS_ACCOUNT)
-                .accountStatus(AccountStatus.OPENED)
-                .createdAt(dateTime)
-                .updatedAt(dateTime)
-                .closedAt(null)
-                .lastUpdateCalculationAt(null)
-                .build();
-    }
+        SavingsAccountDto dto = savingsAccountMapper.toDto(savingsAccount);
 
-    @Test
-    void testToDto() {
-        SavingsAccountDto actual = savingsAccountMapper.toDto(expectedSavingsAccount);
-
-        assertEquals(expectedSavingsAccountDto, actual);
-    }
-
-    @Test
-    void testToEntity() {
-        SavingsAccount actual = savingsAccountMapper.toEntity(expectedSavingsAccountDto);
-
-        assertEquals(expectedSavingsAccount, actual);
+        assertEquals(savingsAccount.getId(), dto.getId());
+        assertEquals(savingsAccount.getAccount().getId(), dto.getAccountId());
+        assertEquals(savingsAccount.getAccountType(), dto.getAccountType());
+        assertEquals(savingsAccount.getAccountStatus(), dto.getAccountStatus());
+        assertEquals(savingsAccount.getCreatedAt(), dto.getCreatedAt());
+        assertEquals(savingsAccount.getUpdatedAt(), dto.getUpdatedAt());
+        assertEquals(savingsAccount.getClosedAt(), dto.getClosedAt());
+        assertEquals(savingsAccount.getLastUpdateCalculationAt(), dto.getLastUpdateCalculationAt());
     }
 }

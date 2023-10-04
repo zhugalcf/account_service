@@ -1,18 +1,18 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.entity.TariffType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TariffDto {
+public class SavingsAccountTariffHistoryDto {
     private Long id;
-    private TariffType tariffType;
-    private BigDecimal rate;
+    private Long savingsAccountId;
+    private Long tariffId;
+    private LocalDateTime changeDate;
 }

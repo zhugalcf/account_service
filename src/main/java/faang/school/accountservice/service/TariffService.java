@@ -59,6 +59,7 @@ public class TariffService {
     }
 
     public Tariff updateTariffRate(Long tariffId, BigDecimal newRate) {
+        log.info("Updating rate with tariff ID {}: {}", tariffId, newRate);
         Tariff existingTariff = tariffRepository.findById(tariffId)
                 .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
 
