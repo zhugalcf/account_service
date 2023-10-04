@@ -100,7 +100,6 @@ public class FreeAccountNumbersService {
 
         sequenceRepository.createNewCounterIfNotExists(type.toString());
         long numbersCount = numbersRepository.countAccountNumberByType(type.toString());
-        System.out.println("***");
         if (numbersCount <= freeNumbersBufferSize / 2) {
             generateNumbers(type, numbersCount, freeNumbersBufferSize);
         }
