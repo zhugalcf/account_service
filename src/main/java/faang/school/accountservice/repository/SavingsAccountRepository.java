@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, Long> {
@@ -14,4 +15,6 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
     SavingsAccount findByIdAndOwnerId(Long accountId, Long ownerId);
 
     List<SavingsAccount> findAllByAccountStatus(AccountStatus accountStatus);
+
+    SavingsAccount findByAccount_Id(Long accountId);
 }
