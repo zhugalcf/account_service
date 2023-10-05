@@ -138,7 +138,7 @@ public class SavingsAccountService {
     }
 
     @Transactional(readOnly = true)
-    public void getSavingsAccountIdByAccountId(Long accountId) {
+    public Long getSavingsAccountIdByAccountId(Long accountId) {
         Account account = accountService.getAccount(accountId);
 
         Optional.ofNullable(account)

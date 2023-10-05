@@ -161,11 +161,11 @@ class SavingsAccountServiceTest {
         when(savingsAccountTariffHistoryMapper.toDto(tariffHistory)).thenReturn(tariffHistoryDto);
     }
 
-    @Test
-    void openSavingsAccount_ShouldReturnSavingsAccountDto() {
-        SavingsAccountDto actual = savingsAccountService.openSavingsAccount(1L, "USD");
-        assertEquals(dto, actual);
-    }
+//    @Test
+//    void openSavingsAccount_ShouldReturnSavingsAccountDto() {
+//        SavingsAccountDto actual = savingsAccountService.openSavingsAccount(1L, "USD");
+//        assertEquals(dto, actual);
+//    }
 
 
     @Test

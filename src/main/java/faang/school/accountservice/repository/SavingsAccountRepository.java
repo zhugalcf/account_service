@@ -17,4 +17,7 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount, 
     List<SavingsAccount> findAllByAccountStatus(AccountStatus accountStatus);
 
     SavingsAccount findByAccount_Id(Long accountId);
+
+    @Query("SELECT sa.id FROM SavingsAccount sa")
+    List<Long> findAllSavingsAccountIds();
 }
