@@ -15,7 +15,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
 
     long countByAccountType(AccountType accountType);
 
-    @Modifying
     @Query(nativeQuery = true, value = "DELETE FROM free_account_numbers " +
             "WHERE account_type = ( " +
             "SELECT account_type " +
@@ -24,5 +23,6 @@ public interface FreeAccountNumbersRepository extends JpaRepository<FreeAccountN
             "ORDER BY created_at ASC " +
             "LIMIT 1) " +
             "RETURNING account_number")
+    @Modifying
     Optional<String> deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(@Param("accountType") int accountType);
 }
