@@ -47,4 +47,6 @@ public class AccountController {
         accountService.close(id);
         return ResponseEntity.ok().build();
     }
+
+
 }

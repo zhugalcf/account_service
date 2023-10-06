@@ -24,6 +24,11 @@ logging:
   level:
     root: info
 
+accrual :
+  executors-pool: 10
+  size-select-db: 50000
+  accrual-run-size: 50000
+
 project-service:
   host: localhost
   port: 8082
