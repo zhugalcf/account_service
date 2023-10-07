@@ -3,7 +3,7 @@ package faang.school.accountservice.message.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import faang.school.accountservice.dto.PaymentStatus;
 import faang.school.accountservice.dto.RedisPaymentDto;
-import faang.school.accountservice.service.PaymentService;
+import faang.school.accountservice.service.PaymentProcessingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -15,7 +15,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class PaymentListener implements MessageListener {
     private final ObjectMapper objectMapper;
-    private final PaymentService paymentService;
+    private final PaymentProcessingService paymentProcessingService;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -26,11 +26,11 @@ public class PaymentListener implements MessageListener {
             throw new RuntimeException(e);
         }
         if (redisPaymentDto.status().equals(PaymentStatus.PENDING)) {
-            paymentService.createRequestForPayment(redisPaymentDto);
+            paymentProcessingService.createRequestForPayment(redisPaymentDto);
         } else if (redisPaymentDto.status().equals(PaymentStatus.CANCELED)) {
-            paymentService.cancelRequestForPayment(redisPaymentDto);
+            paymentProcessingService.cancelRequestForPayment(redisPaymentDto);
         } else if (redisPaymentDto.status().equals(PaymentStatus.SUCCESS)) {
-            paymentService.approveRequestForPayment(redisPaymentDto);
+            paymentProcessingService.approveRequestForPayment(redisPaymentDto);
         }
     }
 }

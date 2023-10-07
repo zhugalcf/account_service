@@ -20,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class PaymentService {
+public class PaymentProcessingService {
     private final RequestService requestService;
     private final BalanceRepository balanceRepository;
 
