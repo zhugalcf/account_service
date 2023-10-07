@@ -8,9 +8,12 @@ import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.RequestRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -31,23 +34,22 @@ public class RequestService {
     }
 
     @Transactional
+    @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 10), retryFor = PersistenceException.class)
     public RequestDto updateRequest(UpdateRequestDto updateRequestDto) {
-        Request request = requestRepository.findRequestsByRequestIdForUpdate(updateRequestDto.getRequestId())
+        Request request = requestRepository.findById(updateRequestDto.getRequestId())
                 .orElseThrow(EntityNotFoundException::new);
-        boolean open = request.isOpen();
-        request.setOpen(false);
 
+        request.setAdditionally(updateRequestDto.getAdditionally());
         if (checkRelevance(request)) {
-            return requestMapper.toDto(request);
+            return requestMapper.toDto(requestRepository.save(request));
         }
         if (updateRequestDto.isClose()) {
             request.setStatus(RequestStatus.CANCELLED);
-            open = false;
+            request.setOpen(false);
+            request.setLock(null);
         }
         request.setInput(updateRequestDto.getInput());
-        request.setAdditionally(updateRequestDto.getAdditionally());
 
-        request.setOpen(open);
         return requestMapper.toDto(requestRepository.save(request));
     }
 
