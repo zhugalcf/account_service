@@ -38,19 +38,23 @@ public class RequestService {
     public RequestDto updateRequest(UpdateRequestDto updateRequestDto) {
         Request request = requestRepository.findById(updateRequestDto.getRequestId())
                 .orElseThrow(EntityNotFoundException::new);
-
         request.setAdditionally(updateRequestDto.getAdditionally());
+        
         if (checkRelevance(request)) {
             return requestMapper.toDto(requestRepository.save(request));
         }
+        validateClosureRequest(updateRequestDto, request);
+
+        request.setInput(updateRequestDto.getInput());
+        return requestMapper.toDto(requestRepository.save(request));
+    }
+
+    private static void validateClosureRequest(UpdateRequestDto updateRequestDto, Request request) {
         if (updateRequestDto.isClose()) {
             request.setStatus(RequestStatus.CANCELLED);
             request.setOpen(false);
             request.setLock(null);
         }
-        request.setInput(updateRequestDto.getInput());
-
-        return requestMapper.toDto(requestRepository.save(request));
     }
 
     private boolean checkRelevance(Request request) {
