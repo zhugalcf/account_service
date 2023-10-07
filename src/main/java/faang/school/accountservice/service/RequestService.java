@@ -49,11 +49,11 @@ public class RequestService {
         return requestMapper.toDto(requestRepository.save(request));
     }
 
-    private static void validateClosureRequest(UpdateRequestDto updateRequestDto, Request request) {
-        if (updateRequestDto.isClose()) {
-            request.setStatus(RequestStatus.CANCELLED);
-            request.setOpen(false);
-            request.setLock(null);
+    private static void validateClosureRequest(UpdateRequestDto checkDto, Request doUpdate) {
+        if (checkDto.isClose()) {
+            doUpdate.setStatus(RequestStatus.CANCELLED);
+            doUpdate.setOpen(false);
+            doUpdate.setLock(null);
         }
     }
 
