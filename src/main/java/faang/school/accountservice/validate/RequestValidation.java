@@ -7,7 +7,7 @@ import faang.school.accountservice.enums.RequestStatus;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RequestValidate {
+public class RequestValidation {
     public boolean validateOpeningRequest(OpenRequestDto openRequestDto, Request request) {
         return !request.getStatus().equals(RequestStatus.WAITING) ||
                 request.getLock().equals(openRequestDto.getLock());

@@ -9,7 +9,7 @@ import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.exception.RequestLockIsOccupiedException;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.RequestRepository;
-import faang.school.accountservice.validate.RequestValidate;
+import faang.school.accountservice.validate.RequestValidation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class RequestService {
     private final RequestRepository requestRepository;
-    private final RequestValidate requestValidate;
+    private final RequestValidation requestValidation;
     private final RequestMapper requestMapper;
     private final UserContext userContext;
 
@@ -44,10 +44,10 @@ public class RequestService {
                 .orElseThrow(EntityNotFoundException::new);
         request.setAdditionally(updateRequestDto.getAdditionally());
         
-        if (requestValidate.checkRelevance(request)) {
+        if (requestValidation.checkRelevance(request)) {
             return requestMapper.toDto(requestRepository.save(request));
         }
-        requestValidate.validateClosureRequest(updateRequestDto, request);
+        requestValidation.validateClosureRequest(updateRequestDto, request);
 
         request.setInput(updateRequestDto.getInput());
         return requestMapper.toDto(requestRepository.save(request));
@@ -57,7 +57,7 @@ public class RequestService {
     public RequestDto openRequest(OpenRequestDto openRequestDto) {
         Request request = requestRepository.findById(openRequestDto.getRequestId())
                 .orElseThrow(EntityNotFoundException::new);
-        if (requestValidate.validateOpeningRequest(openRequestDto, request)) {
+        if (requestValidation.validateOpeningRequest(openRequestDto, request)) {
             return requestMapper.toDto(request);
         }
 
