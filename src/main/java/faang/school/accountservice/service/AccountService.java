@@ -9,6 +9,7 @@ import faang.school.accountservice.mapper.AccountRequestMapper;
 import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -31,6 +32,15 @@ public class AccountService {
         checkAccountClosedStatus(getAccountById(accountId));
         checkAccountBlockedStatus(getAccountById(accountId));
         Account account = getAccountById(accountId);
+        return accountResponseMapper.accountToResponseDto(account);
+    }
+
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
+    public AccountResponseDto getAccountByNumber(String number) {
+        Account account = accountRepository.findByNumber(number)
+                .orElseThrow(() -> new EntityNotFoundException("Account with this number doesn't exist"));
+        checkAccountClosedStatus(account);
+        checkAccountBlockedStatus(account);
         return accountResponseMapper.accountToResponseDto(account);
     }
 

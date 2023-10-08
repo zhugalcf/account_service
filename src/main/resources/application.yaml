@@ -5,6 +5,12 @@ spring:
     username: user
     password: password
 
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      topic: payment_transaction_DMS
+      client-id: payment_service_DMS
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -37,3 +43,6 @@ user-service:
 project-service:
   host: localhost
   port: 8082
+payment-service:
+  host: localhost
+  port: 9080

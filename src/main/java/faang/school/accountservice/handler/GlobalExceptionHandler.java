@@ -1,5 +1,6 @@
 package faang.school.accountservice.handler;
 
+import faang.school.accountservice.exception.BalanceException;
 import faang.school.accountservice.exception.DataValidationException;
 import faang.school.accountservice.exception.IdempotencyException;
 import faang.school.accountservice.exception.LockedRequestException;
@@ -27,6 +28,14 @@ public class GlobalExceptionHandler {
         log.warn("IdempotencyException", e);
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(BalanceException.class)
+    public ResponseEntity<String> handleBalanceException(BalanceException e) {
+        log.warn("BalanceException", e);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(e.getMessage());
     }
 
