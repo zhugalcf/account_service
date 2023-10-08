@@ -54,6 +54,7 @@ public class RequestService {
     }
 
     @Transactional
+    @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 5), retryFor = PersistenceException.class)
     public RequestDto openRequest(OpenRequestDto openRequestDto) {
         Request request = requestRepository.findById(openRequestDto.getRequestId())
                 .orElseThrow(EntityNotFoundException::new);
