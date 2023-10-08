@@ -5,16 +5,15 @@ import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.BalanceAudit;
-import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -33,7 +32,7 @@ public class BalanceAuditService {
         balanceAudit.setAuthorizationBalance(balance.getAuthorizationBalance());
         balanceAudit.setCurrentBalance(balance.getCurrentBalance());
         balanceAudit.setOperationId(null);
-        balanceAudit.setCreatedAt(ZonedDateTime.now());
+        balanceAudit.setCreatedAt(ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         balanceAudit.setAccount(account);
         balanceAuditRepository.save(balanceAudit);
     }
