@@ -1,4 +1,4 @@
-package faang.school.accountservice.validate;
+package faang.school.accountservice.validation;
 
 import faang.school.accountservice.dto.request.OpenRequestDto;
 import faang.school.accountservice.dto.request.UpdateRequestDto;
