@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class BalanceService {
 
+    private final BalanceAuditService balanceAuditService;
     private final BalanceRepository balanceRepository;
     private final AccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
@@ -50,6 +51,7 @@ public class BalanceService {
                 .build();
 
         Balance savedBalance = balanceRepository.save(balance);
+        balanceAuditService.createBalanceAudit(account);
         log.info("New balance with account number ={} was created successfully", account.getNumber());
         return balanceMapper.toDto(savedBalance);
     }
