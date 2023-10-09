@@ -11,7 +11,7 @@ CREATE TABLE request (
     updated_at timestamptz DEFAULT current_timestamp,
     version bigint not null,
 
-    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT constraint_lock UNIQUE (lock)
 );
 

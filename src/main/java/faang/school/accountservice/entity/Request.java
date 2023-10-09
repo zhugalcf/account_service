@@ -42,7 +42,7 @@ public class Request {
     private Long lock;
 
     @Column(name = "is_open", nullable = false)
-    private boolean isOpen;
+    private boolean open;
 
     @Column(name = "input", nullable = false)
     private String input;

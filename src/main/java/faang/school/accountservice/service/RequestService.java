@@ -72,7 +72,7 @@ public class RequestService {
         }
 
         Request withSameLock = requestRepository
-                .findByUserIdAndLockAndOpenIsTrue(openRequestDto.getLock(), request.getUserId())
+                .findByUserIdAndLockAndOpenIsTrue(request.getUserId(), openRequestDto.getLock())
                 .orElse(null);
         if (withSameLock != null) {
             throw new RequestLockIsOccupiedException(String.format(

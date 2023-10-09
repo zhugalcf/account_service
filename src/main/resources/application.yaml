@@ -27,7 +27,7 @@ spring:
     queue-capacity: 20
 
   scheduling:
-    cron: "0 */10 ? * * *"
+    cron: "0 */10 * * * *"
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
