@@ -10,12 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 @Service
@@ -24,35 +25,46 @@ import java.util.function.Consumer;
 public class FreeAccountNumbersService {
     private final FreeAccountNumberRepository freeAccountNumberRepository;
     private final AccountNumberSequenceRepository accountNumberSequenceRepository;
+    private final ReentrantLock lock = new ReentrantLock();
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 3000))
     public void generateAccountNumber(int amountNum, AccountType accountType) {
-        var sequence = accountNumberSequenceRepository.findByAccountType(accountType).orElseThrow(
-                () -> new NotFoundException("Account type is not found")
-        );
-        Long currentCount = accountNumberSequenceRepository.incrementCurrentCount(sequence.getAccountType().ordinal(), sequence.getCurrentCount())
-                .orElseThrow(
-                        () -> {
-                            String errorMessage = "Failed to increment count for:" + accountType;
-                            log.error(errorMessage);
-                            return new RuntimeException(errorMessage);
-                        }
+        if (lock.tryLock()) {
+            try {
+                var sequence = accountNumberSequenceRepository.findByAccountType(accountType).orElseThrow(
+                        () -> new NotFoundException("Account type is not found")
                 );
-        List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
-        for (int i = 0; i < amountNum; i++) {
-            String accountNumber = String.format("%s%08d", accountType.getIdentityString(), currentCount);
-            FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
-                    .accountType(accountType)
-                    .accountNumber(accountNumber)
-                    .build();
+                Long currentCount = accountNumberSequenceRepository.incrementCurrentCount(sequence.getAccountType().ordinal(), sequence.getCurrentCount())
+                        .orElseThrow(
+                                () -> {
+                                    String errorMessage = "Failed to increment count for:" + accountType;
+                                    log.error(errorMessage);
+                                    return new RuntimeException(errorMessage);
+                                }
+                        );
 
-            freeAccountNumbers.add(freeAccountNumber);
+                List<FreeAccountNumber> freeAccountNumbers = new ArrayList<>();
+                for (int i = 0; i < amountNum; i++) {
+                    String accountNumber = String.format("%s%08d", accountType.getIdentityString(), currentCount);
+                    FreeAccountNumber freeAccountNumber = FreeAccountNumber.builder()
+                            .accountType(accountType)
+                            .accountNumber(accountNumber)
+                            .build();
+
+                    freeAccountNumbers.add(freeAccountNumber);
+                    currentCount++;
+                }
+
+                freeAccountNumberRepository.saveAll(freeAccountNumbers);
+
+                accountNumberSequenceRepository.incrementCurrentCount(sequence.getAccountType().ordinal(), currentCount);
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            log.error("Failed to acquire the lock for generating account numbers.");
         }
-
-        freeAccountNumberRepository.saveAll(freeAccountNumbers);
-
-        accountNumberSequenceRepository.incrementCurrentCount(sequence.getAccountType().ordinal(), currentCount);
     }
 
     @Transactional
