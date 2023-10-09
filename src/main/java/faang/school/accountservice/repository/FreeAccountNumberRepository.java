@@ -26,4 +26,13 @@ public interface FreeAccountNumberRepository extends JpaRepository<FreeAccountNu
         RETURNING account_number
         """)
     Optional<Long> getAccountNumber(int accountType);
+
+    @Query(nativeQuery = true, value = """
+        SELECT COUNT(fan)
+        FROM FreeAccountNumber fan
+        WHERE fan.accountType = :accountType
+        )
+        RETURNING account_number
+        """)
+    Integer getCountForAccountType(int accountType);
 }
