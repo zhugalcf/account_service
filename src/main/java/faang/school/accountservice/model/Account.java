@@ -5,11 +5,14 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.enums.AccountType;
 import faang.school.accountservice.enums.OwnerType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,13 +22,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 @Entity
 @Table(name = "account")
 public class Account {
@@ -76,4 +79,61 @@ public class Account {
     @Version
     @Column(name = "version", nullable = false)
     private int version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Account account = (Account) o;
+
+        if (id != account.id) return false;
+        if (ownerId != account.ownerId) return false;
+        if (version != account.version) return false;
+        if (!Objects.equals(number, account.number)) return false;
+        if (ownerType != account.ownerType) return false;
+        if (accountType != account.accountType) return false;
+        if (!Objects.equals(savingsAccount, account.savingsAccount))
+            return false;
+        if (currency != account.currency) return false;
+        if (status != account.status) return false;
+        if (!Objects.equals(createdAt, account.createdAt)) return false;
+        if (!Objects.equals(updatedAt, account.updatedAt)) return false;
+        return Objects.equals(closedAt, account.closedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (ownerType != null ? ownerType.hashCode() : 0);
+        result = 31 * result + (int) (ownerId ^ (ownerId >>> 32));
+        result = 31 * result + (accountType != null ? accountType.hashCode() : 0);
+        result = 31 * result + (savingsAccount != null ? savingsAccount.hashCode() : 0);
+        result = 31 * result + (currency != null ? currency.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
+        result = 31 * result + (closedAt != null ? closedAt.hashCode() : 0);
+        result = 31 * result + version;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", number='" + number + '\'' +
+                ", ownerType=" + ownerType +
+                ", ownerId=" + ownerId +
+                ", accountType=" + accountType +
+                ", savingsAccount=" + savingsAccount +
+                ", currency=" + currency +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", closedAt=" + closedAt +
+                ", version=" + version +
+                '}';
+    }
 }

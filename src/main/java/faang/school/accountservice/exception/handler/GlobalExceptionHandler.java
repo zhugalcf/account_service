@@ -1,6 +1,8 @@
 package faang.school.accountservice.exception.handler;
 
 import faang.school.accountservice.exception.DataValidationException;
+import faang.school.accountservice.exception.IdempotencyException;
+import faang.school.accountservice.exception.LockedRequestException;
 import faang.school.accountservice.exception.RateAlreadyAssignedException;
 import faang.school.accountservice.exception.TariffAlreadyAssignedException;
 import faang.school.accountservice.exception.TariffNotFoundException;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 
@@ -83,5 +86,29 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .forEach(line -> builder.append(line).append("\n"));
         return builder.toString();
+    }
+
+    @ExceptionHandler(IdempotencyException.class)
+    public ResponseEntity<String> handleIdempotencyException(IdempotencyException e) {
+        log.warn("IdempotencyException", e);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(LockedRequestException.class)
+    public ResponseEntity<String> handleLockedRequestException(LockedRequestException e) {
+        log.warn("LockedRequestException", e);
+        return ResponseEntity
+                .status(HttpStatus.LOCKED)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.error(e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
     }
 }
