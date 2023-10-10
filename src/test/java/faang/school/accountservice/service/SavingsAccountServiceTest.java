@@ -200,7 +200,7 @@ class SavingsAccountServiceTest {
     void getSavingsAccountByTest() {
         when(repository.findById(1L)).thenReturn(Optional.of(savingsAccountWithHistory));
 
-        SavingsAccountResponseDto result = savingsAccountService.getSavingsAccountBy(1);
+        SavingsAccountResponseDto result = savingsAccountService.getSavingsAccountDtoBy(1);
 
         assertEquals(responseDto, result);
 
@@ -211,7 +211,7 @@ class SavingsAccountServiceTest {
     void findSavingsAccountByTest() {
         when(repository.findById(1L)).thenReturn(Optional.of(savingsAccountWithHistory));
 
-        SavingsAccount result = savingsAccountService.findSavingsAccountBy(1);
+        SavingsAccount result = savingsAccountService.getSavingsAccountBy(1);
 
         assertEquals(savingsAccountWithHistory, result);
     }

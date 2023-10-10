@@ -58,7 +58,7 @@ public class TariffService {
         long tariffId = tariffDto.getTariffId();
         float newRatePercent = tariffDto.getRatePercent();
 
-        Tariff tariff = findTariffBy(tariffId);
+        Tariff tariff = getTariffBy(tariffId);
         float currentTariffRate = getTariffCurrentRate(tariff).getPercent();
 
         if (currentTariffRate != newRatePercent) {
@@ -72,11 +72,11 @@ public class TariffService {
         throw new RateAlreadyAssignedException(String.format("Rate: %.3f, already assigned to tariff with ID: %d", newRatePercent, tariffId));
     }
 
-    public TariffDto getTariffBy(long id) {
-        return tariffMapper.toDto(findTariffBy(id));
+    public TariffDto getTariffDtoBy(long id) {
+        return tariffMapper.toDto(getTariffBy(id));
     }
 
-    public Tariff getTariffBy(TariffType tariffType) {
+    public Tariff getTariffDtoBy(TariffType tariffType) {
         log.info("Received request to get an tariff with type = {}", tariffType);
         return tariffRepository.getByType(tariffType)
                 .orElseThrow(() -> new TariffNotFoundException(String.format("Tariff of the specified type: %s does not exist", tariffType)));
@@ -93,7 +93,7 @@ public class TariffService {
 
     @Transactional
     public TariffHistory assignTariffToSavingsAccount(SavingsAccount savingsAccount, TariffType tariffType) {
-        Tariff tariff = getTariffBy(tariffType);
+        Tariff tariff = getTariffDtoBy(tariffType);
         log.info("The request to retrieve a tariff of type: {}} was successful", tariffType);
 
         TariffHistory tariffHistory = TariffHistory.builder()
@@ -103,7 +103,7 @@ public class TariffService {
         return tariffHistoryService.saveTariffHistory(tariffHistory);
     }
 
-    public Tariff findTariffBy(long id) {
+    public Tariff getTariffBy(long id) {
         return tariffRepository.findById(id)
                 .orElseThrow(() -> new TariffNotFoundException(String.format("Tariff of the specified id: %d does not exist", id)));
     }

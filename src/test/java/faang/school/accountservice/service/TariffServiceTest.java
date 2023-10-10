@@ -141,7 +141,7 @@ class TariffServiceTest {
     void getTariffByFirstTest() {
         when(tariffRepository.findById(4L)).thenReturn(Optional.of(tariffWithRate));
 
-        TariffDto result = tariffService.getTariffBy(4);
+        TariffDto result = tariffService.getTariffDtoBy(4);
 
         assertEquals(tariffWithRateDto, result);
 
@@ -152,7 +152,7 @@ class TariffServiceTest {
     void getTariffBySecondTest() {
         when(tariffRepository.getByType(TariffType.BASIC)).thenReturn(Optional.of(tariffWithRate));
 
-        Tariff result = tariffService.getTariffBy(TariffType.BASIC);
+        Tariff result = tariffService.getTariffDtoBy(TariffType.BASIC);
 
         assertEquals(tariffWithRate, result);
 
@@ -201,7 +201,7 @@ class TariffServiceTest {
     void findTariffByTest() {
         when(tariffRepository.findById(1L)).thenReturn(Optional.of(tariffWithRate));
 
-        Tariff result = tariffService.findTariffBy(1);
+        Tariff result = tariffService.getTariffBy(1);
 
         assertEquals(tariffWithRate, result);
         verify(tariffRepository).findById(1L);

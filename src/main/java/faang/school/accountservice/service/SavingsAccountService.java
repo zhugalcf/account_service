@@ -44,7 +44,6 @@ public class SavingsAccountService {
     public SavingsAccountResponseDto openSavingsAccount(SavingsAccountCreateDto savingsAccountCreateDto) {
         long accountId = savingsAccountCreateDto.getAccountId();
         TariffType tariffType = savingsAccountCreateDto.getTariffType();
-
         Account account = accountService.getAccountById(accountId);
 
         checkSavingsAccountAlreadyExist(account);
@@ -71,7 +70,7 @@ public class SavingsAccountService {
         long savingsAccountId = updateDto.getSavingsAccountId();
         TariffType newTariffType = updateDto.getTariffType();
 
-        SavingsAccount savingsAccount = findSavingsAccountBy(savingsAccountId);
+        SavingsAccount savingsAccount = getSavingsAccountBy(savingsAccountId);
         TariffType currentTariffType = getCurrentSavingsAccountTariff(savingsAccount).getType();
 
         if (currentTariffType != newTariffType) {
@@ -87,17 +86,17 @@ public class SavingsAccountService {
         throw new TariffAlreadyAssignedException(String.format("Tariff: %s, already assigned to saving account with id: %d", newTariffType, savingsAccountId));
     }
 
-    public SavingsAccountResponseDto getSavingsAccountBy(long id) {
-        return savingsAccountResponseMapper.toDto(findSavingsAccountBy(id));
+    public SavingsAccountResponseDto getSavingsAccountDtoBy(long id) {
+        return savingsAccountResponseMapper.toDto(getSavingsAccountBy(id));
     }
 
-    public SavingsAccountResponseDto getSavingsAccountByOwnerIdAndOwnerType(long ownerId, OwnerType ownerType) {
+    public SavingsAccountResponseDto getSavingsAccountByOwner(long ownerId, OwnerType ownerType) {
         Account account = accountService.findAccountByOwnerIdAndOwnerType(ownerId, ownerType);
         checkSavingsAccountDoesNotExist(account);
         return savingsAccountResponseMapper.toDto(account.getSavingsAccount());
     }
 
-    public SavingsAccount findSavingsAccountBy(long id) {
+    public SavingsAccount getSavingsAccountBy(long id) {
         return savingsAccountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("There is no savings account with id: %d", id)));
     }

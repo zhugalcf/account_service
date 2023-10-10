@@ -41,7 +41,7 @@ public class SavingsAccountController {
     @GetMapping("/{id}")
     public SavingsAccountResponseDto getSavingsAccountBy(@PathVariable long id) {
         log.info("Received request of getting savings account with id: {}", id);
-        return savingsAccountService.getSavingsAccountBy(id);
+        return savingsAccountService.getSavingsAccountDtoBy(id);
     }
 
     @GetMapping
@@ -49,6 +49,6 @@ public class SavingsAccountController {
             @RequestParam("ownerId") long ownerId,
             @RequestParam("ownerType") OwnerType ownerType) {
         log.info("Received request of getting savings account with owner id: {}, type: {}", ownerId, ownerType);
-        return savingsAccountService.getSavingsAccountByOwnerIdAndOwnerType(ownerId, ownerType);
+        return savingsAccountService.getSavingsAccountByOwner(ownerId, ownerType);
     }
 }
