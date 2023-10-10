@@ -8,4 +8,4 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V005__account-service_balance-index.sql
   - include:
-      file: db/changelog/changeset/V006__account-service_balanceAudit.sql
+      file: db/changelog/changeset/V008__account-service_balanceAudit.sql
