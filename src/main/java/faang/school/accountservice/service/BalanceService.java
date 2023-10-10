@@ -1,7 +1,6 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceDto;
-import faang.school.accountservice.exception.IncorrectAccountBalanceLengthException;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;

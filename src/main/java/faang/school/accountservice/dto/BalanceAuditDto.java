@@ -1,6 +1,5 @@
 package faang.school.accountservice.dto;
 
-import faang.school.accountservice.model.Account;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

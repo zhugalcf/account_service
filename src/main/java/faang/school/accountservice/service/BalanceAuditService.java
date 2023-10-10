@@ -1,5 +1,7 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.BalanceAuditDto;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.BalanceAudit;
@@ -12,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ import java.util.List;
 public class BalanceAuditService {
     private final BalanceAuditRepository balanceAuditRepository;
     private final BalanceRepository balanceRepository;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     @Transactional
     public void createBalanceAudit(Account account) {
@@ -36,8 +38,14 @@ public class BalanceAuditService {
         log.info("Balance audit was created successfully by balance id: {}", balance.getId());
     }
 
-    private List<BalanceAudit> getBalanceAudits(Long balanceId) {
-        List<BalanceAudit> balanceAudits = balanceAuditRepository.findAllByBalanceId(balanceId);
-        return balanceAudits
+    public BalanceAuditDto getBalanceAudits(long balanceId) {
+        BalanceAudit balanceAudit = getBalanceById(balanceId);
+        log.info("Balance audit was taken successfully by balance id: {}", balanceId);
+        return balanceAuditMapper.toBalance(balanceAudit);
+    }
+
+    private BalanceAudit getBalanceById(long balanceId) {
+        return balanceAuditRepository.findById(balanceId)
+                .orElseThrow(() -> new EntityNotFoundException("Not found balance audit"));
     }
 }

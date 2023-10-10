@@ -10,3 +10,5 @@ CREATE TABLE BalanceAudit
 
     CONSTRAINT fk_account_id FOREIGN KEY (balance_id) REFERENCES balance (id)
 );
+
+CREATE INDEX idx_balance_id ON BalanceAudit (balance_id);

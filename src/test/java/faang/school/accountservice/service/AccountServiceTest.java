@@ -1,4 +1,4 @@
-package faang.school.accountservice;
+package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.AccountRequestDto;
 import faang.school.accountservice.dto.AccountResponseDto;
@@ -35,7 +35,8 @@ public class AccountServiceTest {
         accountRepository = Mockito.mock(AccountRepository.class);
         accountRequestMapper = Mockito.mock(AccountRequestMapper.class);
         accountResponseMapper = Mockito.mock(AccountResponseMapper.class);
-        accountService = new AccountService(accountRepository, accountRequestMapper, accountResponseMapper);
+        BalanceService balanceService = Mockito.mock(BalanceService.class);
+        accountService = new AccountService(balanceService, accountRepository, accountRequestMapper, accountResponseMapper);
         accountRequestDto = AccountRequestDto.builder()
                 .ownerType(OwnerType.USER)
                 .accountType(AccountType.CREDIT)

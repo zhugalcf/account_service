@@ -83,7 +83,7 @@ public class AccountService {
         return accountResponseMapper.accountToResponseDto(account);
     }
 
-    private Account getAccountById(long accountId) {
+    public Account getAccountById(long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
     }
