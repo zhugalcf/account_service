@@ -1,4 +1,4 @@
-CREATE TABLE BalanceAudit
+CREATE TABLE balance_audit
 (
     balance_audit_id bigint PRIMARY KEY,
     balance_id bigint NOT NULL,
