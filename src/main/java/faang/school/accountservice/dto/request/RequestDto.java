@@ -1,4 +1,4 @@
-package faang.school.accountservice.dto;
+package faang.school.accountservice.dto.request;
 
 import faang.school.accountservice.enums.OwnerType;
 import faang.school.accountservice.model.request.RequestStatus;
