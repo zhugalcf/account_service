@@ -43,10 +43,10 @@ public class BalanceAuditServiceTest {
         balance.setCurrentAuthorizationBalance(new BigDecimal("100.0"));
         balance.setCurrentActualBalance(new BigDecimal("200.0"));
 
-        when(balanceRepository.findBalanceByAccountId(account.getId())).thenReturn(Optional.of(balance));
+        when(balanceRepository.findById(balance.getId())).thenReturn(Optional.of(balance));
 
         balanceAuditService = new BalanceAuditService(balanceAuditRepository, balanceRepository, balanceAuditMapper);
-        balanceAuditService.createBalanceAudit(account);
+        balanceAuditService.createBalanceAudit(balance.getId());
 
         verify(balanceAuditRepository).save(any(BalanceAudit.class));
     }

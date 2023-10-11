@@ -1,6 +1,6 @@
 CREATE TABLE balance_audit
 (
-    id bigint PRIMARY KEY,
+    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     balance_id bigint NOT NULL,
     balance_audit_version INT NOT NULL,
     authorization_amount NUMERIC(10, 2),

@@ -2,6 +2,7 @@ package faang.school.accountservice;
 
 import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.model.Account;
+import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
@@ -36,14 +37,15 @@ public class BalanceAuditThrowExceptionTest {
 
     @Test
     public void createBalanceAuditThrowExceptionTest() {
+        Balance balance = new Balance();
         Account account = new Account();
         account.setId(1L);
 
-        when(balanceRepository.findBalanceByAccountId(account.getId())).thenReturn(Optional.empty());
+        when(balanceRepository.findById(balance.getId())).thenReturn(Optional.empty());
 
         balanceAuditService = new BalanceAuditService(balanceAuditRepository, balanceRepository, balanceAuditMapper);
 
-        assertThrows(EntityNotFoundException.class, () -> balanceAuditService.createBalanceAudit(account));
+        assertThrows(EntityNotFoundException.class, () -> balanceAuditService.createBalanceAudit(balance.getId()));
 
         verify(balanceAuditRepository, never()).save(Mockito.any(BalanceAudit.class));
     }

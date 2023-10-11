@@ -50,7 +50,7 @@ public class BalanceService {
                 .build();
 
         Balance savedBalance = balanceRepository.save(balance);
-        balanceAuditService.createBalanceAudit(account);
+        balanceAuditService.createBalanceAudit(balance.getId());
         log.info("New balance with account number ={} was created successfully", account.getNumber());
         return balanceMapper.toDto(savedBalance);
     }

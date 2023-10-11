@@ -1,5 +1,6 @@
 package faang.school.accountservice.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,10 +38,8 @@ public class BalanceAudit {
     private long operationId;
 
     @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "audit_timestamp", nullable = false)
     private LocalDateTime auditTimestamp;
-
-    public void setAccount(Account account) {
-    }
 }

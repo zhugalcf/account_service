@@ -2,7 +2,6 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.dto.BalanceAuditDto;
 import faang.school.accountservice.mapper.BalanceAuditMapper;
-import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
 import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.BalanceAuditRepository;
@@ -24,12 +23,12 @@ public class BalanceAuditService {
     private final BalanceAuditMapper balanceAuditMapper;
 
     @Transactional
-    public void createBalanceAudit(Account account) {
-        Balance balance = balanceRepository.findBalanceByAccountId(account.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Not found balance from account id " + account.getId()));
+    public void createBalanceAudit(long balanceId) {
+        Balance balance = balanceRepository.findById(balanceId)
+                .orElseThrow(() -> new EntityNotFoundException("Not found balance from id: {}" + balanceId));
         BalanceAudit balanceAudit = new BalanceAudit();
-        balanceAudit.setAccount(account);
-        balanceAudit.setVersion(0);
+        balanceAudit.setBalance(balance);
+        balanceAudit.setVersion(1);
         balanceAudit.setAuthorizationAmount(balance.getCurrentAuthorizationBalance());
         balanceAudit.setActualAmount(balance.getCurrentActualBalance());
         balanceAudit.setOperationId(1L);
