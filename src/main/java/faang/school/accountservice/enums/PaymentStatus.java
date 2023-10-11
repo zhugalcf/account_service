@@ -1,5 +1,5 @@
 package faang.school.accountservice.enums;
 
 public enum PaymentStatus {
-    CLEAR, REFUND, FAILURE
+    UNPROCESSED, PROCESSING, REFUND, CLEAR, SUCCESS, FAILURE
 }

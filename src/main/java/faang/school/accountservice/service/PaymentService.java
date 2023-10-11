@@ -15,8 +15,12 @@ import faang.school.accountservice.model.request.Request;
 import faang.school.accountservice.model.request.RequestStatus;
 import faang.school.accountservice.model.request.RequestType;
 import faang.school.accountservice.repository.RequestRepository;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,6 +30,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentService {
 
     private final BalanceService balanceService;
@@ -35,6 +40,7 @@ public class PaymentService {
     private final PaymentServiceClient paymentServiceClient;
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void createPayment(PaymentDto paymentDto) {
         AccountResponseDto account = accountService
                 .getAccountByNumber(paymentDto.getOwnerAccountNumber());
@@ -66,7 +72,9 @@ public class PaymentService {
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void clearPayment(UUID idempotencyKey) {
+        log.info("Payment with UUID = {} start clearing", idempotencyKey);
         Request request = requestRepository.findByIdempotencyKey(idempotencyKey)
                 .orElseThrow(() -> new RequestNotFoundException("Request not found"));
         if (request.getRequestStatus() == RequestStatus.IN_PROGRESS) {
@@ -75,18 +83,20 @@ public class PaymentService {
         }
         if (request.getRequestStatus() == RequestStatus.DONE) {
             paymentServiceClient.sendAnswer(PaymentResponseDto.builder()
-                    .paymentStatus(PaymentStatus.CLEAR)
+                    .status(PaymentStatus.SUCCESS)
                     .idempotencyKey(request.getIdempotencyKey())
                     .build());
         }
+        log.info("Payment with UUID = {} was cleared", idempotencyKey);
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void refundPayment(UUID idempotencyKey) {
         Request request = requestRepository.findByIdempotencyKey(idempotencyKey)
                 .orElseThrow(() -> new RequestNotFoundException("Request not found"));
         if (request.getRequestStatus() == RequestStatus.IN_PROGRESS) {
-            BigDecimal amount = (BigDecimal) request.getInputData().get("amount");
+            BigDecimal amount = BigDecimal.valueOf ((Double) request.getInputData().get("amount"));
             BalanceDto ownerBalance = getBalance(request, "ownerAccountNumber");
             BalanceDto receiverBalance = getBalance(request, "receiverAccountNumber");
 
@@ -99,7 +109,7 @@ public class PaymentService {
         }
         if (request.getRequestStatus() == RequestStatus.DONE) {
             paymentServiceClient.sendAnswer(PaymentResponseDto.builder()
-                    .paymentStatus(PaymentStatus.REFUND)
+                    .status(PaymentStatus.REFUND)
                     .idempotencyKey(request.getIdempotencyKey())
                     .build());
         }
@@ -108,7 +118,7 @@ public class PaymentService {
     private void authoriseBalance(BigDecimal amount, Request request) {
         BalanceDto receiverBalance = getBalance(request, "receiverAccountNumber");
         BalanceDto ownerBalance = getBalance(request, "ownerAccountNumber");
-        BigDecimal currentOwnerAuthorizationBalance = receiverBalance.getCurrentAuthorizationBalance();
+        BigDecimal currentOwnerAuthorizationBalance = ownerBalance.getCurrentAuthorizationBalance();
         if (currentOwnerAuthorizationBalance.compareTo(amount) < 0) {
             requestService.updateRequestStatus(request.getId(), RequestStatus.FAILURE, "Not enough money");
                 throw new BalanceException("Not enough money");
@@ -120,7 +130,7 @@ public class PaymentService {
     }
 
     private void updateActualBalance(Request request) {
-        BigDecimal amount = (BigDecimal) request.getInputData().get("amount");
+        BigDecimal amount = BigDecimal.valueOf ((Double) request.getInputData().get("amount"));
 
         BalanceDto receiverBalance = getBalance(request, "receiverAccountNumber");
         BalanceDto ownerBalance = getBalance(request, "ownerAccountNumber");
@@ -134,7 +144,7 @@ public class PaymentService {
 
     private BalanceDto getBalance(Request request, String accountNumberName) {
         String accountNumber = String.valueOf(request.getInputData().get(accountNumberName));
-        AccountResponseDto account = accountService.getAccount(Long.parseLong(accountNumber));
+        AccountResponseDto account = accountService.getAccountByNumber(accountNumber);
         return balanceService.getBalance(account.getId());
     }
 }

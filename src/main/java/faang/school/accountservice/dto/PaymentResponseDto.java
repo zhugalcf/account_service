@@ -1,7 +1,6 @@
 package faang.school.accountservice.dto;
 
 import faang.school.accountservice.enums.PaymentStatus;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentResponseDto {
 
-    @NotEmpty
+    @NotNull(message = "UUID can't be empty")
     private UUID idempotencyKey;
-    @NotNull
-    private PaymentStatus paymentStatus;
+    @NotNull(message = "Status in response of payment can't be null")
+    private PaymentStatus status;
 }
