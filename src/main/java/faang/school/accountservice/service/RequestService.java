@@ -37,9 +37,10 @@ public class RequestService {
     @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 10), retryFor = PersistenceException.class)
     public RequestDto updateRequest(UpdateRequestDto updateRequestDto) {
         Request request = requestRepository.findById(updateRequestDto.getRequestId())
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Request by id: %s does not exist", updateRequestDto.getRequestId())));
         request.setAdditionally(updateRequestDto.getAdditionally());
-        
+
         if (checkRelevance(request)) {
             return requestMapper.toDto(requestRepository.save(request));
         }

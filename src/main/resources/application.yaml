@@ -21,7 +21,6 @@ spring:
       channel:
         request: request_channel
 
-
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
