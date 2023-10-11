@@ -2,7 +2,9 @@ package faang.school.accountservice.entity;
 
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
+import faang.school.accountservice.model.RequestTask;
 import faang.school.accountservice.util.MapToJsonConverter;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -10,6 +12,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -21,8 +24,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,7 +74,17 @@ public class Request {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
+
     @Version
     @Column(name = "opt_lock")
     private int version;
+
+    @Column(name = "context", nullable = true, length = 100)
+    private String context;
+
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RequestTask> requestTasks;
 }
