@@ -11,7 +11,8 @@ import java.util.UUID;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, UUID> {
     @Query(nativeQuery = true, value = """
-        SELECT * FROM request WHERE lock IS NOT NULL AND is_open IS TRUE LIMIT 10
+        SELECT * FROM request WHERE lock IS NOT NULL AND is_open IS TRUE
+         AND status = 1 LIMIT 10
     """)
     List<Request> findAllWithLimit();
 }

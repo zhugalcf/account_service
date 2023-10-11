@@ -21,10 +21,9 @@ spring:
       channel:
         request: request_channel
 
-  async:
-    min-pool-size: 5
-    max-pool-size: 20
-    queue-capacity: 20
+  task:
+    scheduling:
+      max-pool-size: 20
 
   scheduling:
     cron: "0 */10 * * * *"

@@ -84,10 +84,10 @@ public class RequestService {
         List<Request> requests = requestRepository.findAllWithLimit();
         log.info("Thread: {} has started executing a request packet", Thread.currentThread().getName());
         requests.forEach(request -> {
-            requestEventPublisher.publish(request);
             request.setStatus(RequestStatus.IN_EXECUTION);
+            requestRepository.save(request);
+            requestEventPublisher.publish(request);
         });
         log.info("Thread: {} has completed the request packets", Thread.currentThread().getName());
-        requestRepository.saveAll(requests);
     }
 }
