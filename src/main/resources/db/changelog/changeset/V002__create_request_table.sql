@@ -17,5 +17,5 @@ CREATE TABLE request (
 
 CREATE INDEX index_user ON request(user_id);
 
-CREATE INDEX index_lock ON request(lock)
+CREATE UNIQUE INDEX index_lock ON request(lock)
     WHERE lock IS NOT NULL;
