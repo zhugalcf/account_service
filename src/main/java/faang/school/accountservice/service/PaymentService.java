@@ -45,6 +45,7 @@ public class PaymentService {
         AccountResponseDto account = accountService
                 .getAccountByNumber(paymentDto.getOwnerAccountNumber());
         if (account.getCurrency() != paymentDto.getCurrency()) {
+            log.error("Payment with idempotency key {} has wrong currency", paymentDto.getIdempotencyKey());
             throw new CurrencyException("Wrong currency");
         }
 
@@ -63,18 +64,17 @@ public class PaymentService {
                 .build();
 
         RequestDto requestDto = requestService.getOrSave(createRequestDto);
-        Request request = requestRepository.findById(requestDto.getId())
-                .orElseThrow(() -> new RequestNotFoundException("Request not found"));
-        if (request.getRequestStatus() == RequestStatus.TO_DO) {
-            authoriseBalance(paymentDto.getAmount(), request);
-            requestService.updateRequestStatus(request.getId(), RequestStatus.IN_PROGRESS, null);
+        if (requestDto.getRequestStatus() == RequestStatus.TO_DO) {
+            authoriseBalance(paymentDto.getAmount(), requestDto);
+            requestService.updateRequestStatus(requestDto.getId(), RequestStatus.IN_PROGRESS, null);
+            log.info("Payment with idempotency key {} was authorised", paymentDto.getIdempotencyKey());
         }
     }
 
     @Transactional
     @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void clearPayment(UUID idempotencyKey) {
-        log.info("Payment with UUID = {} start clearing", idempotencyKey);
+        log.info("Payment with idempotencyKey = {} start clearing", idempotencyKey);
         Request request = requestRepository.findByIdempotencyKey(idempotencyKey)
                 .orElseThrow(() -> new RequestNotFoundException("Request not found"));
         if (request.getRequestStatus() == RequestStatus.IN_PROGRESS) {
@@ -87,18 +87,19 @@ public class PaymentService {
                     .idempotencyKey(request.getIdempotencyKey())
                     .build());
         }
-        log.info("Payment with UUID = {} was cleared", idempotencyKey);
+        log.info("Payment with idempotencyKey = {} was cleared", idempotencyKey);
     }
 
     @Transactional
     @Retryable(retryFor = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void refundPayment(UUID idempotencyKey) {
+        log.info("Payment with idempotencyKey = {} start refunding", idempotencyKey);
         Request request = requestRepository.findByIdempotencyKey(idempotencyKey)
                 .orElseThrow(() -> new RequestNotFoundException("Request not found"));
         if (request.getRequestStatus() == RequestStatus.IN_PROGRESS) {
-            BigDecimal amount = BigDecimal.valueOf ((Double) request.getInputData().get("amount"));
-            BalanceDto ownerBalance = getBalance(request, "ownerAccountNumber");
-            BalanceDto receiverBalance = getBalance(request, "receiverAccountNumber");
+            BigDecimal amount = new BigDecimal ((String) request.getInputData().get("amount"));
+            BalanceDto ownerBalance = getBalance(request.getInputData(), "ownerAccountNumber");
+            BalanceDto receiverBalance = getBalance(request.getInputData(), "receiverAccountNumber");
 
             ownerBalance.setCurrentAuthorizationBalance(ownerBalance.getCurrentAuthorizationBalance().add(amount));
             receiverBalance.setCurrentAuthorizationBalance(receiverBalance.getCurrentAuthorizationBalance().subtract(amount));
@@ -113,14 +114,17 @@ public class PaymentService {
                     .idempotencyKey(request.getIdempotencyKey())
                     .build());
         }
+        log.info("Payment with idempotencyKey = {} was refunded", idempotencyKey);
     }
 
-    private void authoriseBalance(BigDecimal amount, Request request) {
-        BalanceDto receiverBalance = getBalance(request, "receiverAccountNumber");
-        BalanceDto ownerBalance = getBalance(request, "ownerAccountNumber");
+    private void authoriseBalance(BigDecimal amount, RequestDto request) {
+        Map<String, Object> inputData = request.getInputData();
+        BalanceDto receiverBalance = getBalance(inputData, "receiverAccountNumber");
+        BalanceDto ownerBalance = getBalance(inputData, "ownerAccountNumber");
         BigDecimal currentOwnerAuthorizationBalance = ownerBalance.getCurrentAuthorizationBalance();
         if (currentOwnerAuthorizationBalance.compareTo(amount) < 0) {
             requestService.updateRequestStatus(request.getId(), RequestStatus.FAILURE, "Not enough money");
+            log.error("Not enough money on balance for payment with idempotency key {}", request.getIdempotencyKey());
                 throw new BalanceException("Not enough money");
         }
         ownerBalance.setCurrentAuthorizationBalance(currentOwnerAuthorizationBalance.subtract(amount));
@@ -130,10 +134,10 @@ public class PaymentService {
     }
 
     private void updateActualBalance(Request request) {
-        BigDecimal amount = BigDecimal.valueOf ((Double) request.getInputData().get("amount"));
+        BigDecimal amount = new BigDecimal ((String) request.getInputData().get("amount"));
 
-        BalanceDto receiverBalance = getBalance(request, "receiverAccountNumber");
-        BalanceDto ownerBalance = getBalance(request, "ownerAccountNumber");
+        BalanceDto receiverBalance = getBalance(request.getInputData(), "receiverAccountNumber");
+        BalanceDto ownerBalance = getBalance(request.getInputData(), "ownerAccountNumber");
 
         ownerBalance.setCurrentActualBalance(ownerBalance.getCurrentActualBalance().subtract(amount));
         receiverBalance.setCurrentActualBalance(receiverBalance.getCurrentActualBalance().add(amount));
@@ -142,8 +146,8 @@ public class PaymentService {
         balanceService.update(ownerBalance);
     }
 
-    private BalanceDto getBalance(Request request, String accountNumberName) {
-        String accountNumber = String.valueOf(request.getInputData().get(accountNumberName));
+    private BalanceDto getBalance(Map<String, Object> inputData, String accountNumberName) {
+        String accountNumber = String.valueOf(inputData.get(accountNumberName));
         AccountResponseDto account = accountService.getAccountByNumber(accountNumber);
         return balanceService.getBalance(account.getId());
     }

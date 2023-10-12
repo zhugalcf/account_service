@@ -116,7 +116,6 @@ class PaymentServiceTest {
     void testBalanceIsAuthorised() {
         when(accountService.getAccountByNumber(any())).thenReturn(accountResponseDto);
         when(requestService.getOrSave(createRequestDto)).thenReturn(requestDto);
-        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
         when(balanceService.getBalance(1L)).thenReturn(balanceDto);
 
         paymentService.createPayment(paymentDto);
@@ -136,8 +135,7 @@ class PaymentServiceTest {
     void testPaymentWithAnotherRequestStatusNotAuthoriseBalanceTwice() {
         when(accountService.getAccountByNumber(any())).thenReturn(accountResponseDto);
         when(requestService.getOrSave(createRequestDto)).thenReturn(requestDto);
-        request.setRequestStatus(RequestStatus.IN_PROGRESS);
-        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
+        requestDto.setRequestStatus(RequestStatus.IN_PROGRESS);
 
         paymentService.createPayment(paymentDto);
 
@@ -147,7 +145,7 @@ class PaymentServiceTest {
 
     @Test
     void testPaymentIsCleared() {
-        Double amount = 1000.0;
+        String amount = "1000.53";
         Map<String, Object> inputData = new HashMap<>();
         inputData.put("receiverAccountNumber", paymentDto.getReceiverAccountNumber());
         inputData.put("ownerAccountNumber", paymentDto.getOwnerAccountNumber());
@@ -167,7 +165,7 @@ class PaymentServiceTest {
 
     @Test
     void testPaymentIsRefund() {
-        Double amount = 1000.0;
+        String amount = "1000.53";
         Map<String, Object> inputData = new HashMap<>();
         inputData.put("receiverAccountNumber", paymentDto.getReceiverAccountNumber());
         inputData.put("ownerAccountNumber", paymentDto.getOwnerAccountNumber());

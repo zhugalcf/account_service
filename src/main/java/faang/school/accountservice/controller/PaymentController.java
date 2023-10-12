@@ -20,6 +20,7 @@ public class PaymentController {
     @PostMapping("/create")
     public void createPayment(@RequestBody PaymentDto paymentDto) {
         paymentService.createPayment(paymentDto);
+        log.info("Payment creation with idempotency key {} was initialized", paymentDto.getIdempotencyKey());
     }
 }
 
