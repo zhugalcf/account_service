@@ -1,10 +1,14 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.BalanceAuditDto;
 import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.mapper.BalanceAuditMapperImpl;
 import faang.school.accountservice.mapper.BalanceMapperImpl;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,9 +36,13 @@ public class BalanceServiceTest {
     @Mock
     private BalanceRepository balanceRepository;
     @Mock
+    private BalanceAuditRepository balanceAuditRepository;
+    @Mock
     private AccountRepository accountRepository;
     @Spy
     private BalanceMapperImpl balanceMapper;
+    @Spy
+    private BalanceAuditMapperImpl balanceAuditMapper;
     @InjectMocks
     private BalanceService balanceService;
 
@@ -121,5 +131,45 @@ public class BalanceServiceTest {
         assertEquals(new BigDecimal(200.0), actualAuthorizationBalance);
         assertEquals(new BigDecimal(250.0), actualBalance);
         assertEquals(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), actualUpdatedAt);
+    }
+
+    @Test
+    public void createBalanceAuditTest() {
+        Account account = new Account();
+        account.setId(1L);
+        Balance balance = new Balance();
+        balance.setAccount(account);
+        balance.setCurrentAuthorizationBalance(new BigDecimal("100.0"));
+        balance.setCurrentActualBalance(new BigDecimal("200.0"));
+
+        balanceService = new BalanceService(balanceRepository, balanceAuditRepository, accountRepository, balanceMapper, balanceAuditMapper);
+        balanceService.createBalanceAudit(balance);
+
+        verify(balanceAuditRepository).save(any(BalanceAudit.class));
+    }
+
+    @Test
+    public void getBalanceAuditsTest() {
+        BalanceAudit balanceAudit = new BalanceAudit();
+        balanceAudit.setId(1L);
+
+        when(balanceAuditRepository.findAllByBalanceId(1L)).thenReturn(List.of(balanceAudit));
+        when(balanceAuditMapper.toAuditDto(balanceAudit)).thenReturn(new BalanceAuditDto());
+
+        balanceService = new BalanceService(balanceRepository, balanceAuditRepository, accountRepository, balanceMapper, balanceAuditMapper);
+        List<BalanceAuditDto> result = balanceService.getBalanceAudits(1L);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getBalanceAuditsThrowExceptionTest() {
+
+        when(balanceAuditRepository.findAllByBalanceId(1L)).thenReturn(Collections.emptyList());
+
+        balanceService = new BalanceService(balanceRepository, balanceAuditRepository, accountRepository, balanceMapper, balanceAuditMapper);
+        List<BalanceAuditDto> result = balanceService.getBalanceAudits(1L);
+
+        assertTrue(result.isEmpty());
     }
 }

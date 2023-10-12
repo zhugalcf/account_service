@@ -1,10 +1,14 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.dto.BalanceAuditDto;
 import faang.school.accountservice.dto.BalanceDto;
+import faang.school.accountservice.mapper.BalanceAuditMapper;
 import faang.school.accountservice.mapper.BalanceMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.model.BalanceAudit;
 import faang.school.accountservice.repository.AccountRepository;
+import faang.school.accountservice.repository.BalanceAuditRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -17,16 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BalanceService {
 
-    private final BalanceAuditService balanceAuditService;
     private final BalanceRepository balanceRepository;
+    private final BalanceAuditRepository balanceAuditRepository;
     private final AccountRepository accountRepository;
     private final BalanceMapper balanceMapper;
+    private final BalanceAuditMapper balanceAuditMapper;
 
     @Transactional(readOnly = true)
     public BalanceDto getBalance(long accountId) {
@@ -50,7 +57,7 @@ public class BalanceService {
                 .build();
 
         Balance savedBalance = balanceRepository.save(balance);
-        balanceAuditService.createBalanceAudit(balance.getId());
+        createBalanceAudit(balance);
         log.info("New balance with account number ={} was created successfully", account.getNumber());
         return balanceMapper.toDto(savedBalance);
     }
@@ -68,8 +75,34 @@ public class BalanceService {
         return balanceMapper.toDto(balance);
     }
 
+    public void createBalanceAudit(Balance balance) {
+        BalanceAudit balanceAudit = new BalanceAudit();
+        balanceAudit.setBalance(balance);
+        balanceAudit.setVersion(1);
+        balanceAudit.setAuthorizationAmount(balance.getCurrentAuthorizationBalance());
+        balanceAudit.setActualAmount(balance.getCurrentActualBalance());
+        balanceAudit.setOperationId(1L);
+        balanceAudit.setAuditTimestamp(LocalDateTime.now());
+        balanceAuditRepository.save(balanceAudit);
+        log.info("Balance audit was created successfully by balance id: {} ", balance.getId());
+    }
+
+    public List<BalanceAuditDto> getBalanceAudits(long balanceId) {
+        List<BalanceAudit> balanceAudits = getBalanceAuditsById(balanceId);
+        log.info("Balance audit was taken successfully by balance id: {} ", balanceId);
+        return balanceAuditMapper.toListAuditDto(balanceAudits);
+    }
+
     private Account getAccount(long accountId) {
         return accountRepository.findById(accountId).orElseThrow(
                 () -> new EntityNotFoundException("Entity account not found"));
+    }
+
+    private List<BalanceAudit> getBalanceAuditsById(long balanceId) {
+        List<BalanceAudit> audits = balanceAuditRepository.findAllByBalanceId(balanceId);
+        if (audits.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return audits;
     }
 }
