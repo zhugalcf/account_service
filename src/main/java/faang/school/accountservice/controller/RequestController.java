@@ -34,7 +34,7 @@ public class RequestController {
         return requestService.openRequest(openRequestDto);
     }
 
-    @PutMapping("close")
+    @PutMapping("/close")
     public RequestDto closeRequest(@RequestBody @Valid CloseRequestDto closeRequestDto) {
         return requestService.closeRequest(closeRequestDto);
     }
