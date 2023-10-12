@@ -5,6 +5,7 @@ import faang.school.accountservice.dto.tariff.TariffCreateDto;
 import faang.school.accountservice.dto.tariff.TariffDto;
 import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.repository.TariffRepository;
+import faang.school.accountservice.service.savings.TariffService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

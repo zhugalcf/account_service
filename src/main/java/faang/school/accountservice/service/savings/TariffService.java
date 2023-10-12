@@ -1,4 +1,4 @@
-package faang.school.accountservice.service;
+package faang.school.accountservice.service.savings;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

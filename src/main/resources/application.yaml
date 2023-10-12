@@ -25,9 +25,9 @@ logging:
     root: info
 
 accrual :
-  executors-pool: 10
+  executors-pool: 20
   size-select-db: 50000
-  accrual-run-size: 50000
+  accrual-run-size: 1000
 
 project-service:
   host: localhost

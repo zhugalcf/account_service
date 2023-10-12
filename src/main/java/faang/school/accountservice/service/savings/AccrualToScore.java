@@ -10,59 +10,51 @@ import faang.school.accountservice.repository.TariffRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class AccrualToScore {
+    private final JdbcTemplate template;
     private final ObjectMapper objectMapper;
     private final ExecutorService requestPool;
     private final ExecutorService accrualExecutor;
     private final SavingsAccountRepository savingsAccountRepository;
     private final TariffRepository tariffRepository;
-    private final AtomicInteger counter = new AtomicInteger(0);
     private final String UPDATE_ACCOUNTS_SQL = """
             update savings_account set amount = ?, time_accrual = ? where id = ?;
             """;
-    @Value("${spring.datasource.url}")
-    private String URL;
-    @Value("${spring.datasource.username}")
-    private String USER;
-    @Value("${spring.datasource.password}")
-    private String PASSWORD;
     @Value("${accrual.size-select-db}")
     private int requestSize;
     @Value("${accrual.accrual-run-size}")
     private int packetSizeForStream;
+    private LocalDateTime checkTime;
+    private Map<Integer, Integer> mapThread;
+    AtomicInteger repeatCheck;
 
     @Scheduled(cron = "0 0 6 * * *")
     public void accrualPercent() {
-        counter.set(0);
+        mapThread = new ConcurrentHashMap<>();
+        repeatCheck = new AtomicInteger(0);
+        checkTime = LocalDateTime.now().minus(24, TimeUnit.HOURS.toChronoUnit());
         LocalDateTime newDateTime = LocalDateTime.now();
-        LocalDateTime checkDateTime = LocalDateTime.now().minus(24, TimeUnit.HOURS.toChronoUnit());
         List<Long> ids = savingsAccountRepository.activeAccountsId();
-
-        Function<List<SavingsAccount>, List<SavingsAccount>> checkTime = (lists) -> lists.stream()
-                .filter(time -> time.getLastTimeOfAccrual().isBefore(checkDateTime)).toList();
-
         List<Tariff> tariffs = tariffRepository.findAll();
         Map<Long, Float> map = new HashMap<>(tariffs.size());
         for (Tariff tariff : tariffs) {
@@ -70,12 +62,12 @@ public class AccrualToScore {
         }
 
         if (ids.size() <= requestSize) {
-            accrual(getAccount(ids), map, checkTime, newDateTime, ids);
+            accrual(getAccount(ids), map, newDateTime);
             return;
         }
 
         for (List<Long> list : subList(ids, requestSize)) {
-            requestPool.submit(() -> accrual(getAccount(list), map, checkTime, newDateTime, list));
+            requestPool.submit(() -> accrual(getAccount(list), map, newDateTime));
         }
     }
 
@@ -83,68 +75,78 @@ public class AccrualToScore {
         return savingsAccountRepository.findAllById(listId);
     }
 
-    public void run(List<SavingsAccount> accounts, Map<Long, Float> map, LocalDateTime newTime) {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement statement = conn.prepareStatement(UPDATE_ACCOUNTS_SQL)) {
-            int count = 0;
-            for (SavingsAccount account : accounts) {
-                List<Long> tariffs;
-                try {
-                    tariffs = objectMapper.readValue(account.getTariffHistory(), new TypeReference<>() {
-                    });
-                } catch (JsonProcessingException e) {
-                    log.info(e.toString());
-                    return;
-                }
-                BigDecimal amount = account.getAmount();
-                BigDecimal percent;
-                float bet = map.get(tariffs.get(tariffs.size() - 1));
-                percent = amount.multiply(BigDecimal.valueOf(bet));
-                percent = percent.divide(BigDecimal.valueOf(100), 5, RoundingMode.DOWN);
-                percent = percent.divide(BigDecimal.valueOf(365), 5, RoundingMode.DOWN);
-                amount = amount.add(percent);
-
-                statement.setBigDecimal(1, amount.setScale(5, RoundingMode.DOWN));
-                statement.setObject(2, newTime);
-                statement.setLong(3, account.getId());
-                statement.addBatch();
-                count++;
-                if (count % 1000 == 0 || count == accounts.size()) {
-                    statement.executeBatch();
-                }
+    public Boolean run(List<SavingsAccount> accounts, Map<Long, Float> map, LocalDateTime newTime, int check) {
+        List<SavingsAccount> checkAccounts = null;
+        if (mapThread.containsKey(check)) {
+            mapThread.put(check, mapThread.get(check) + 1);
+        } else {
+            mapThread.put(check, 0);
+            checkAccounts = accounts.stream().filter(time -> time.getLastTimeOfAccrual().isBefore(checkTime)).toList();
+            if (checkAccounts.isEmpty()) {
+                mapThread.remove(check);
+                return true;
             }
-        } catch (SQLException e) {
-            log.info(e.toString());
         }
+        try {
+            template.batchUpdate(UPDATE_ACCOUNTS_SQL, checkAccounts, accounts.size(),
+                    (PreparedStatement ps, SavingsAccount account) -> {
+                        List<Long> tariffs;
+                        try {
+                            tariffs = objectMapper.readValue(account.getTariffHistory(), new TypeReference<>() {
+                            });
+                        } catch (JsonProcessingException e) {
+                            log.error(e.toString());
+                            return;
+                        }
+
+                        ps.setBigDecimal(1, calculatePercentages(account, map, tariffs).setScale(5, RoundingMode.DOWN));
+                        ps.setObject(2, newTime);
+                        ps.setLong(3, account.getId());
+                    });
+
+        } catch (DataAccessException dae) {
+            if (dae.getCause() instanceof BatchUpdateException bue) {
+                int[] updateCounts = bue.getUpdateCounts();
+                List<SavingsAccount> repeat = accounts.subList(updateCounts.length, accounts.size());
+                if (mapThread.get(check) >= 3) {
+                    mapThread.remove(check);
+                    log.error(repeat.toString());
+                    return true;
+                }
+                run(repeat, map, newTime, check);
+            }
+        }
+        mapThread.remove(check);
+        return true;
     }
 
-    private void accrual(List<SavingsAccount> list, Map<Long, Float> map, Function<List<SavingsAccount>
-            , List<SavingsAccount>> checkTime, LocalDateTime newTime, List<Long> listId) {
-        counter.incrementAndGet();
+    private BigDecimal calculatePercentages(SavingsAccount account, Map<Long, Float> map, List<Long> tariffs) {
+        BigDecimal amount = account.getAmount();
+        BigDecimal percent;
+        float bet = map.get(tariffs.get(tariffs.size() - 1));
+        percent = amount.multiply(BigDecimal.valueOf(bet));
+        percent = percent.divide(BigDecimal.valueOf(100), 5, RoundingMode.DOWN);
+        percent = percent.divide(BigDecimal.valueOf(365), 5, RoundingMode.DOWN);
+        amount = amount.add(percent);
+        return amount;
+    }
 
-        if (checkTime.apply(list).isEmpty()) {
-            return;
-        }
-
-        run(list, map, newTime);
-
+    private Boolean accrual(List<SavingsAccount> list, Map<Long, Float> map, LocalDateTime newTime) {
         if (list.size() <= packetSizeForStream) {
-            run(list, map, newTime);
+            run(list, map, newTime, repeatCheck.incrementAndGet());
         } else {
+            List<Future<Boolean>> futures = new ArrayList<>();
             for (List<SavingsAccount> subs : subList(list, packetSizeForStream)) {
-                accrualExecutor.submit(() -> run(subs, map, newTime));
+                futures.add(accrualExecutor.submit(() -> run(subs, map, newTime, repeatCheck.incrementAndGet())));
+            }
+            for (Future<Boolean> future : futures) {
+                try {
+                    future.get();
+                } catch (ExecutionException | InterruptedException ignored) {
+                }
             }
         }
-
-        list = savingsAccountRepository.findAllById(listId);
-        List<SavingsAccount> repeat = checkTime.apply(list);
-        if (repeat.isEmpty()) {
-            return;
-        }
-        if (counter.get() >= 5) {
-            return;
-        }
-        accrual(repeat, map, checkTime, newTime, repeat.stream().map(SavingsAccount::getId).toList());
+        return true;
     }
 
     private <T> List<List<T>> subList(List<T> list, int range) {
