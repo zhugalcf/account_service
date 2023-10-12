@@ -1,5 +1,6 @@
 package faang.school.accountservice.controller;
 
+import faang.school.accountservice.dto.request.CloseRequestDto;
 import faang.school.accountservice.dto.request.OpenRequestDto;
 import faang.school.accountservice.dto.request.RequestDto;
 import faang.school.accountservice.dto.request.UpdateRequestDto;
@@ -31,5 +32,10 @@ public class RequestController {
     @PutMapping("/open")
     public RequestDto openRequest(@RequestBody @Valid OpenRequestDto openRequestDto) {
         return requestService.openRequest(openRequestDto);
+    }
+
+    @PutMapping("close")
+    public RequestDto closeRequest(@RequestBody @Valid CloseRequestDto closeRequestDto) {
+        return requestService.closeRequest(closeRequestDto);
     }
 }
