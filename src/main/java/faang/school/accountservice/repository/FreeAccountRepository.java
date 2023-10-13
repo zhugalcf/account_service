@@ -11,15 +11,15 @@ import org.springframework.stereotype.Repository;
 public interface FreeAccountRepository extends JpaRepository<FreeAccountNumber, FreeAccountId> {
 
     @Query(nativeQuery = true, value = """
-            DELETE FROM free_account_numbers fan
-            WHERE fan.type = :type AND fan.account_number = (
-                SELECT account_number
-                FROM free_account_numbers
-                WHERE type = :type
-                LIMIT 1
-            )
-            RETURNING fan.account_number, fan.type;
-    """)
+                    DELETE FROM free_account_numbers fan
+                    WHERE fan.type = :type AND fan.account_number = (
+                        SELECT account_number
+                        FROM free_account_numbers
+                        WHERE type = :type
+                        LIMIT 1
+                    )
+                    RETURNING fan.account_number, fan.type;
+            """)
     @Modifying
     FreeAccountNumber retrieveFirst(String type);
 }
