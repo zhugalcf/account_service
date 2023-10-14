@@ -80,14 +80,6 @@ public class GlobalExceptionHandler {
                 .body(e.getMessage());
     }
 
-    private String constructMethodArgumentNotValidMessage(MethodArgumentNotValidException exception) {
-        StringBuilder builder = new StringBuilder();
-        exception.getBindingResult().getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .forEach(line -> builder.append(line).append("\n"));
-        return builder.toString();
-    }
-
     @ExceptionHandler(IdempotencyException.class)
     public ResponseEntity<String> handleIdempotencyException(IdempotencyException e) {
         log.warn("IdempotencyException", e);
@@ -110,5 +102,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
+    }
+
+    private String constructMethodArgumentNotValidMessage(MethodArgumentNotValidException exception) {
+        StringBuilder builder = new StringBuilder();
+        exception.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .forEach(line -> builder.append(line).append("\n"));
+        return builder.toString();
     }
 }
