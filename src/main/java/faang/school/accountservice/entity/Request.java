@@ -38,6 +38,9 @@ public class Request {
     @Column(name = "type", nullable = false)
     private RequestType requestType;
 
+    @Column(name = "lock")
+    private Long lock;
+
     @Column(name = "is_open", nullable = false)
     private boolean isOpen;
 

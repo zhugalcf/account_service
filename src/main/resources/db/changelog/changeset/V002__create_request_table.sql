@@ -12,8 +12,10 @@ CREATE TABLE request (
     version bigint not null,
 
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT constraint_lock UNIQUE (lock)
 );
 
 CREATE INDEX index_user ON request(user_id);
 
-CREATE INDEX index_lock ON request(lock);
+CREATE UNIQUE INDEX index_lock ON request(lock)
+    WHERE lock IS NOT NULL;
