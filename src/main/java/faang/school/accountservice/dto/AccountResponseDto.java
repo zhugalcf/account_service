@@ -1,5 +1,7 @@
 package faang.school.accountservice.dto;
 
+import faang.school.accountservice.enums.Currency;
+import faang.school.accountservice.enums.OwnerType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +18,7 @@ public class AccountResponseDto {
     private String accountNumber;
     private long ownerId;
     private long version;
+    private OwnerType ownerType;
+    private Currency currency;
     private LocalDateTime createdAt;
 }
