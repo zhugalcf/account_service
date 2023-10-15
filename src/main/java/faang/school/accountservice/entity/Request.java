@@ -4,6 +4,8 @@ import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.enums.RequestType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,12 +44,13 @@ public class Request {
     private Long lock;
 
     @Column(name = "is_open", nullable = false)
-    private boolean isOpen;
+    private boolean open;
 
     @Column(name = "input", nullable = false)
     private String input;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
     private RequestStatus status;
 
     @Column(name = "additionally")
