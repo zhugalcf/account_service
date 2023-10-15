@@ -1,12 +1,14 @@
 package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.context.UserContext;
+import faang.school.accountservice.dto.request.OpenRequestDto;
 import faang.school.accountservice.dto.request.RequestDto;
 import faang.school.accountservice.dto.request.UpdateRequestDto;
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.mapper.RequestMapper;
 import faang.school.accountservice.repository.RequestRepository;
+import faang.school.accountservice.validate.RequestValidation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class RequestService {
     private final RequestRepository requestRepository;
+    private final RequestValidation requestValidation;
     private final RequestMapper requestMapper;
     private final UserContext userContext;
 
@@ -40,26 +43,29 @@ public class RequestService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format("Request by id: %s does not exist", updateRequestDto.getRequestId())));
         request.setAdditionally(updateRequestDto.getAdditionally());
-
-        if (checkRelevance(request)) {
+        
+        if (requestValidation.checkRelevance(request)) {
             return requestMapper.toDto(requestRepository.save(request));
         }
-        validateClosureRequest(updateRequestDto, request);
+        requestValidation.validateClosureRequest(updateRequestDto, request);
 
         request.setInput(updateRequestDto.getInput());
         return requestMapper.toDto(requestRepository.save(request));
     }
 
-    private static void validateClosureRequest(UpdateRequestDto checkDto, Request doUpdate) {
-        if (checkDto.isClose()) {
-            doUpdate.setStatus(RequestStatus.CANCELLED);
-            doUpdate.setOpen(false);
-            doUpdate.setLock(null);
-        }
-    }
+    @Transactional
+    @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 5), retryFor = PersistenceException.class)
+    public RequestDto openRequest(OpenRequestDto openRequestDto) {
+        Request request = requestRepository.findById(openRequestDto.getRequestId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Request by id: %s does not exist", openRequestDto.getRequestId())));
 
-    private boolean checkRelevance(Request request) {
-        return request.getStatus() == RequestStatus.CANCELLED
-                || request.getStatus() == RequestStatus.EXECUTED;
+        if (requestValidation.validateOpeningRequest(openRequestDto, request)) {
+            return requestMapper.toDto(request);
+        }
+        request.setOpen(true);
+        request.setStatus(RequestStatus.TO_EXECUTE);
+        request.setLock(openRequestDto.getLock());
+        return requestMapper.toDto(requestRepository.save(request));
     }
 }
