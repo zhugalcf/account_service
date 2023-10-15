@@ -7,9 +7,7 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class UpdateRequestDto {
+public class CloseRequestDto {
     private UUID requestId;
-    private Long userId;
-    private String input;
-    private String additionally;
+    private int status;
 }
