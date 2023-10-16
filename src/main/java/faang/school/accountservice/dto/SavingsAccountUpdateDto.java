@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,6 +18,6 @@ public class SavingsAccountUpdateDto {
     @NotNull(message = "Savings account id cant be null")
     @Min(value = 1, message = "Savings account id should not be less then 1")
     private long savingsAccountId;
-    @NotNull(message = "Tariff type cant be null")
     private TariffType tariffType;
+    private BigDecimal moneyAmount;
 }

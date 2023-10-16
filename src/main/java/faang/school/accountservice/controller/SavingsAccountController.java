@@ -31,6 +31,12 @@ public class SavingsAccountController {
         return savingsAccountService.openSavingsAccount(savingsAccountCreateDto);
     }
 
+    @PutMapping("/funds")
+    public SavingsAccountResponseDto addFundsToSavingsAccount(@RequestBody @Validated SavingsAccountUpdateDto updateDto){
+        log.info("Received request to add funds for savings account with id = {}, money amount = {}", updateDto.getSavingsAccountId(), updateDto.getMoneyAmount());
+        return savingsAccountService.addFundsToSavingsAccount(updateDto);
+    }
+
     @PutMapping("/update")
     public SavingsAccountResponseDto changeSavingsAccountTariff(@RequestBody @Validated SavingsAccountUpdateDto updateDto) {
         log.info("Received request to change tariff of savings account with id: {}, to a new tariff: {}",

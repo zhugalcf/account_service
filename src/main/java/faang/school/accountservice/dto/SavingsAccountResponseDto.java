@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,6 +15,8 @@ import java.time.LocalDateTime;
 public class SavingsAccountResponseDto {
     private long id;
     private long accountId;
+    private String accountNumber;
+    private BigDecimal balance;
     private TariffDto tariffDto;
     private int version;
     private LocalDateTime createdAt;

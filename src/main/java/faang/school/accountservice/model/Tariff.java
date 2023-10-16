@@ -16,18 +16,21 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 @Entity
 @Table(name = "tariff")
 public class Tariff {
@@ -55,4 +58,43 @@ public class Tariff {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Tariff tariff = (Tariff) o;
+
+        if (id != tariff.id) return false;
+        if (type != tariff.type) return false;
+        if (!Objects.equals(tariffHistory, tariff.tariffHistory))
+            return false;
+        if (!Objects.equals(rateHistory, tariff.rateHistory)) return false;
+        if (!Objects.equals(createdAt, tariff.createdAt)) return false;
+        return Objects.equals(updatedAt, tariff.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (tariffHistory != null ? tariffHistory.hashCode() : 0);
+        result = 31 * result + (rateHistory != null ? rateHistory.hashCode() : 0);
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Tariff{" +
+                "id=" + id +
+                ", type=" + type +
+                ", tariffHistory=" + tariffHistory +
+                ", rateHistory=" + rateHistory +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

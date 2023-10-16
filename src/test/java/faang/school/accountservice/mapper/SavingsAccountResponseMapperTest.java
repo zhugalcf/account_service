@@ -11,6 +11,7 @@ import faang.school.accountservice.model.TariffHistory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,9 @@ public class SavingsAccountResponseMapperTest {
     private Rate rate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private final String accountNumber = "4159000000000001";
+    private final BigDecimal balance = BigDecimal.valueOf(1157.12);
 
     @BeforeEach
     void setUp() {
@@ -54,7 +58,9 @@ public class SavingsAccountResponseMapperTest {
                 .build();
         savingsAccount = SavingsAccount.builder()
                 .id(1)
+                .accountNumber(accountNumber)
                 .account(account)
+                .balance(balance)
                 .tariffHistory(new ArrayList<>(List.of(tariffHistory)))
                 .version(1)
                 .createdAt(createdAt)
@@ -73,7 +79,9 @@ public class SavingsAccountResponseMapperTest {
                 .build();
         SavingsAccountResponseDto expected = SavingsAccountResponseDto.builder()
                 .id(1)
+                .accountNumber(accountNumber)
                 .accountId(5)
+                .balance(balance)
                 .tariffDto(tariffDto)
                 .version(1)
                 .createdAt(createdAt)

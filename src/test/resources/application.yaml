@@ -1,3 +1,10 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user
+    password: password
+
 user-service:
   host: localhost
   port: 8080
@@ -17,3 +24,16 @@ account-numbers:
     CURRENCY: 2060
     CREDIT: 7781
     DEPOSIT: 5478
+
+async:
+  thread-pool:
+    settings:
+      core-pool-size: 4
+      max-pool-size: 10
+      queue-capacity: 100
+
+scheduler:
+  savings-account:
+    rate-calculation:
+      cron: 0 0 * * * *
+      batch-size: 10

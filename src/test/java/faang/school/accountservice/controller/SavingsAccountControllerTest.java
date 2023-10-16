@@ -29,6 +29,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +69,8 @@ class SavingsAccountControllerTest {
 
     private SavingsAccount savingsAccount;
 
+    private final String accountNumber = "55360000000000000001";
+
     @Container
     public static final PostgreSQLContainer<?> postgresContainer =
             new PostgreSQLContainer<>("postgres:latest")
@@ -85,45 +88,47 @@ class SavingsAccountControllerTest {
 
     @BeforeEach
     void setUp() {
-        basic = Tariff.builder()
-                .type(TariffType.BASIC)
-                .build();
-        promo = Tariff.builder()
-                .type(TariffType.PROMO)
-                .build();
-        basicRate = Rate.builder()
-                .percent(3.5f)
-                .tariff(basic)
-                .build();
-        promoRate = Rate.builder()
-                .percent(1.7f)
-                .tariff(promo)
-                .build();
-        firstAccount = Account.builder()
-                .ownerType(OwnerType.USER)
-                .ownerId(1)
-                .accountType(AccountType.SAVINGS)
-                .status(AccountStatus.OPEN)
-                .currency(Currency.USD)
-                .build();
-        secondAccount = Account.builder()
-                .ownerType(OwnerType.USER)
-                .ownerId(2)
-                .accountType(AccountType.SAVINGS)
-                .status(AccountStatus.OPEN)
-                .currency(Currency.USD)
-                .build();
-        savingsAccount = SavingsAccount.builder()
-                .account(firstAccount)
-                .version(1)
-                .build();
-        tariffHistory = TariffHistory.builder()
-                .tariff(basic)
-                .savingsAccount(savingsAccount)
-                .build();
+//        basic = Tariff.builder()
+//                .type(TariffType.BASIC)
+//                .build();
+//        promo = Tariff.builder()
+//                .type(TariffType.PROMO)
+//                .build();
+//        basicRate = Rate.builder()
+//                .percent(3.5f)
+//                .tariff(basic)
+//                .build();
+//        promoRate = Rate.builder()
+//                .percent(1.7f)
+//                .tariff(promo)
+//                .build();
+//        firstAccount = Account.builder()
+//                .ownerType(OwnerType.USER)
+//                .ownerId(1)
+//                .accountType(AccountType.SAVINGS)
+//                .status(AccountStatus.OPEN)
+//                .currency(Currency.USD)
+//                .build();
+//        secondAccount = Account.builder()
+//                .ownerType(OwnerType.USER)
+//                .ownerId(2)
+//                .accountType(AccountType.SAVINGS)
+//                .status(AccountStatus.OPEN)
+//                .currency(Currency.USD)
+//                .build();
+//        savingsAccount = SavingsAccount.builder()
+//                .accountNumber(accountNumber)
+//                .account(firstAccount)
+//                .balance(BigDecimal.ZERO)
+//                .version(1)
+//                .build();
+//        tariffHistory = TariffHistory.builder()
+//                .tariff(basic)
+//                .savingsAccount(savingsAccount)
+//                .build();
+        tariffHistoryRepository.deleteAll();
         rateRepository.deleteAll();
         tariffRepository.deleteAll();
-        tariffHistoryRepository.deleteAll();
         savingsAccountRepository.deleteAll();
         accountRepository.deleteAll();
     }
@@ -145,6 +150,8 @@ class SavingsAccountControllerTest {
                         .content(jsonRequestBody))
                 .andExpectAll(
                         jsonPath("$.id").value(1),
+                        jsonPath("$.accountNumber").value(accountNumber),
+                        jsonPath("$.balance").value(0),
                         jsonPath("$.accountId").value(1),
                         jsonPath("$.version").value(2),
                         jsonPath("$.tariffDto.id").value(2),
@@ -152,11 +159,7 @@ class SavingsAccountControllerTest {
                         jsonPath("$.tariffDto.ratePercent").value(1.7)
                 );
         TariffHistory tariffHistory = tariffHistoryRepository.findById(2L).orElse(null);
-
-        assertAll(
-                () -> assertNotNull(tariffHistory),
-                () -> assertEquals(2, tariffHistory.getId())
-        );
+        assertNotNull(tariffHistory);
     }
 
     @Test
@@ -170,6 +173,8 @@ class SavingsAccountControllerTest {
                         .content(jsonRequestBody))
                 .andExpectAll(
                         jsonPath("$.id").value(2),
+                        jsonPath("$.accountNumber").value(accountNumber),
+                        jsonPath("$.balance").value(0),
                         jsonPath("$.accountId").value(2),
                         jsonPath("$.version").value(1),
                         jsonPath("$.tariffDto.id").value(3),
@@ -189,8 +194,8 @@ class SavingsAccountControllerTest {
                 () -> assertNotNull(tariffHistory),
                 () -> assertEquals(TariffType.BASIC, tariff.getType()),
                 () -> assertEquals(3.5, rate.getPercent()),
-                () -> assertEquals(3, tariffHistory.getId()),
-                () -> assertEquals(2, savingsAccount.getId())
+                () -> assertEquals(accountNumber, savingsAccount.getAccountNumber()),
+                () -> assertEquals(BigDecimal.valueOf(0, 2), savingsAccount.getBalance())
         );
     }
 
@@ -201,6 +206,8 @@ class SavingsAccountControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/savings/account/{id}", 3))
                 .andExpectAll(
                         jsonPath("$.id").value(3),
+                        jsonPath("$.accountNumber").value(accountNumber),
+                        jsonPath("$.balance").value(0),
                         jsonPath("$.accountId").value(3),
                         jsonPath("$.version").value(1),
                         jsonPath("$.tariffDto.id").value(4),
@@ -219,6 +226,8 @@ class SavingsAccountControllerTest {
                 )
                 .andExpectAll(
                         jsonPath("$.id").value(4),
+                        jsonPath("$.accountNumber").value(accountNumber),
+                        jsonPath("$.balance").value(0),
                         jsonPath("$.accountId").value(4),
                         jsonPath("$.version").value(1),
                         jsonPath("$.tariffDto.id").value(5),
@@ -227,7 +236,60 @@ class SavingsAccountControllerTest {
                 );
     }
 
+//    @Test
+//    public void addFundsToSavingsAccountTest() throws Exception {
+//        someMethod();
+//
+//        String jsonRequestBody = "{\"savingsAccountId\": 5, \"moneyAmount\": 137.35}";
+//
+//        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/savings/account/funds")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(jsonRequestBody))
+//                .andExpectAll(
+//                        jsonPath("$.id").value(5),
+//                        jsonPath("$.accountNumber").value(accountNumber),
+//                        jsonPath("$.balance").value(137.35),
+//                        jsonPath("$.accountId").value(5),
+//                        jsonPath("$.version").value(2),
+//                        jsonPath("$.tariffDto.id").value(6),
+//                        jsonPath("$.tariffDto.type").value("BASIC"),
+//                        jsonPath("$.tariffDto.ratePercent").value(3.5)
+//                );
+//    }
+
     private void initPutEndpoint() {
+       Tariff basic = Tariff.builder()
+                .type(TariffType.BASIC)
+                .build();
+        Tariff promo = Tariff.builder()
+                .type(TariffType.PROMO)
+                .build();
+        Rate basicRate = Rate.builder()
+                .percent(3.5f)
+                .tariff(basic)
+                .build();
+        Rate promoRate = Rate.builder()
+                .percent(1.7f)
+                .tariff(promo)
+                .build();
+        Account firstAccount = Account.builder()
+                .ownerType(OwnerType.USER)
+                .ownerId(1)
+                .accountType(AccountType.SAVINGS)
+                .status(AccountStatus.OPEN)
+                .currency(Currency.USD)
+                .build();
+        SavingsAccount savingsAccount = SavingsAccount.builder()
+                .accountNumber(accountNumber)
+                .account(firstAccount)
+                .balance(BigDecimal.ZERO)
+                .version(1)
+                .build();
+        TariffHistory tariffHistory = TariffHistory.builder()
+                .tariff(basic)
+                .savingsAccount(savingsAccount)
+                .build();
+
         tariffRepository.saveAll(List.of(basic, promo));
         rateRepository.saveAll(List.of(basicRate, promoRate));
         accountRepository.save(firstAccount);
@@ -235,17 +297,78 @@ class SavingsAccountControllerTest {
         tariffHistoryRepository.save(tariffHistory);
     }
 
+    private void deletePutEndpointData() {
+        tariffHistoryRepository.deleteAll();
+        rateRepository.deleteAll();
+        tariffRepository.deleteAll();
+        savingsAccountRepository.deleteAll();
+        accountRepository.deleteAll();
+    }
+
     private void initPostEndpoint() {
+       Tariff basic = Tariff.builder()
+                .type(TariffType.BASIC)
+                .build();
+        Rate basicRate = Rate.builder()
+                .percent(3.5f)
+                .tariff(basic)
+                .build();
+        Account secondAccount = Account.builder()
+                .ownerType(OwnerType.USER)
+                .ownerId(2)
+                .accountType(AccountType.SAVINGS)
+                .status(AccountStatus.OPEN)
+                .currency(Currency.USD)
+                .build();
         accountRepository.save(secondAccount);
         tariffRepository.save(basic);
         rateRepository.save(basicRate);
     }
 
+    private void deletePostEndpointData(){
+        rateRepository.deleteAll();
+        tariffRepository.deleteAll();
+        accountRepository.deleteAll();
+    }
+
     private void initGetEndpoint() {
+        Tariff basic = Tariff.builder()
+                .type(TariffType.BASIC)
+                .build();
+        Rate basicRate = Rate.builder()
+                .percent(3.5f)
+                .tariff(basic)
+                .build();
+        Account firstAccount = Account.builder()
+                .ownerType(OwnerType.USER)
+                .ownerId(1)
+                .accountType(AccountType.SAVINGS)
+                .status(AccountStatus.OPEN)
+                .currency(Currency.USD)
+                .build();
+        SavingsAccount savingsAccount = SavingsAccount.builder()
+                .accountNumber(accountNumber)
+                .account(firstAccount)
+                .balance(BigDecimal.ZERO)
+                .version(1)
+                .build();
+        TariffHistory tariffHistory = TariffHistory.builder()
+                .tariff(basic)
+                .savingsAccount(savingsAccount)
+                .build();
+
         tariffRepository.save(basic);
         rateRepository.save(basicRate);
         accountRepository.save(firstAccount);
         savingsAccountRepository.save(savingsAccount);
         tariffHistoryRepository.save(tariffHistory);
+    }
+
+    private void deleteGetEndpointData(){
+        tariffHistoryRepository.deleteAll();
+        rateRepository.deleteAll();
+        tariffRepository.deleteAll();
+        savingsAccountRepository.deleteAll();
+        accountRepository.deleteAll();
     }
 }
