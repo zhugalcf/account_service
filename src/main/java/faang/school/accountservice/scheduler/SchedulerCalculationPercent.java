@@ -1,7 +1,6 @@
 package faang.school.accountservice.scheduler;
 
 import faang.school.accountservice.service.PercentCalculationService;
-import faang.school.accountservice.service.SavingsAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +12,6 @@ public class SchedulerCalculationPercent {
 
     @Scheduled(cron = "${spring.scheduler.calculationPercent.schedule.cron}")
     public void calculateLastUpdatedPercent() {
-        percentCalculationService.calculateLastUpdatedPercent();
+        percentCalculationService.calculateInterestAndUpdateBalances();
     }
 }

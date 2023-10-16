@@ -1,5 +1,7 @@
 package faang.school.accountservice.service;
 
+import faang.school.accountservice.entity.SavingsAccountTariffHistory;
+import faang.school.accountservice.repository.SavingsAccountTariffHistoryRepository;
 import faang.school.accountservice.validator.TariffValidator;
 import faang.school.accountservice.dto.TariffDto;
 import faang.school.accountservice.entity.Tariff;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TariffService {
     private final TariffRepository tariffRepository;
+    private final SavingsAccountTariffHistoryRepository historyRepository;
     private final TariffValidator tariffValidator;
     private final TariffMapper tariffMapper;
 

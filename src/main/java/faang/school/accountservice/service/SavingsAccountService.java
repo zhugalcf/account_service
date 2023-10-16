@@ -22,9 +22,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import faang.school.accountservice.dto.SavingsAccountDto;
-
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,29 +37,9 @@ public class SavingsAccountService {
     private final UniqueNumberService uniqueNumberService;
     private final SavingsAccountMapper savingsAccountMapper;
 
-    //    @Transactional
-//    @Retryable(retryFor = {OptimisticLockingFailureException.class})
-//    public SavingsAccountDto openSavingsAccount(Long ownerId, String currencyCode) {
-//        Owner owner = ownerService.getOwner(ownerId);
-//
-//        Currency currency = currencyService.getCurrency(currencyCode);
-//        String accountNumber = uniqueNumberService.getFreeAccountNumber(AccountType.SAVINGS_ACCOUNT);
-//
-//        SavingsAccount savingsAccount = new SavingsAccount();
-//        savingsAccount.setAccountStatus(AccountStatus.OPENED);
-//
-//        savingsAccount.getAccount().setOwner(owner);
-//        savingsAccount.getAccount().setCurrency(currency);
-//        savingsAccount.getAccount().setAccountNumber(accountNumber);
-//
-//        SavingsAccount savedAccount = savingsAccountRepository.save(savingsAccount);
-//
-//        SavingsAccountDto savingsAccountDto = new SavingsAccountDto();
-//        savingsAccountDto.setId(savedAccount.getId());
-//
-//        return savingsAccountDto;
-//    }
+
     @Transactional
+    @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public SavingsAccountDto openSavingsAccount(Long ownerId, String currencyCode) {
         Owner owner = getOwner(ownerId);
         Currency currency = getCurrency(currencyCode);
@@ -141,10 +119,12 @@ public class SavingsAccountService {
     public Long getSavingsAccountIdByAccountId(Long accountId) {
         Account account = accountService.getAccount(accountId);
 
-        Optional.ofNullable(account)
-                .filter(acc -> acc.getAccountType() == AccountType.SAVINGS_ACCOUNT)
-                .map(acc -> getSavingsAccountByAccountId(accountId).getId())
-                .orElseThrow(() -> new EntityNotFoundException("Account with accountId " + accountId + " is not a savings account"));
+        if (account != null && account.getAccountType() == AccountType.SAVINGS_ACCOUNT) {
+            getSavingsAccountByAccountId(accountId);
+        } else {
+            throw new EntityNotFoundException("Account with accountId " + accountId + " is not a savings account");
+        }
+        return accountId;
     }
 
     public SavingsAccount getSavingsAccount(long id) {

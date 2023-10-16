@@ -28,6 +28,7 @@ public class SavingsAccountController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get savings account by account id")
     public SavingsAccountDto get(@PathVariable Long id) {
         log.info("Savings account retrieved successfully for id {}", id);
         return savingsAccountService.get(id);

@@ -17,8 +17,6 @@ import faang.school.accountservice.exception.EntityNotFoundException;
 import faang.school.accountservice.exception.TariffNotFoundException;
 import faang.school.accountservice.mapper.SavingsAccountMapper;
 import faang.school.accountservice.mapper.SavingsAccountTariffHistoryMapper;
-import faang.school.accountservice.repository.AccountRepository;
-import faang.school.accountservice.repository.OwnerRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.SavingsAccountTariffHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,13 +52,7 @@ class SavingsAccountServiceTest {
     private SavingsAccountRepository savingsAccountRepository;
 
     @Mock
-    private OwnerRepository ownerRepository;
-
-    @Mock
     private SavingsAccountTariffHistoryRepository savingsAccountTariffHistoryRepository;
-
-    @Mock
-    private AccountRepository accountRepository;
 
     @Mock
     private UniqueNumberService uniqueNumberService;
@@ -92,7 +84,7 @@ class SavingsAccountServiceTest {
                 .build();
 
         account = Account.builder()
-                .id(100L)
+                .id(1L)
                 .owner(owner)
                 .currency(Currency.builder().code(currencyCode).build())
                 .build();
@@ -141,7 +133,6 @@ class SavingsAccountServiceTest {
                 .changeDate(dateTime)
                 .build();
 
-        when(accountService.getAccount(100L)).thenReturn(account);
         when(accountService.getAccount(2L)).thenReturn(null);
         when(accountService.getAccount(3L)).thenReturn(Account.builder().accountType(AccountType.CHECKING_ACCOUNT).build());
 
@@ -161,12 +152,30 @@ class SavingsAccountServiceTest {
         when(savingsAccountTariffHistoryMapper.toDto(tariffHistory)).thenReturn(tariffHistoryDto);
     }
 
-//    @Test
-//    void openSavingsAccount_ShouldReturnSavingsAccountDto() {
-//        SavingsAccountDto actual = savingsAccountService.openSavingsAccount(1L, "USD");
-//        assertEquals(dto, actual);
-//    }
 
+    @Test
+    void getSavingsAccountIdByAccountId_WhenSavingsAccountExists() {
+        Long accountId = 1L;
+        Account savingsAccount = new Account();
+        savingsAccount.setAccountType(AccountType.SAVINGS_ACCOUNT);
+
+        when(accountService.getAccount(accountId)).thenReturn(savingsAccount);
+
+        Long savingsAccountId = savingsAccountService.getSavingsAccountIdByAccountId(accountId);
+
+        assertEquals(accountId, savingsAccountId);
+    }
+
+    @Test
+    void getSavingsAccountIdByAccountId_WhenSavingsAccountDoesNotExist() {
+        long accountId = 1L;
+        Account checkingAccount = new Account();
+        checkingAccount.setAccountType(AccountType.CHECKING_ACCOUNT);
+
+        when(accountService.getAccount(accountId)).thenReturn(checkingAccount);
+
+        assertThrows(EntityNotFoundException.class, () -> savingsAccountService.getSavingsAccountIdByAccountId(accountId));
+    }
 
     @Test
     void testGetSavingsAccountById() {
@@ -221,8 +230,9 @@ class SavingsAccountServiceTest {
             savingsAccountService.getSavingsAccountByAccountId(1L);
         });
     }
+
     @Test
-    void getSavingsAccountIdByAccountId_WhenAccountIsSavingsAccount_ShouldNotThrowException() {
+    void getSavingsAccountIdByAccountId_WhenAccountIsSavingsAccount() {
         when(accountService.getAccount(1L)).thenReturn(Account.builder().accountType(AccountType.SAVINGS_ACCOUNT).build());
 
         assertDoesNotThrow(() -> {
@@ -231,7 +241,7 @@ class SavingsAccountServiceTest {
     }
 
     @Test
-    void getSavingsAccountIdByAccountId_WhenAccountIsNull_ShouldThrowEntityNotFoundException() {
+    void getSavingsAccountIdByAccountId_WhenAccountIsNull() {
         when(accountService.getAccount(2L)).thenReturn(null);
 
         assertThrows(EntityNotFoundException.class, () -> {
@@ -240,7 +250,7 @@ class SavingsAccountServiceTest {
     }
 
     @Test
-    void getSavingsAccountIdByAccountId_WhenAccountIsNotSavingsAccount_ShouldThrowEntityNotFoundException() {
+    void getSavingsAccountIdByAccountId_WhenAccountIsNotSavingsAccount() {
         when(accountService.getAccount(3L)).thenReturn(Account.builder().accountType(AccountType.CHECKING_ACCOUNT).build());
 
         assertThrows(EntityNotFoundException.class, () -> {
