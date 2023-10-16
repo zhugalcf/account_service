@@ -27,7 +27,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,11 +56,14 @@ class SavingsAccountServiceTest {
     private SavingsAccountMapper savingsAccountMapper = new SavingsAccountMapperImpl();
     @Spy
     private SavingsAccountResponseMapper responseMapper = new SavingsAccountResponseMapperImpl(tariffMapper);
+    @Mock
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @InjectMocks
     private SavingsAccountService savingsAccountService;
 
     private SavingsAccount savingsAccountWithoutHistory;
     private SavingsAccount savingsAccountWithHistory;
+    private SavingsAccount savingsAccountWithBalance;
 
     private SavingsAccountCreateDto createDto;
     private SavingsAccountUpdateDto updateDto;
@@ -80,9 +86,12 @@ class SavingsAccountServiceTest {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private final BigDecimal moneyAmount = BigDecimal.valueOf(137.3);
+    private final String accountNumber = "4159000000000001";
+
     @BeforeEach
     void setUp() {
-
+        ReflectionTestUtils.setField(savingsAccountService, "batchSize", 10);
         createdAt = LocalDateTime.now().minusMonths(1);
         updatedAt = LocalDateTime.now().minusDays(1);
         basicTariffRate = Rate.builder()
@@ -152,6 +161,14 @@ class SavingsAccountServiceTest {
                 .version(1)
                 .tariffHistory(new ArrayList<>(List.of(historyWithBasicTariff)))
                 .build();
+        savingsAccountWithBalance = SavingsAccount.builder()
+                .id(1)
+                .accountNumber(accountNumber)
+                .account(account)
+                .balance(BigDecimal.valueOf(62.7))
+                .version(1)
+                .tariffHistory(new ArrayList<>(List.of(historyWithBasicTariff)))
+                .build();
     }
 
     @Test
@@ -214,5 +231,41 @@ class SavingsAccountServiceTest {
         SavingsAccount result = savingsAccountService.getSavingsAccountBy(1);
 
         assertEquals(savingsAccountWithHistory, result);
+    }
+
+    @Test
+    void addFundsToSavingsAccountTest() {
+        SavingsAccountUpdateDto savingsAccountUpdateDto = SavingsAccountUpdateDto.builder()
+                .savingsAccountId(1)
+                .moneyAmount(moneyAmount)
+                .build();
+        SavingsAccountResponseDto expected = SavingsAccountResponseDto.builder()
+                .id(1)
+                .accountNumber(accountNumber)
+                .accountId(2)
+                .balance(BigDecimal.valueOf(200.0))
+                .version(2)
+                .tariffDto(basicTariffDto)
+                .build();
+
+
+        when(repository.findById(1L)).thenReturn(Optional.of(savingsAccountWithBalance));
+
+
+        SavingsAccountResponseDto result = savingsAccountService.addFundsToSavingsAccount(savingsAccountUpdateDto);
+
+        assertEquals(expected, result);
+
+        verify(repository).findById(1L);
+    }
+
+    @Test
+    void calculateSavingsAccountRatePercentTest() {
+        List<SavingsAccount> accounts = new ArrayList<>(List.of(savingsAccountWithBalance));
+        when(repository.findAll()).thenReturn(accounts);
+
+        savingsAccountService.calculateSavingsAccountRatePercent();
+
+        verify(repository).findAll();
     }
 }

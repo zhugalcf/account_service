@@ -133,7 +133,7 @@ public class SavingsAccountService {
 
     @Scheduled(cron = "${scheduler.savings-account.rate-calculation.cron}")
     @Transactional
-    protected void calculateSavingsAccountRatePercent2() {
+    protected void calculateSavingsAccountRatePercent() {
         List<SavingsAccount> accounts = savingsAccountRepository.findAll();
 
         for (int i = 0; i <= accounts.size(); i += batchSize) {

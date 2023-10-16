@@ -15,7 +15,7 @@ import faang.school.accountservice.repository.RateRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffHistoryRepository;
 import faang.school.accountservice.repository.TariffRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,17 +56,6 @@ class SavingsAccountControllerTest {
     @Autowired
     private TariffHistoryRepository tariffHistoryRepository;
 
-    private Account firstAccount;
-    private Account secondAccount;
-
-    private TariffHistory tariffHistory;
-
-    private Tariff basic;
-    private Tariff promo;
-
-    private Rate basicRate;
-    private Rate promoRate;
-
     private SavingsAccount savingsAccount;
 
     private final String accountNumber = "55360000000000000001";
@@ -86,46 +75,8 @@ class SavingsAccountControllerTest {
         registry.add("spring.datasource.username", postgresContainer::getUsername);
     }
 
-    @BeforeEach
-    void setUp() {
-//        basic = Tariff.builder()
-//                .type(TariffType.BASIC)
-//                .build();
-//        promo = Tariff.builder()
-//                .type(TariffType.PROMO)
-//                .build();
-//        basicRate = Rate.builder()
-//                .percent(3.5f)
-//                .tariff(basic)
-//                .build();
-//        promoRate = Rate.builder()
-//                .percent(1.7f)
-//                .tariff(promo)
-//                .build();
-//        firstAccount = Account.builder()
-//                .ownerType(OwnerType.USER)
-//                .ownerId(1)
-//                .accountType(AccountType.SAVINGS)
-//                .status(AccountStatus.OPEN)
-//                .currency(Currency.USD)
-//                .build();
-//        secondAccount = Account.builder()
-//                .ownerType(OwnerType.USER)
-//                .ownerId(2)
-//                .accountType(AccountType.SAVINGS)
-//                .status(AccountStatus.OPEN)
-//                .currency(Currency.USD)
-//                .build();
-//        savingsAccount = SavingsAccount.builder()
-//                .accountNumber(accountNumber)
-//                .account(firstAccount)
-//                .balance(BigDecimal.ZERO)
-//                .version(1)
-//                .build();
-//        tariffHistory = TariffHistory.builder()
-//                .tariff(basic)
-//                .savingsAccount(savingsAccount)
-//                .build();
+    @AfterEach
+    void delete() {
         tariffHistoryRepository.deleteAll();
         rateRepository.deleteAll();
         tariffRepository.deleteAll();
@@ -238,7 +189,7 @@ class SavingsAccountControllerTest {
 
 //    @Test
 //    public void addFundsToSavingsAccountTest() throws Exception {
-//        someMethod();
+//        initGetEndpoint();
 //
 //        String jsonRequestBody = "{\"savingsAccountId\": 5, \"moneyAmount\": 137.35}";
 //
@@ -258,7 +209,7 @@ class SavingsAccountControllerTest {
 //    }
 
     private void initPutEndpoint() {
-       Tariff basic = Tariff.builder()
+        Tariff basic = Tariff.builder()
                 .type(TariffType.BASIC)
                 .build();
         Tariff promo = Tariff.builder()
@@ -297,16 +248,8 @@ class SavingsAccountControllerTest {
         tariffHistoryRepository.save(tariffHistory);
     }
 
-    private void deletePutEndpointData() {
-        tariffHistoryRepository.deleteAll();
-        rateRepository.deleteAll();
-        tariffRepository.deleteAll();
-        savingsAccountRepository.deleteAll();
-        accountRepository.deleteAll();
-    }
-
     private void initPostEndpoint() {
-       Tariff basic = Tariff.builder()
+        Tariff basic = Tariff.builder()
                 .type(TariffType.BASIC)
                 .build();
         Rate basicRate = Rate.builder()
@@ -323,12 +266,6 @@ class SavingsAccountControllerTest {
         accountRepository.save(secondAccount);
         tariffRepository.save(basic);
         rateRepository.save(basicRate);
-    }
-
-    private void deletePostEndpointData(){
-        rateRepository.deleteAll();
-        tariffRepository.deleteAll();
-        accountRepository.deleteAll();
     }
 
     private void initGetEndpoint() {
@@ -362,13 +299,5 @@ class SavingsAccountControllerTest {
         accountRepository.save(firstAccount);
         savingsAccountRepository.save(savingsAccount);
         tariffHistoryRepository.save(tariffHistory);
-    }
-
-    private void deleteGetEndpointData(){
-        tariffHistoryRepository.deleteAll();
-        rateRepository.deleteAll();
-        tariffRepository.deleteAll();
-        savingsAccountRepository.deleteAll();
-        accountRepository.deleteAll();
     }
 }
