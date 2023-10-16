@@ -25,6 +25,19 @@ spring:
         cron: "0 0 23 10 * *"
 #        означает выполнение задачи в 23:00 (11:00 PM) каждый десятый день каждого месяца.
 
+  scheduler:
+    calculationPercent:
+      schedule:
+        cron: "0 0 0 * * ?" # run every day (* for day of month and month) at midnight (12:00 a.m.)
+
+
+  async:
+    corePoolSize: 5
+    maxPoolSize: 10
+    queueCapacity: 25
+    threadNamePrefix: "Async-"
+
+
 server:
   port: 8090
 
