@@ -22,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +83,7 @@ public class BalanceService {
         balanceAudit.setVersion(1);
         balanceAudit.setAuthorizationAmount(balance.getCurrentAuthorizationBalance());
         balanceAudit.setActualAmount(balance.getCurrentActualBalance());
-        balanceAudit.setOperationId(1L);
+        // TODO: add operation id
         balanceAudit.setAuditTimestamp(LocalDateTime.now());
         balanceAuditRepository.save(balanceAudit);
         log.info("Balance audit was created successfully by balance id: {} ", balance.getId());
@@ -89,8 +91,10 @@ public class BalanceService {
 
     public List<BalanceAuditDto> getBalanceAudits(long balanceId) {
         List<BalanceAudit> balanceAudits = getBalanceAuditsById(balanceId);
-        log.info("Balance audit was taken successfully by balance id: {} ", balanceId);
-        return balanceAuditMapper.toListAuditDto(balanceAudits);
+        List<BalanceAudit> sortedBalanceAudits = balanceAudits.stream()
+                .sorted(Comparator.comparing(BalanceAudit::getVersion).reversed())
+                .toList();
+        return balanceAuditMapper.toListAuditDto(sortedBalanceAudits);
     }
 
     private Account getAccount(long accountId) {
@@ -99,10 +103,6 @@ public class BalanceService {
     }
 
     private List<BalanceAudit> getBalanceAuditsById(long balanceId) {
-        List<BalanceAudit> audits = balanceAuditRepository.findAllByBalanceId(balanceId);
-        if (audits.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return audits;
+        return balanceAuditRepository.findAllByBalanceId(balanceId);
     }
 }
