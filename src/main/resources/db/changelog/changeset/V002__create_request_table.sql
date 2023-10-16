@@ -3,7 +3,7 @@ CREATE TABLE request (
     user_id bigint not null,
     type varchar(64) not null,
     lock bigint not null,
-    flag boolean not null,
+    is_open boolean not null,
     input json not null,
     status INTEGER not null,
     additionally varchar(256),
@@ -17,5 +17,5 @@ CREATE TABLE request (
 
 CREATE INDEX index_user ON request(user_id);
 
-CREATE INDEX index_lock ON request(lock)
+CREATE UNIQUE INDEX index_lock ON request(lock)
     WHERE lock IS NOT NULL;
