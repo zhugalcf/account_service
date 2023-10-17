@@ -80,7 +80,7 @@ public class BalanceService {
     public void createBalanceAudit(Balance balance) {
         BalanceAudit balanceAudit = new BalanceAudit();
         balanceAudit.setBalance(balance);
-        balanceAudit.setVersion(1);
+        balanceAudit.setVersion(balance.getVersion());
         balanceAudit.setAuthorizationAmount(balance.getCurrentAuthorizationBalance());
         balanceAudit.setActualAmount(balance.getCurrentActualBalance());
         // TODO: add operation id
