@@ -40,7 +40,7 @@ class AccountServiceTest {
     @Mock
     private AccountMapper accountMapper;
     @Mock
-    private UniqueNumberService uniqueNumberService;
+    private FreeAccountNumbersService freeAccountNumbersService;
     private Account account;
     private AccountDto accountDto;
 
@@ -81,7 +81,7 @@ class AccountServiceTest {
         when(accountRepository.save(account)).thenReturn(account);
         when(accountMapper.toDto(account)).thenReturn(accountDto);
         when(accountMapper.toEntity(accountDto)).thenReturn(account);
-        when(uniqueNumberService.getFreeAccountNumber(AccountType.CHECKING_ACCOUNT)).thenReturn(accountNumber);
+        when(freeAccountNumbersService.getFreeAccountNumber(AccountType.CHECKING_ACCOUNT)).thenReturn(accountNumber);
     }
 
     @Test
@@ -123,7 +123,7 @@ class AccountServiceTest {
     @Test
     void open_shouldInvokeGeneratorUniqueNumberServiceGetFreeAccountNumber() {
         accountService.open(accountDto);
-        verify(uniqueNumberService).getFreeAccountNumber(accountDto.getAccountType());
+        verify(freeAccountNumbersService).getFreeAccountNumber(accountDto.getAccountType());
     }
 
     @Test

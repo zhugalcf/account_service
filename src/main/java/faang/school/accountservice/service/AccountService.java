@@ -25,7 +25,7 @@ public class AccountService {
     private final CurrencyService currencyService;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final UniqueNumberService uniqueNumberService;
+    private final FreeAccountNumbersService freeAccountNumbersService;
 
 
     @Transactional(readOnly = true)
@@ -39,7 +39,7 @@ public class AccountService {
     public AccountDto open(AccountDto accountDto) {
         Owner owner = ownerService.getOwner(accountDto.getOwnerId());
         Currency currency = currencyService.getCurrency(accountDto.getCurrencyCode());
-        String accountNumber = uniqueNumberService.getFreeAccountNumber(accountDto.getAccountType());
+        String accountNumber = freeAccountNumbersService.getFreeAccountNumber(accountDto.getAccountType());
 
         Account account = accountMapper.toEntity(accountDto);
         account.setCurrency(currency);

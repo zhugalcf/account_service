@@ -2,10 +2,9 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.config.account.AccountGenerationConfig;
 import faang.school.accountservice.entity.account.AccountType;
-import faang.school.accountservice.entity.account.numbers.AccountNumberSequence;
 import faang.school.accountservice.entity.account.numbers.FreeAccountNumber;
 import faang.school.accountservice.exception.NoFreeAccountNumbersException;
-import faang.school.accountservice.repository.AccountNumberSequenceRepository;
+import faang.school.accountservice.repository.AccountNumbersSequenceRepository;
 import faang.school.accountservice.repository.FreeAccountNumbersRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,86 +21,79 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UniqueNumberServiceTest {
+class FreeAccountNumbersServiceTest {
     @InjectMocks
-    private UniqueNumberService uniqueNumberService;
+    private FreeAccountNumbersService freeAccountNumbersService;
     @Mock
     private FreeAccountNumbersRepository freeAccountNumbersRepository;
     @Mock
-    private AccountNumberSequenceRepository accountNumberSequenceRepository;
+    private AccountNumbersSequenceRepository accountNumbersSequenceRepository;
     @Mock
     private AccountGenerationConfig accountGenerationConfig;
     private AccountType accountType;
     private long targetCountAccounts;
     private FreeAccountNumber freeAccountNumber;
-    private AccountNumberSequence accountNumberSequence;
+    private String accountNumber;
 
     @BeforeEach
     void setUp() {
         accountType = AccountType.SAVINGS_ACCOUNT;
         targetCountAccounts = 10L;
-        accountNumberSequence = AccountNumberSequence.builder()
-                .currentCount(2L)
-                .accountType(accountType)
-                .build();
 
         freeAccountNumber = FreeAccountNumber.builder()
                 .accountType(accountType)
-                .accountNumber("43240000000000000001")
+                .accountNumber("52360000000000000001")
                 .build();
+        accountNumber = "52360000000000000001";
     }
 
     @Test
     void generateAccountNumbersOfType_shouldSaveAllFreeAccountNumbers() {
-        when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(Optional.of(accountNumberSequence));
-        when(accountNumberSequenceRepository.save(accountNumberSequence)).thenReturn(accountNumberSequence);
         when(accountGenerationConfig.getAccountNumberLength()).thenReturn(20);
         when(freeAccountNumbersRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
+        when(accountNumbersSequenceRepository.getCurrentCountByAccountType(anyInt())).thenReturn(Optional.of(1L));
 
-        uniqueNumberService.generateAccountNumbersOfType(targetCountAccounts, accountType);
+        freeAccountNumbersService.generateAccountNumbersOfType(targetCountAccounts, accountType);
 
         verify(freeAccountNumbersRepository).saveAll(argThat(argument -> argument.spliterator().estimateSize() == targetCountAccounts));
-        verify(accountNumberSequenceRepository, times(10)).save(accountNumberSequence);
     }
 
     @Test
     void generateAccountNumbersToReach_shouldSaveAllFreeAccountNumbers() {
-        when(accountNumberSequenceRepository.findByAccountType(accountType)).thenReturn(Optional.of(accountNumberSequence));
-        when(accountNumberSequenceRepository.save(accountNumberSequence)).thenReturn(accountNumberSequence);
         when(accountGenerationConfig.getAccountNumberLength()).thenReturn(20);
         when(freeAccountNumbersRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
+        when(accountNumbersSequenceRepository.getCurrentCountByAccountType(anyInt())).thenReturn(Optional.of(1L));
 
-        uniqueNumberService.generateAccountNumbersToReach(targetCountAccounts, accountType);
+        freeAccountNumbersService.generateAccountNumbersToReach(targetCountAccounts, accountType);
 
         verify(freeAccountNumbersRepository).saveAll(argThat(argument -> argument.spliterator().estimateSize() == targetCountAccounts));
-        verify(accountNumberSequenceRepository, times(10)).save(accountNumberSequence);
     }
 
     @Test
     void getFreeAccountNumber() {
-        when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
+        when(freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoFreeAccountNumbersException.class, () -> uniqueNumberService.getFreeAccountNumber(accountType));
+        assertThrows(NoFreeAccountNumbersException.class, () -> freeAccountNumbersService.getFreeAccountNumber(accountType));
     }
 
     @Test
     void testGetFreeAccountNumberWhenNumbersAvailable() {
-        when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
-                .thenReturn(Optional.of(freeAccountNumber));
+        when(freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal()))
+                .thenReturn(Optional.of(accountNumber));
 
-        String accountNumber = uniqueNumberService.getFreeAccountNumber(accountType);
+        String accountNumber = freeAccountNumbersService.getFreeAccountNumber(accountType);
 
         assertEquals(freeAccountNumber.getAccountNumber(), accountNumber);
 
-        verify(freeAccountNumbersRepository).deleteById(freeAccountNumber.getId());
+        verify(freeAccountNumbersRepository).deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal());
     }
 
     @Test
     void testGetFreeAccountNumberWhenNoNumbersAvailable() {
-        when(freeAccountNumbersRepository.findFirstByAccountTypeOrderByCreatedAtAsc(accountType))
+        when(freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoFreeAccountNumbersException.class, () -> uniqueNumberService.getFreeAccountNumber(accountType));
+        assertThrows(NoFreeAccountNumbersException.class, () -> freeAccountNumbersService.getFreeAccountNumber(accountType));
     }
 }
