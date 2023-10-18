@@ -83,7 +83,7 @@ public class FreeAccountNumbersService {
     @Retryable(retryFor = {OptimisticLockingFailureException.class})
     public String getFreeAccountNumber(AccountType accountType) {
         try {
-            Optional<String> accountNumber = tryToGetFreeAccountNumber(accountType);
+            Optional<String> accountNumber = findFirstFreeAccountNumber(accountType);
             if (accountNumber.isPresent()) {
                 return accountNumber.get();
             }
@@ -95,7 +95,7 @@ public class FreeAccountNumbersService {
         throw new NoFreeAccountNumbersException("No free account numbers even after generating additional numbers.");
     }
 
-    private Optional<String> tryToGetFreeAccountNumber(AccountType accountType) {
+    private Optional<String> findFirstFreeAccountNumber(AccountType accountType) {
         Optional<String> accountNumber = freeAccountNumbersRepository.deleteAndReturnFirstByAccountTypeOrderByCreatedAtAsc(accountType.ordinal());
         if (accountNumber.isEmpty()) {
             generateAdditionalAccountNumbers(accountType);
