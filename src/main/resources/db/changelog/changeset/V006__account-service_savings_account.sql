@@ -10,17 +10,6 @@ CREATE TABLE savings_account (
                                                version BIGINT NOT NULL,
 
                                                CONSTRAINT fk_savings_account_account FOREIGN KEY (account_id) REFERENCES Account(id)
-
-    );
-
-CREATE TABLE savings_account_tariff_history (
-                                                id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                                                savings_account_id BIGINT NOT NULL,
-                                                tariff_id BIGINT NOT NULL,
-                                                change_date timestamptz DEFAULT current_timestamp,
-
-                                                PRIMARY KEY (savings_account_id, tariff_id),
-                                                CONSTRAINT fk_tariff_history_savings_account FOREIGN KEY (savings_account_id) REFERENCES savings_account(id)
 );
 
 CREATE TABLE IF NOT EXISTS tariff (
@@ -28,9 +17,19 @@ CREATE TABLE IF NOT EXISTS tariff (
                                       tariff_type VARCHAR(64) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS tariff_rates (
-                                            tariff_id INT NOT NULL,
-                                            rate DECIMAL(2, 10) NOT NULL,
+CREATE TABLE IF NOT EXISTS savings_account_tariff_history (
+                                                              id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                                                              savings_account_id BIGINT NOT NULL,
+                                                              tariff_id BIGINT NOT NULL,
+                                                              change_date timestamptz DEFAULT current_timestamp,
+    CONSTRAINT fk_tariff_history_savings_account FOREIGN KEY (savings_account_id) REFERENCES savings_account(id),
+    CONSTRAINT fk_tariff_history_tariff FOREIGN KEY (tariff_id) REFERENCES tariff(id),
+    UNIQUE (savings_account_id, tariff_id)
+);
 
-                                            CONSTRAINT fk_tariff_rates_tariff FOREIGN KEY (tariff_id) REFERENCES tariff(id)
+CREATE TABLE IF NOT EXISTS tariff_rates (
+                                            id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                                            tariff_id BIGINT NOT NULL,
+                                            rate DECIMAL(10, 8) NOT NULL,
+    CONSTRAINT fk_tariff_rates_tariff FOREIGN KEY (tariff_id) REFERENCES tariff(id)
 );
