@@ -8,6 +8,7 @@ import faang.school.accountservice.mapper.AccountResponseMapper;
 import faang.school.accountservice.model.Account;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.service.AccountService;
+import faang.school.accountservice.service.BalanceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,8 @@ public class AccountThrowExceptionTest {
         accountRepository = Mockito.mock(AccountRepository.class);
         AccountRequestMapper accountRequestMapper = Mockito.mock(AccountRequestMapper.class);
         AccountResponseMapper accountResponseMapper = Mockito.mock(AccountResponseMapper.class);
-        accountService = new AccountService(accountRepository, accountRequestMapper, accountResponseMapper);
+        BalanceService balanceService = Mockito.mock(BalanceService.class);
+        accountService = new AccountService(balanceService, accountRepository, accountRequestMapper, accountResponseMapper);
     }
 
     @Test

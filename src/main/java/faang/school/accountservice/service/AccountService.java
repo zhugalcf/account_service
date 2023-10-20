@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Slf4j
 public class AccountService {
+    private final BalanceService balanceService;
     private final AccountRepository accountRepository;
     private final AccountRequestMapper accountRequestMapper;
     private final AccountResponseMapper accountResponseMapper;
@@ -48,6 +49,7 @@ public class AccountService {
     public AccountResponseDto openAccount(AccountRequestDto accountDto) {
         Account account = accountRequestMapper.accountDtoToAccount(accountDto);
         accountRepository.save(account);
+        balanceService.create(account.getId());
         log.info("Account created by id: {}, at: {}",
                 account.getId(), account.getCreatedAt());
         return accountResponseMapper.accountToResponseDto(account);
@@ -91,7 +93,7 @@ public class AccountService {
         return accountResponseMapper.accountToResponseDto(account);
     }
 
-    private Account getAccountById(long accountId) {
+    public Account getAccountById(long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
     }

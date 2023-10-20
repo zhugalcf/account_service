@@ -37,6 +37,9 @@ public class Balance {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @OneToOne(mappedBy = "balance")
+    private BalanceAudit balanceAudit;
+
     @Column(name = "current_authorization_balance")
     private BigDecimal currentAuthorizationBalance;
 
