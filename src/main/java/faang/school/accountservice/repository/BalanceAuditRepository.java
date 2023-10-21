@@ -1,13 +1,13 @@
 package faang.school.accountservice.repository;
 
 import faang.school.accountservice.model.Account;
-import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.model.BalanceAudit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
-public interface BalanceRepository extends JpaRepository<Balance, Long> {
-    Optional<Balance> findByAccount(Account account);
+public interface BalanceAuditRepository extends JpaRepository<BalanceAudit, Long> {
+    List<BalanceAudit> findAllByAccountId(Long accountId);
 }

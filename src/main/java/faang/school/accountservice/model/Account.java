@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -25,6 +26,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Currency;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -50,6 +52,9 @@ public class Account {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private AccountType type;
+
+    @OneToMany(mappedBy="account", cascade = CascadeType.ALL)
+    private List<BalanceAudit> balanceAudits;
 
     @Column(name = "currency", nullable = false, length = 3)
     private Currency currency;
