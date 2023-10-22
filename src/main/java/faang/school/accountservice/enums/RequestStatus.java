@@ -4,5 +4,6 @@ public enum RequestStatus {
     TODO,
     WAITING,
     EXECUTED,
-    CANCELLED
+    CANCELLED,
+    TO_RETRY
 }
