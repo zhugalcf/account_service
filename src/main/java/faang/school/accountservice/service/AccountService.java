@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final BalanceService balanceService;
 
     @Transactional
     public ResponseAccountDto open(CreateAccountDto createAccountDto) {
@@ -32,6 +33,7 @@ public class AccountService {
                 .authorizationBalance(BigDecimal.ZERO)
                 .currentBalance(BigDecimal.ZERO)
                 .build());
+        balanceService.createBalance(account.getId());
         log.info("Created Account. Id: {}", account.getId());
         return accountMapper.entityToResponseDto(account);
     }

@@ -3,7 +3,9 @@ package faang.school.accountservice.service;
 import faang.school.accountservice.dto.BalanceDto;
 import faang.school.accountservice.dto.UpdateBalanceDto;
 import faang.school.accountservice.mapper.BalanceMapper;
+import faang.school.accountservice.model.Account;
 import faang.school.accountservice.model.Balance;
+import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +24,24 @@ import java.util.Objects;
 public class BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceMapper balanceMapper;
+    private final AccountRepository accountRepository;
+    private final BalanceAuditService balanceAuditService;
+
+    @Transactional
+    public void createBalance(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with ID: " + accountId));
+        checkBalanceIsExist(account);
+        Balance balance = new Balance();
+        balance.setAccount(account);
+        balance.setCurrentBalance(BigDecimal.ZERO);
+        balance.setAuthorizationBalance(BigDecimal.ZERO);
+        balance.setCreatedAt(ZonedDateTime.now());
+        balance.setUpdatedAt(ZonedDateTime.now());
+        balance.setVersion(0L);
+        balanceRepository.save(balance);
+        balanceAuditService.snapshotBalanceAudit(account);
+    }
 
     @Transactional(readOnly = true)
     public BalanceDto getBalance(Long balanceId) {
@@ -42,7 +64,7 @@ public class BalanceService {
         balance.setCurrentBalance(updatedBalance);
 
         Balance savedBalance = balanceRepository.save(balance);
-
+        balanceAuditService.snapshotBalanceAudit(savedBalance.getAccount());
         log.info("Balance with id: {} updated", balanceId);
         return balanceMapper.toDto(savedBalance);
     }
@@ -56,5 +78,11 @@ public class BalanceService {
     private Balance loadBalanceOrThrow(Long balanceId) {
         return balanceRepository.findById(balanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Balance with id: " + balanceId + " not found"));
+    }
+    private void checkBalanceIsExist(Account account) {
+        Optional<Balance> existBalance = balanceRepository.findByAccount(account);
+        existBalance.ifPresent(balance -> {
+            throw new RuntimeException("This account already have balance");
+        });
     }
 }

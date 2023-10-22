@@ -6,8 +6,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/V002__account-service_balance.sql
   - include:
-      file: db/changelog/changeset/V004__requests.sql
+      file: db/changelog/changeset/V004__account-service_balance_audit.sql
   - include:
-      file: db/changelog/changeset/V005__requests_addContextAndScheduledAt.sql
+      file: db/changelog/changeset/V005__requests.sql
   - include:
-      file: db/changelog/changeset/V006__request_task.sql
+      file: db/changelog/changeset/V006__requests_addContextAndScheduledAt.sql
+  - include:
+      file: db/changelog/changeset/V007__request_task.sql
