@@ -37,6 +37,8 @@ class BalanceServiceTest {
     private AccountRepository accountRepository;
     @Mock
     private BalanceRepository balanceRepository;
+    @Mock
+    private BalanceAuditService balanceAuditService;
     @Spy
     private AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
     @Spy

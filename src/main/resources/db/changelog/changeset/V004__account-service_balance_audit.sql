@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS balance_audit;
 CREATE TABLE balance_audit (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     account_id BIGINT REFERENCES account(id),

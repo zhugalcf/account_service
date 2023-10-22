@@ -28,5 +28,4 @@ public class BalanceController {
     public BalanceDto updateBalance(@RequestBody @Valid UpdateBalanceDto updateBalanceDto, @PathVariable Long balanceId) {
         return balanceService.updateBalance(updateBalanceDto, balanceId);
     }
-<<<<<<< HEAD
 }
