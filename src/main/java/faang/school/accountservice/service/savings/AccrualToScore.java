@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
@@ -72,19 +74,23 @@ public class AccrualToScore {
     }
 
     private List<SavingsAccount> getAccount(List<Long> listId) {
-        return savingsAccountRepository.findAllById(listId);
+        return checkTime(savingsAccountRepository.findAllById(listId));
     }
 
-    public Boolean run(List<SavingsAccount> accounts, Map<Long, Float> map, LocalDateTime newTime, int check) {
+    private List<SavingsAccount> checkTime(List<SavingsAccount> accounts) {
+        return accounts.stream().filter(time -> time.getLastTimeOfAccrual().isBefore(checkTime)).toList();
+    }
+
+    public void run(List<SavingsAccount> accounts, Map<Long, Float> map, LocalDateTime newTime, int check) {
         List<SavingsAccount> checkAccounts = null;
         if (mapThread.containsKey(check)) {
             mapThread.put(check, mapThread.get(check) + 1);
         } else {
             mapThread.put(check, 0);
-            checkAccounts = accounts.stream().filter(time -> time.getLastTimeOfAccrual().isBefore(checkTime)).toList();
+            checkAccounts = checkTime(accounts);
             if (checkAccounts.isEmpty()) {
                 mapThread.remove(check);
-                return true;
+                return;
             }
         }
         try {
@@ -111,13 +117,12 @@ public class AccrualToScore {
                 if (mapThread.get(check) >= 3) {
                     mapThread.remove(check);
                     log.error(repeat.toString());
-                    return true;
+                    return;
                 }
                 run(repeat, map, newTime, check);
             }
         }
         mapThread.remove(check);
-        return true;
     }
 
     private BigDecimal calculatePercentages(SavingsAccount account, Map<Long, Float> map, List<Long> tariffs) {
@@ -131,22 +136,14 @@ public class AccrualToScore {
         return amount;
     }
 
-    private Boolean accrual(List<SavingsAccount> list, Map<Long, Float> map, LocalDateTime newTime) {
+    private void accrual(List<SavingsAccount> list, Map<Long, Float> map, LocalDateTime newTime) {
         if (list.size() <= packetSizeForStream) {
             run(list, map, newTime, repeatCheck.incrementAndGet());
         } else {
-            List<Future<Boolean>> futures = new ArrayList<>();
             for (List<SavingsAccount> subs : subList(list, packetSizeForStream)) {
-                futures.add(accrualExecutor.submit(() -> run(subs, map, newTime, repeatCheck.incrementAndGet())));
-            }
-            for (Future<Boolean> future : futures) {
-                try {
-                    future.get();
-                } catch (ExecutionException | InterruptedException ignored) {
-                }
+                accrualExecutor.submit(() -> run(subs, map, newTime, repeatCheck.incrementAndGet()));
             }
         }
-        return true;
     }
 
     private <T> List<List<T>> subList(List<T> list, int range) {
