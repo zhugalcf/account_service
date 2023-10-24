@@ -2,6 +2,7 @@ package faang.school.accountservice.service;
 
 import faang.school.accountservice.entity.Request;
 import faang.school.accountservice.enums.RequestHandler;
+import faang.school.accountservice.enums.RequestStatus;
 import faang.school.accountservice.exception.NotFoundException;
 import faang.school.accountservice.handlers.RequestTaskHandler;
 import faang.school.accountservice.model.RequestTask;
@@ -41,11 +42,32 @@ public class RequestExecutorService {
                     .filter(h -> h.getHandlerId() == requestHandler)
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Request with ID " + requestId + "does not have all need handlers"));
+            Optional<RequestTask> requestTask = requestTasks.stream().filter(task -> task.getHandler() == requestHandler).findFirst();
+            if (!requestTask.isPresent()) {
+                throw new NotFoundException("Request with ID " + requestId + "does not have request task: " + requestHandler);
+            }
+            RequestTask task = requestTask.get();
 
-            handler.execute(request, contextMap);
+            try {
+                handler.execute(request, contextMap);
+                if(RequestHandler.SEND_NOTIFICATION == requestHandler){
+                    request.setStatus(RequestStatus.EXECUTED);
+                } else {
+                    request.setStatus(RequestStatus.TODO);
+                }
+                task.setStatus(RequestStatus.EXECUTED);
+            } catch (Exception e) {
+                request.setStatus(RequestStatus.TO_RETRY);
+                task.setStatus(RequestStatus.TO_RETRY);
+                return;
+            } finally {
+                request.setContext(contextMap.toString());
+                requestRepository.save(request);
+                requestTaskRepository.save(task);
+            }
 
 
-            //сохранять изм в таблицу и обработчки ошибок и ретрай и балбалаблаа
+            //ретрай
             // до дейлика успеть сдлеать задачи по ньюс фид
             // концептуально доделай уже без тестов основной функицонл
         }
