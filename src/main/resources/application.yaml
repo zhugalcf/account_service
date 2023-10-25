@@ -44,3 +44,8 @@ user-service:
 account-generation:
   amountToGenerate: 500
   retryDelay: 3000
+
+account-executor:
+  unique-batch: 100
+  thread-pool-size: 5
+  thread-queue: 100

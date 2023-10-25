@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,8 +26,8 @@ public class RequestExecutorService {
     private final RequestRepository requestRepository;
     private final RequestTaskRepository requestTaskRepository;
 
-    public void execute(Long requestId) {
-        Request request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Request with ID " + requestId + " does not exist"));
+    public void execute(UUID requestId) {
+        Request request = (Request) requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Request with ID " + requestId + " does not exist"));
         Optional<List<RequestTask>> requestTasksOptional = requestTaskRepository.findAllByRequestId(requestId);
         List<RequestTask> requestTasks = requestTasksOptional.orElseThrow(() -> new NotFoundException("Request with ID " + requestId + " does not have request tasks"));
 
@@ -35,7 +36,6 @@ public class RequestExecutorService {
                         .anyMatch(requestHandler -> requestHandler == handler.getHandlerId()))
                 .collect(Collectors.toList());
 
-
         Map<String, Object> contextMap = new HashMap<>();
         for (RequestHandler requestHandler : RequestHandler.values()) {
             RequestTaskHandler<String, Object> handler = handlers.stream()
@@ -43,11 +43,13 @@ public class RequestExecutorService {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Request with ID " + requestId + "does not have all need handlers"));
             Optional<RequestTask> requestTask = requestTasks.stream().filter(task -> task.getHandler() == requestHandler).findFirst();
-            if (!requestTask.isPresent()) {
+            if (requestTask.isEmpty()) {
                 throw new NotFoundException("Request with ID " + requestId + "does not have request task: " + requestHandler);
             }
             RequestTask task = requestTask.get();
-
+            if (task.getStatus() == RequestStatus.EXECUTED) {
+                continue;
+            }
             try {
                 handler.execute(request, contextMap);
                 if(RequestHandler.SEND_NOTIFICATION == requestHandler){
@@ -57,19 +59,26 @@ public class RequestExecutorService {
                 }
                 task.setStatus(RequestStatus.EXECUTED);
             } catch (Exception e) {
-                request.setStatus(RequestStatus.TO_RETRY);
-                task.setStatus(RequestStatus.TO_RETRY);
+                Integer retryCount = (Integer) contextMap.get("retry");
+                if (retryCount != null) {
+                    retryCount++;
+                } else {
+                    retryCount = 1;
+                }
+                contextMap.put("retry", retryCount);
+                if (retryCount == 5) {
+                    request.setStatus(RequestStatus.CANCELLED);
+                    task.setStatus(RequestStatus.CANCELLED);
+                } else {
+                    request.setStatus(RequestStatus.TO_RETRY);
+                    task.setStatus(RequestStatus.TO_RETRY);
+                }
                 return;
             } finally {
                 request.setContext(contextMap.toString());
                 requestRepository.save(request);
                 requestTaskRepository.save(task);
             }
-
-
-            //ретрай
-            // до дейлика успеть сдлеать задачи по ньюс фид
-            // концептуально доделай уже без тестов основной функицонл
         }
     }
 }
