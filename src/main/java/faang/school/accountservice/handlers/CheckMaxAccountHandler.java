@@ -18,7 +18,7 @@ public class CheckMaxAccountHandler implements RequestTaskHandler<String, Object
     private final AccountRepository accountRepository;
     @Override
     public Map<String, Object> execute(Request request, Map<String, Object> context) {
-        Optional<Account> account = Optional.ofNullable(accountRepository.findByOwnerId(request.getUserId()).orElseThrow(() -> new AlreadyExistException("User with ID " + request.getUserId() + "already have account")));
+        Optional<Account> account = Optional.ofNullable(accountRepository.findByOwner_Id(request.getUserId()).orElseThrow(() -> new AlreadyExistException("User with ID " + request.getUserId() + "already have account")));
         return context;
     }
 

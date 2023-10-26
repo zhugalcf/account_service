@@ -27,8 +27,8 @@ public class RequestExecutorService {
     private final RequestTaskRepository requestTaskRepository;
 
     public void execute(UUID requestId) {
-        Request request = (Request) requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Request with ID " + requestId + " does not exist"));
-        Optional<List<RequestTask>> requestTasksOptional = requestTaskRepository.findAllByRequestId(requestId);
+        Request request = (Request) requestRepository.findByIdempotentToken(requestId).orElseThrow(() -> new NotFoundException("Request with ID " + requestId + " does not exist"));
+        Optional<List<RequestTask>> requestTasksOptional = requestTaskRepository.findAllByRequest_IdempotentToken(requestId);
         List<RequestTask> requestTasks = requestTasksOptional.orElseThrow(() -> new NotFoundException("Request with ID " + requestId + " does not have request tasks"));
 
         List<RequestTaskHandler<String, Object>> filteredHandlers = handlers.stream()

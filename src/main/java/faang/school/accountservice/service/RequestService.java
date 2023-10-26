@@ -9,7 +9,5 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestService {
-    private final RequestRepository requestRepository;
-
 
 }

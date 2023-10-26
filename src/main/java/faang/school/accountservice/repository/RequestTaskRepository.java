@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface RequestTaskRepository extends JpaRepository<RequestTask, Long> {
-    Optional<List<RequestTask>> findAllByRequestId(UUID requestId);
+    Optional<List<RequestTask>> findAllByRequest_IdempotentToken(UUID requestId);
 }
